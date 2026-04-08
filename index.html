@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- مكتبة Tailwind CSS للتصميم -->
+    <!-- مكتبة Tailwind CSS للتصميم (تتطلب إنترنت) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- مكتبة الأيقونات FontAwesome -->
@@ -61,46 +61,53 @@
                 <span class="sm:hidden">الأكاديمية</span>
             </div>
             
-            <!-- قوائم الديسكتوب -->
-            <!-- 1. قوائم قسم مبادئ الشبكات -->
-            <div id="networks-nav-links" class="hidden md:hidden gap-6 font-semibold items-center nav-group-desktop">
-                <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
-                <button onclick="showPage('net-intro-page', this)" class="nav-link net-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مفهوم الشبكة</button>
-                <button onclick="showPage('net-comp-page', this)" class="nav-link net-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">مكونات الشبكة</button>
-                <button onclick="showPage('net-types-page', this)" class="nav-link net-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">أنواع الشبكات</button>
-            </div>
+            <div class="flex items-center gap-4">
+                <!-- قوائم الديسكتوب -->
+                <!-- 1. قوائم قسم مبادئ الشبكات -->
+                <div id="networks-nav-links" class="hidden gap-6 font-semibold items-center nav-group-desktop">
+                    <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
+                    <button onclick="showPage('net-intro-page', this)" class="nav-link net-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مفهوم الشبكة</button>
+                    <button onclick="showPage('net-comp-page', this)" class="nav-link net-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">مكونات الشبكة</button>
+                    <button onclick="showPage('net-types-page', this)" class="nav-link net-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">أنواع الشبكات</button>
+                </div>
 
-            <!-- 2. قوائم قسم الأمان في الشبكات -->
-            <div id="security-nav-links" class="hidden md:hidden gap-6 font-semibold items-center nav-group-desktop">
-                <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
-                <button onclick="showPage('sec-intro-page', this)" class="nav-link sec-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مفهوم الأمان</button>
-                <button onclick="showPage('sec-threats-page', this)" class="nav-link sec-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">التهديدات</button>
-                <button onclick="showPage('sec-solutions-page', this)" class="nav-link sec-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">الحلول الأمنية</button>
-            </div>
+                <!-- 2. قوائم قسم الأمان في الشبكات -->
+                <div id="security-nav-links" class="hidden gap-6 font-semibold items-center nav-group-desktop">
+                    <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
+                    <button onclick="showPage('sec-intro-page', this)" class="nav-link sec-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مفهوم الأمان</button>
+                    <button onclick="showPage('sec-threats-page', this)" class="nav-link sec-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">التهديدات</button>
+                    <button onclick="showPage('sec-solutions-page', this)" class="nav-link sec-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">الحلول الأمنية</button>
+                </div>
 
-            <!-- 3. قوائم قسم OSI -->
-            <div id="osi-nav-links" class="hidden md:hidden gap-6 font-semibold items-center nav-group-desktop">
-                <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
-                <button onclick="showPage('osi-intro-page', this)" class="nav-link osi-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مقدمة</button>
-                <button onclick="showPage('osi-layers-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">طبقات OSI</button>
-                <button onclick="showPage('osi-encap-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">التغليف</button>
-                <button onclick="showPage('osi-comp-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">مقارنات</button>
-            </div>
+                <!-- 3. قوائم قسم OSI -->
+                <div id="osi-nav-links" class="hidden gap-6 font-semibold items-center nav-group-desktop">
+                    <button onclick="goHome()" class="text-slate-300 hover:text-white transition ml-4 border-l border-slate-600 pl-4"><i class="fas fa-home"></i> الرئيسية</button>
+                    <button onclick="showPage('osi-intro-page', this)" class="nav-link osi-nav text-secondary border-b-2 border-secondary pb-1 transition outline-none">مقدمة</button>
+                    <button onclick="showPage('osi-layers-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">طبقات OSI</button>
+                    <button onclick="showPage('osi-encap-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">التغليف</button>
+                    <button onclick="showPage('osi-comp-page', this)" class="nav-link osi-nav hover:text-secondary pb-1 transition outline-none border-b-2 border-transparent">مقارنات</button>
+                </div>
 
-            <!-- 4. زر العودة للأقسام غير المكتملة -->
-            <div id="general-desktop-nav" class="hidden md:hidden font-semibold nav-group-desktop">
-                <button onclick="goHome()" class="text-slate-300 hover:text-white transition"><i class="fas fa-home ml-1"></i> العودة للرئيسية</button>
-            </div>
-            
-            <!-- قوائم الجوال -->
-            <div id="mobile-nav-container" class="md:hidden hidden gap-2 items-center">
-                <button onclick="goHome()" class="bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 outline-none"><i class="fas fa-home"></i></button>
-                <select id="mobile-select" onchange="showPage(this.value, null)" class="bg-slate-800 text-white border border-slate-700 rounded p-2 outline-none text-sm w-36"></select>
-            </div>
-            
-            <!-- زر الرئيسية للموبايل للأقسام الفارغة -->
-            <div id="general-mobile-nav" class="hidden md:hidden">
-                <button onclick="goHome()" class="bg-slate-800 text-white border border-slate-700 rounded px-4 py-2 outline-none text-sm"><i class="fas fa-home ml-1"></i> الرئيسية</button>
+                <!-- 4. زر العودة للأقسام غير المكتملة -->
+                <div id="general-desktop-nav" class="hidden font-semibold nav-group-desktop">
+                    <button onclick="goHome()" class="text-slate-300 hover:text-white transition"><i class="fas fa-home ml-1"></i> العودة للرئيسية</button>
+                </div>
+                
+                <!-- قوائم الجوال -->
+                <div id="mobile-nav-container" class="hidden gap-2 items-center">
+                    <button onclick="goHome()" class="bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 outline-none"><i class="fas fa-home"></i></button>
+                    <select id="mobile-select" onchange="showPage(this.value, null)" class="bg-slate-800 text-white border border-slate-700 rounded p-2 outline-none text-sm w-36"></select>
+                </div>
+                
+                <!-- زر الرئيسية للموبايل للأقسام الفارغة -->
+                <div id="general-mobile-nav" class="hidden">
+                    <button onclick="goHome()" class="bg-slate-800 text-white border border-slate-700 rounded px-4 py-2 outline-none text-sm"><i class="fas fa-home ml-1"></i> الرئيسية</button>
+                </div>
+
+                <!-- زر ملء الشاشة -->
+                <button onclick="toggleFullScreen()" class="text-white hover:text-secondary transition outline-none w-10 h-10 flex items-center justify-center bg-slate-800 rounded-full border border-slate-700" title="ملء الشاشة">
+                    <i class="fas fa-expand" id="fullscreen-icon"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -166,7 +173,7 @@
         </div>
 
         <!-- ==========================================
-             القسم الأول: مبادئ شبكات الحاسب
+             القسم الأول: مبادئ شبكات الحاسب (مكتمل)
         =========================================== -->
         <div id="section-networks" class="main-section hidden">
             <!-- صفحة 1: المفهوم والفوائد -->
@@ -190,6 +197,7 @@
                             </div>
                         </div>
                         <div class="md:w-1/2 p-4 h-64 md:h-auto">
+                            <!-- صورة من الإنترنت لتمثيل المفهوم -->
                             <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80" alt="شبكة حاسب" class="w-full h-full object-cover rounded-2xl shadow-inner">
                         </div>
                     </div>
@@ -246,6 +254,7 @@
                             <div class="bg-white rounded-3xl shadow-md border-t-8 border-indigo-500 overflow-hidden hover-scale relative">
                                 <div class="absolute top-4 right-4 bg-indigo-100 text-indigo-600 font-black w-8 h-8 rounded-full flex items-center justify-center">2</div>
                                 <div class="p-8 pt-12 text-center border-b border-slate-100">
+                                    <!-- الصور المرفوعة للمبدل والموجه -->
                                     <div class="flex justify-center gap-4 mb-4 h-16">
                                         <img src="img289.jpg" alt="المبدل" class="h-full object-contain rounded drop-shadow-sm mix-blend-multiply" title="المبدل - Switch">
                                         <img src="img287.jpg" alt="الموجه" class="h-full object-contain rounded drop-shadow-sm mix-blend-multiply" title="الموجه - Router">
@@ -267,6 +276,7 @@
                             <div class="bg-white rounded-3xl shadow-md border-t-8 border-emerald-500 overflow-hidden hover-scale relative">
                                 <div class="absolute top-4 right-4 bg-emerald-100 text-emerald-600 font-black w-8 h-8 rounded-full flex items-center justify-center">3</div>
                                 <div class="p-8 pt-12 text-center border-b border-slate-100">
+                                    <!-- الصور المرفوعة للكابلات -->
                                     <div class="flex justify-center gap-4 mb-4 h-16">
                                         <img src="img285.jpg" alt="كابلات نحاسية" class="h-full object-contain rounded drop-shadow-sm mix-blend-multiply" title="كابلات الشبكة النحاسية">
                                         <img src="img444.jpg" alt="ألياف ضوئية" class="h-full object-contain rounded drop-shadow-sm mix-blend-multiply" title="الألياف الضوئية">
@@ -991,20 +1001,20 @@
          السكربتات والوظائف البرمجية
     =========================================== -->
     <script>
+        // إعداد وضبط القوائم
+        function resetNavbars() {
+            document.querySelectorAll('.nav-group-desktop').forEach(nav => {
+                nav.className = 'hidden gap-6 font-semibold items-center nav-group-desktop';
+            });
+            document.getElementById('mobile-nav-container').className = 'hidden md:hidden gap-2 items-center';
+            document.getElementById('general-mobile-nav').className = 'hidden md:hidden';
+        }
+
         // دالة العودة للرئيسية
         function goHome() {
             document.querySelectorAll('.main-section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById('portal-dashboard').classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-group-desktop').forEach(nav => {
-                nav.classList.add('hidden');
-                nav.classList.remove('md:flex', 'md:block');
-            });
-            document.getElementById('mobile-nav-container').classList.add('hidden');
-            document.getElementById('mobile-nav-container').classList.remove('flex');
-            document.getElementById('general-mobile-nav').classList.add('hidden');
-            document.getElementById('general-mobile-nav').classList.remove('block');
-            
+            resetNavbars();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1017,52 +1027,42 @@
             if(targetSection) targetSection.classList.remove('hidden');
 
             const mobileSelect = document.getElementById('mobile-select');
+            resetNavbars();
             
             if(sectionId === 'section-osi') {
-                document.getElementById('osi-nav-links').classList.remove('hidden');
-                document.getElementById('osi-nav-links').classList.add('md:flex');
-                
+                document.getElementById('osi-nav-links').className = 'hidden md:flex gap-6 font-semibold items-center nav-group-desktop';
                 mobileSelect.innerHTML = `
                     <option value="osi-intro-page">مقدمة</option>
                     <option value="osi-layers-page">الطبقات</option>
                     <option value="osi-encap-page">التغليف</option>
                     <option value="osi-comp-page">مقارنات</option>
                 `;
-                document.getElementById('mobile-nav-container').classList.remove('hidden');
-                document.getElementById('mobile-nav-container').classList.add('flex');
+                document.getElementById('mobile-nav-container').className = 'flex md:hidden gap-2 items-center w-full sm:w-auto';
                 showPage('osi-intro-page', document.querySelectorAll('.osi-nav')[0]);
                 
             } else if (sectionId === 'section-networks') {
-                document.getElementById('networks-nav-links').classList.remove('hidden');
-                document.getElementById('networks-nav-links').classList.add('md:flex');
-                
+                document.getElementById('networks-nav-links').className = 'hidden md:flex gap-6 font-semibold items-center nav-group-desktop';
                 mobileSelect.innerHTML = `
                     <option value="net-intro-page">مفهوم الشبكة</option>
                     <option value="net-comp-page">مكونات الشبكة</option>
                     <option value="net-types-page">أنواع الشبكات</option>
                 `;
-                document.getElementById('mobile-nav-container').classList.remove('hidden');
-                document.getElementById('mobile-nav-container').classList.add('flex');
+                document.getElementById('mobile-nav-container').className = 'flex md:hidden gap-2 items-center w-full sm:w-auto';
                 showPage('net-intro-page', document.querySelectorAll('.net-nav')[0]);
 
             } else if (sectionId === 'section-security') {
-                document.getElementById('security-nav-links').classList.remove('hidden');
-                document.getElementById('security-nav-links').classList.add('md:flex');
-                
+                document.getElementById('security-nav-links').className = 'hidden md:flex gap-6 font-semibold items-center nav-group-desktop';
                 mobileSelect.innerHTML = `
                     <option value="sec-intro-page">مفهوم الأمان</option>
                     <option value="sec-threats-page">التهديدات</option>
                     <option value="sec-solutions-page">الحلول الأمنية</option>
                 `;
-                document.getElementById('mobile-nav-container').classList.remove('hidden');
-                document.getElementById('mobile-nav-container').classList.add('flex');
+                document.getElementById('mobile-nav-container').className = 'flex md:hidden gap-2 items-center w-full sm:w-auto';
                 showPage('sec-intro-page', document.querySelectorAll('.sec-nav')[0]);
 
             } else {
-                document.getElementById('general-desktop-nav').classList.remove('hidden');
-                document.getElementById('general-desktop-nav').classList.add('md:block');
-                document.getElementById('general-mobile-nav').classList.remove('hidden');
-                document.getElementById('general-mobile-nav').classList.add('block');
+                document.getElementById('general-desktop-nav').className = 'hidden md:block font-semibold nav-group-desktop';
+                document.getElementById('general-mobile-nav').className = 'block md:hidden';
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
