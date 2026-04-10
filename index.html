@@ -75,7 +75,7 @@
             .rich-editor th, .rich-display th { @apply bg-tvtclight/20 p-3 md:p-4 border-b border-slate-300 font-black text-sm md:text-lg text-tvtcmain; }
             .rich-editor td, .rich-display td { @apply p-3 md:p-4 border-b border-slate-300 font-bold text-slate-800 text-xs md:text-base; }
             
-            /* دعم تصغير الصور وتكبيرها */
+            /* دعم تصغير الصور وتكبيرها وتحريكها */
             .rich-display img:not([style*="resize"]) { @apply max-w-full h-auto rounded-xl shadow-md my-4 object-contain inline-block border border-slate-200 cursor-move; }
 
             .custom-grid-container { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 my-6 md:my-8 text-center items-stretch; }
@@ -139,7 +139,6 @@
                 <header class="glass-card p-6 md:p-16 text-center border-t-[8px] border-tvtcmain mb-8 md:mb-12 relative overflow-hidden bg-white/70">
                     <div class="relative z-10 w-full">
                         <div id="home-rich-content" class="w-full mx-auto rich-display bg-transparent border-none shadow-none text-center h-auto min-h-0 p-0">
-                            <!-- مؤشر تحميل للواجهة -->
                             <div class="py-12 text-tvtclight opacity-50"><i class="fas fa-circle-notch fa-spin text-5xl mb-4"></i></div>
                         </div>
                     </div>
@@ -267,12 +266,12 @@
                             <div style="flex: 1; min-width: 300px;">
                                 <h2>🏗️ المعمارية التقنية (Architecture)</h2>
                                 <div style="background: rgba(255,255,255,0.6); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,98,122,0.15);">
-                                    <h3 style="font-size: 1.25rem; margin-top: 0; color: #004d60;">👥 نظير إلى نظير (P2P)</h3>
-                                    <p style="font-size: 0.875rem; font-weight: bold; color: #334155; line-height: 1.8; text-align: justify; margin-bottom: 0;">بنية شبكية موزعة تتصل فيها الأجهزة مباشرة دون خادم مركزي، كل جهاز يسمى "نظير" ويعمل كعميل وخادم.</p>
+                                    <h3 style="font-size: 1.5rem; margin-top: 0; color: #004d60;">👥 نظير إلى نظير (P2P)</h3>
+                                    <p style="font-size: 1rem; font-weight: bold; color: #334155; line-height: 1.8; text-align: justify; margin-bottom: 0;">بنية شبكية موزعة تتصل فيها الأجهزة مباشرة دون خادم مركزي، كل جهاز يسمى "نظير" ويعمل كعميل وخادم.</p>
                                 </div>
                                 <div style="background: rgba(255,255,255,0.6); padding: 1.5rem; border-radius: 1rem; border: 1px solid rgba(0,98,122,0.15);">
-                                    <h3 style="font-size: 1.25rem; margin-top: 0; color: #00627a;">🗄️ العميل والخادم (Client/Server)</h3>
-                                    <p style="font-size: 0.875rem; font-weight: bold; color: #334155; line-height: 1.8; text-align: justify; margin-bottom: 0;">بنية تعتمد على وجود خادم مركزي يقدم خدمات وموارد، وعملاء يطلبون هذه الخدمات وتتم معالجتها بالخادم.</p>
+                                    <h3 style="font-size: 1.5rem; margin-top: 0; color: #00627a;">🗄️ العميل والخادم (Client/Server)</h3>
+                                    <p style="font-size: 1rem; font-weight: bold; color: #334155; line-height: 1.8; text-align: justify; margin-bottom: 0;">بنية تعتمد على وجود خادم مركزي يقدم خدمات وموارد، وعملاء يطلبون هذه الخدمات وتتم معالجتها بالخادم.</p>
                                 </div>
                             </div>
                             <div style="flex: 1; min-width: 300px;">
@@ -804,7 +803,7 @@
             }
 
             const mobileTabs = document.getElementById('mobile-tabs');
-            if(mobileTabs) mobileTabs.innerHTML = allTabs.map((t, i) => `<button onclick="window.loadTabContent(${i})" id="mtab-${i}" class="px-5 py-2.5 whitespace-nowrap border-b-[6px] font-black text-xs md:text-sm transition bg-white/80 rounded-t-xl shadow-sm ${i===0?'border-tvtcmain text-tvtcdark':'border-transparent text-slate-600 hover:text-tvtcmain'}">${t}</button>`).join('');
+            if(mobileTabs) mobileTabs.innerHTML = allTabs.map((t, i) => `<button onclick="window.loadTabContent(${i})" id="mtab-${i}" class="px-6 py-4 whitespace-nowrap border-b-[6px] font-black text-base transition bg-white/90 rounded-t-2xl shadow-sm ${i===0?'border-blue-600 text-blue-800':'border-transparent text-slate-600 hover:text-blue-600'}">${t}</button>`).join('');
 
             const subNav = document.getElementById(`subnav-${key}`);
             if(subNav) {
@@ -824,17 +823,17 @@
             const area = document.getElementById('content-area'); if(!area) return;
             const s = CORE_DATA[window.activeSection];
             
-            document.querySelectorAll('[id^="mtab-"]').forEach(t => { t.classList.remove('border-tvtcmain', 'text-tvtcdark'); t.classList.add('border-transparent', 'text-slate-600'); });
+            document.querySelectorAll('[id^="mtab-"]').forEach(t => { t.classList.remove('border-blue-600', 'text-blue-800'); t.classList.add('border-transparent', 'text-slate-600'); });
             document.querySelectorAll('[id^="stab-"]').forEach(t => t.classList.remove('active'));
             
-            const activeMTab = document.getElementById(`mtab-${index}`); if(activeMTab) activeMTab.classList.add('border-tvtcmain', 'text-tvtcdark');
+            const activeMTab = document.getElementById(`mtab-${index}`); if(activeMTab) activeMTab.classList.add('border-blue-600', 'text-blue-800');
             const activeSTab = document.getElementById(`stab-${index}`); if(activeSTab) activeSTab.classList.add('active');
 
             area.classList.remove('page-enter'); void area.offsetWidth; area.classList.add('page-enter');
 
             if (index < s.content.length) {
                 let coreId = `core_${window.activeSection}_${index}`;
-                if(window.allArticlesMap && window.allArticlesMap[coreId]) area.innerHTML = `<div class="glass-card rich-display h-auto border-t-[8px] border-tvtcmain bg-white/70">${window.allArticlesMap[coreId].htmlContent}</div>`;
+                if(window.allArticlesMap && window.allArticlesMap[coreId]) area.innerHTML = `<div class="glass-card rich-display h-auto border-t-[8px] border-blue-500 bg-white/70">${window.allArticlesMap[coreId].htmlContent}</div>`;
                 else area.innerHTML = s.content[index];
             } else {
                 const cloudIdx = index - s.content.length; let cloudArticlesForThisSection = [];
@@ -907,9 +906,7 @@
                     if(hr && data.htmlContent) hr.innerHTML = data.htmlContent;
                 } else {
                     if(hr) hr.innerHTML = `
-                        <img src="tvtc.png" alt="TVTC Logo" style="height: 100px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); object-fit: contain;">
-                        <h1 class="text-3xl md:text-7xl font-black mb-4 md:mb-8 text-tvtcdark tracking-tight drop-shadow-md">شبكات <span class="text-tvtcteal">الحاسب الآلي</span></h1>
-                        <p class="text-sm md:text-2xl text-tvtcmain max-w-4xl mx-auto font-bold leading-relaxed drop-shadow-sm">المرجع الأكاديمي الشامل لمهندسي الشبكات، يغطي المبادئ، الأمان، بروتوكولات التوجيه، والمعايير الفيزيائية.</p>`;
+                        <div class="py-12 text-tvtclight opacity-50"><i class="fas fa-circle-notch fa-spin text-5xl mb-4"></i></div>`;
                 }
             } catch(e) { console.error("Error fetching articles."); }
         }
@@ -953,9 +950,12 @@
                     <div class="glass-card p-6 md:p-10 border-t-[8px] border-tvtcteal relative bg-white/90 w-full">
                         
                         <div class="bg-white/50 p-6 md:p-8 rounded-3xl border border-slate-200 shadow-inner mb-10">
-                            <h3 class="text-xl md:text-2xl font-black mb-6 text-slate-800"><i class="fas fa-home text-blue-500"></i> تعديل واجهة الموقع الرئيسية</h3>
+                            <h3 class="text-xl md:text-2xl font-black mb-6 text-slate-800"><i class="fas fa-home text-blue-500"></i> تصميم وتعديل واجهة الموقع الرئيسية</h3>
                             <div class="editor-toolbar w-full mb-0 rounded-b-none border-b-0 flex-col md:flex-row items-start md:items-center">
                                 <div class="flex flex-wrap gap-1.5 items-center w-full">
+                                    <button onclick="window.execCmd('cms-home-content', 'undo')" title="تراجع"><i class="fas fa-undo"></i></button>
+                                    <button onclick="window.execCmd('cms-home-content', 'redo')" title="إعادة"><i class="fas fa-redo"></i></button>
+                                    <div class="w-px h-5 bg-slate-300 mx-1 hidden md:block"></div>
                                     <select onchange="window.execCmd('cms-home-content', 'fontName', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="نوع الخط">
                                         <option value="">نوع الخط</option><option value="Cairo">Cairo</option><option value="Tajawal">Tajawal</option><option value="Almarai">Almarai</option><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option>
                                     </select>
@@ -968,12 +968,13 @@
                                         <option value="">حجم</option><option value="3">عادي</option><option value="5">كبير</option><option value="6">أكبر</option><option value="7">ضخم</option>
                                     </select>
                                     <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">نص:</span><input type="color" onchange="window.execCmd('cms-home-content', 'foreColor', this.value)" class="cursor-pointer" title="لون النص"></div>
+                                    <div class="w-px h-5 bg-slate-300 mx-1 hidden md:block"></div>
                                     <button onclick="window.insertResizableImage('cms-home-content')" title="إدراج صورة برابط" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 ml-auto"><i class="fas fa-link"></i> صورة رابط</button>
                                     <button onclick="window.showEmojiPicker('cms-home-content')" title="إدراج أيقونات وإيموجي" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-icons"></i> أيقونات</button>
                                 </div>
                             </div>
                             <div id="cms-home-content" contenteditable="true" class="rich-editor w-full shadow-inner bg-white/70 min-h-[250px] rounded-t-none border-t-0 mb-6">اكتب الترحيب ووصف الموقع هنا...</div>
-                            <button onclick="window.saveHomepageSettings()" class="bg-tvtcmain hover:bg-tvtcdark text-white px-6 py-3 rounded-xl font-bold text-sm md:text-base shadow-sm transition w-full md:w-auto">حفظ إعدادات الرئيسية</button>
+                            <button onclick="window.saveHomepageSettings()" class="bg-tvtcmain hover:bg-tvtcdark text-white px-6 py-3 rounded-xl font-bold text-sm md:text-base shadow-sm transition w-full md:w-auto"><i class="fas fa-check-circle ml-1"></i> حفظ وتحديث واجهة الرئيسية</button>
                         </div>
 
                         <h3 class="text-2xl md:text-3xl font-black mb-8 text-tvtcdark border-b border-slate-300 pb-4" id="cms-editor-title"><i class="fas fa-plus-circle"></i> إضافة مقال أو تعديل درس</h3>
@@ -1011,16 +1012,14 @@
                                 <button onclick="window.execCmd('cms-content', 'insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
                                 <button onclick="window.execCmd('cms-content', 'insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
                                 <button onclick="window.execCmd('cms-content', 'removeFormat')" title="مسح التنسيقات"><i class="fas fa-eraser text-red-500"></i></button>
+                                <button onclick="window.toggleImageShadow()" title="تفعيل/إلغاء ظل الصورة المحددة" class="text-slate-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-moon"></i> ظل الصورة</button>
                             </div>
                             
                             <div class="flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-200 w-full justify-center md:justify-start">
-                                <button onclick="window.showEmojiPicker('cms-content')" title="مكتبة الأيقونات" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-icons"></i> أيقونات</button>
-                                <button onclick="window.insertResizableImage('cms-content')" title="إدراج صورة برابط (قابلة للتغيير والتحجيم)" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-link"></i> صورة برابط</button>
-                                <select onchange="window.insertShape(this.value, 'cms-content'); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm">
-                                    <option value="">إدراج شكل هندسي</option><option value="square">مربع ⬛</option><option value="circle">دائرة 🟢</option><option value="rectangle">مستطيل ▬</option>
-                                </select>
-                                <button onclick="window.insertTemplate('cms-content', '3boxes')" title="إدراج 3 مربعات احترافية للعرض" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 w-full justify-center md:w-auto bg-white border border-tvtclight hover:bg-tvtclight hover:text-white rounded-lg transition"><i class="fas fa-columns"></i> كروت</button>
-                                <button onclick="window.insertTemplate('cms-content', 'table')" title="إدراج جدول منسق" class="text-orange-700 font-bold text-[10px] md:text-xs flex items-center gap-1 w-full justify-center md:w-auto bg-orange-50 border border-orange-200 hover:bg-orange-100 rounded-lg transition"><i class="fas fa-table"></i> جدول</button>
+                                <button onclick="window.showEmojiPicker('cms-content')" title="مكتبة الأيقونات" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-icons"></i> مكتبة الأيقونات</button>
+                                <button onclick="window.insertResizableImage('cms-content')" title="إدراج صورة برابط (قابلة للتغيير والتحجيم)" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-link"></i> إدراج صورة</button>
+                                <button onclick="window.insertTemplate('cms-content', '3boxes')" title="إدراج 3 مربعات احترافية للعرض" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 w-full justify-center md:w-auto bg-white border border-tvtclight hover:bg-tvtclight hover:text-white rounded-lg transition"><i class="fas fa-columns"></i> كروت جاهزة</button>
+                                <button onclick="window.insertTemplate('cms-content', 'table')" title="إدراج جدول منسق" class="text-orange-700 font-bold text-[10px] md:text-xs flex items-center gap-1 w-full justify-center md:w-auto bg-orange-50 border border-orange-200 hover:bg-orange-100 rounded-lg transition"><i class="fas fa-table"></i> جدول جاهز</button>
                             </div>
                         </div>
                         <div id="cms-content" contenteditable="true" class="rich-editor w-full shadow-inner bg-white/80">اكتب المحتوى هنا...</div>
@@ -1049,11 +1048,23 @@
                     <button onclick="window.saveQuiz()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] font-black text-xl md:text-2xl transition shadow-lg shadow-emerald-600/30"><i class="fas fa-cloud-upload-alt ml-2"></i> حفظ الاختبار سحابياً</button>
                 </div>
                 <div class="glass-card p-6 md:p-10 border-t-[8px] border-tvtcmain bg-white/90">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 border-b border-slate-300 pb-4 md:pb-5 gap-4"><h3 class="text-2xl md:text-3xl font-black text-tvtcdark">سجل الدرجات</h3><div class="flex gap-2 w-full md:w-auto"><button onclick="window.exportToExcel()" class="flex-grow md:flex-grow-0 bg-white hover:bg-emerald-50 border border-slate-300 text-emerald-700 font-bold text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl shadow-sm transition"><i class="fas fa-file-excel ml-1"></i> تحميل (Excel)</button><button onclick="window.loadRes()" class="text-tvtcmain hover:rotate-180 transition bg-white border border-slate-300 shadow-sm w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl text-lg md:text-xl shrink-0"><i class="fas fa-sync-alt"></i></button></div></div>
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 border-b border-slate-300 pb-4 md:pb-5 gap-4"><h3 class="text-2xl md:text-3xl font-black text-tvtcdark">سجل درجات الطلاب</h3><div class="flex gap-2 w-full md:w-auto"><button onclick="window.exportToExcel()" class="flex-grow md:flex-grow-0 bg-white hover:bg-emerald-50 border border-slate-300 text-emerald-700 font-bold text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl shadow-sm transition"><i class="fas fa-file-excel ml-1"></i> تحميل (Excel)</button><button onclick="window.loadRes()" class="text-tvtcmain hover:rotate-180 transition bg-white border border-slate-300 shadow-sm w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl text-lg md:text-xl shrink-0"><i class="fas fa-sync-alt"></i></button></div></div>
                     <div id="res-list" class="overflow-x-auto custom-scrollbar"><p class="text-center font-bold text-slate-500">جاري التحميل..</p></div>
                 </div>
             </div>
             `;
+            
+            if(window.allArticlesMap && window.allArticlesMap['homepage_settings']) {
+                const data = window.allArticlesMap['homepage_settings'];
+                if(data.htmlContent) {
+                    document.getElementById('cms-home-content').innerHTML = data.htmlContent;
+                }
+            } else {
+                document.getElementById('cms-home-content').innerHTML = `
+                    <img src="tvtc.png" alt="TVTC Logo" style="height: 100px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); object-fit: contain;">
+                    <h1 class="text-3xl md:text-7xl font-black mb-4 md:mb-8 text-tvtcdark tracking-tight drop-shadow-md text-center">شبكات <span class="text-tvtcteal">الحاسب الآلي</span></h1>
+                    <p class="text-sm md:text-2xl text-tvtcmain max-w-4xl mx-auto font-bold leading-relaxed drop-shadow-sm text-center">المرجع الأكاديمي الشامل لمهندسي الشبكات، يغطي المبادئ، الأمان، بروتوكولات التوجيه، والمعايير الفيزيائية.</p>`;
+            }
             
             window.loadCmsList();
         };
@@ -1090,6 +1101,7 @@
         window.insertResizableImage = (editorId) => { 
             let url = prompt("أدخل رابط الصورة (URL):"); 
             if(url) {
+                // دمج ذكي لروابط قوقل درايف لكي تظهر مباشرة
                 if (url.includes('drive.google.com/file/d/')) {
                     const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                     if (match && match[1]) url = 'https://lh3.googleusercontent.com/d/' + match[1];
@@ -1097,18 +1109,29 @@
                     const match = url.match(/id=([a-zA-Z0-9_-]+)/);
                     if (match && match[1]) url = 'https://lh3.googleusercontent.com/d/' + match[1];
                 }
-                const html = `<span style="display: inline-block; width: 300px; max-width: 100%; resize: both; overflow: hidden; border: 2px dashed #94a3b8; padding: 2px; margin: 0.5rem; border-radius: 0.5rem;"><img src="${url}" style="width: 100%; height: 100%; object-fit: contain; display: block; cursor: pointer;" alt="صورة مدرجة" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Error+Loading+Image';" /></span>&nbsp;`;
+                
+                // إدراج الصورة بدون خط متقطع، ولكن قابلة للتحجيم
+                const html = `<span style="display: inline-block; width: 400px; max-width: 100%; resize: both; overflow: hidden; padding: 0; margin: 1rem auto; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15); background-color: transparent;"><img src="${url}" style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="صورة مدرجة" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x250?text=Error+Loading+Image';" /></span>&nbsp;`;
                 window.execCmd(editorId, 'insertHTML', html);
             }
         };
 
-        window.insertShape = (type, editorId) => {
-            let html = '';
-            if(type === 'square') html = `<div style="display:inline-block; margin:10px;"><div style="width: 100px; height: 100px; background-color: #00627a; display: inline-block; resize: both; overflow: hidden; border: 2px solid #004d60; border-radius: 8px;"></div></div>&nbsp;`;
-            if(type === 'rectangle') html = `<div style="display:inline-block; margin:10px;"><div style="width: 200px; height: 100px; background-color: #29b5a8; display: inline-block; resize: both; overflow: hidden; border: 2px solid #0083a3; border-radius: 8px;"></div></div>&nbsp;`;
-            if(type === 'circle') html = `<div style="display:inline-block; margin:10px;"><div style="width: 100px; height: 100px; background-color: #4bd5c9; display: inline-block; resize: both; overflow: hidden; border-radius: 50%; border: 2px solid #29b5a8;"></div></div>&nbsp;`;
-            window.execCmd(editorId, 'insertHTML', html);
-        }
+        window.toggleImageShadow = () => {
+            let sel = window.getSelection();
+            if(sel.rangeCount > 0) {
+                let node = sel.focusNode;
+                if (node.nodeType === 3) node = node.parentNode;
+                let wrapper = node.closest('span[style*="resize"]');
+                if (!wrapper && node.tagName === 'IMG') wrapper = node.parentElement;
+                
+                if(wrapper) {
+                    if(wrapper.style.boxShadow) wrapper.style.boxShadow = '';
+                    else wrapper.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+                } else {
+                    window.toast("الرجاء تحديد (النقر على) الصورة أو المربع أولاً", "error");
+                }
+            }
+        };
 
         window.insertTemplate = (editorId, type) => {
             let html = '';
@@ -1230,6 +1253,7 @@
             document.getElementById('cms-editor-title').innerHTML = '<i class="fas fa-edit text-blue-600"></i> تعديل درس أساسي: <span class="text-slate-800">' + (article ? article.tabName : CORE_DATA[secKey].tabs[idx]) + '</span>';
             const secSelect = document.getElementById('cms-section'); if(secSelect){ secSelect.value = secKey; secSelect.disabled = true; }
             const orderInput = document.getElementById('cms-order'); if(orderInput){ orderInput.value = idx + 1; orderInput.disabled = true; }
+            document.getElementById('cms-tab-name').style.display = 'block';
             document.getElementById('cms-tab-name').value = article ? article.tabName : CORE_DATA[secKey].tabs[idx];
             document.getElementById('cms-content').innerHTML = article ? article.htmlContent : CORE_DATA[secKey].content[idx];
             document.getElementById('main-scroll-area').scrollTo({top:0, behavior:'smooth'});
@@ -1242,6 +1266,7 @@
             document.getElementById('cms-editor-title').innerHTML = '<i class="fas fa-edit text-cyan-600"></i> تعديل مقال إضافي: <span class="text-slate-800">' + obj.tabName + '</span>';
             const secSelect = document.getElementById('cms-section'); if(secSelect){ secSelect.value = obj.sectionId; secSelect.disabled = false; }
             const orderInput = document.getElementById('cms-order'); if(orderInput){ orderInput.value = obj.order || 1; orderInput.disabled = false; }
+            document.getElementById('cms-tab-name').style.display = 'block';
             document.getElementById('cms-tab-name').value = obj.tabName;
             document.getElementById('cms-content').innerHTML = obj.htmlContent;
             document.getElementById('main-scroll-area').scrollTo({top:0, behavior:'smooth'});
@@ -1252,13 +1277,13 @@
             try { await deleteDoc(doc(db, PATH, 'articles', id)); window.toast("تم الحذف بنجاح"); window.loadCmsList(); fetchCloudArticles(); } catch(e) { window.toast("خطأ في الحذف", "error"); }
         };
 
-        // -------- وظائف مكتبة الأيقونات (Emoji Picker) --------
+        // -------- وظائف مكتبة الأيقونات (Emoji Picker) الموسعة جداً --------
         window.EMOJI_BANK = {
-            "الأمن السيبراني والحماية": ["🛡️", "🔒", "🔓", "🔏", "🔐", "🔑", "🗝️", "🕵️", "👁️", "🚨", "⚠️", "🛑", "⛔", "🧱", "🦠", "👾", "🏴‍☠️", "🪪"],
-            "الشبكات والاتصالات": ["🌐", "📡", "🛰️", "📶", "🔌", "🌍", "🗺️", "🔗", "🔄", "🔀", "🕸️", "📍", "📱", "📞", "☎️", "🖥️", "💻", "🖨️"],
-            "الأجهزة والعتاد": ["💻", "🖥️", "🖨️", "🖱️", "⌨️", "🖲️", "🕹️", "💾", "💽", "💿", "📀", "🔋", "🪫", "⌚", "📷", "📸", "📟", "📠", "📺", "📻"],
-            "البيانات والمعالجة": ["📁", "📂", "🗂️", "🗄️", "📊", "📈", "📉", "📄", "📝", "🧮", "🤖", "🧠", "⚙️", "🛠️", "🔧", "⚡", "🔥", "💧", "📦"],
-            "أشكال ورموز تعليمية": ["✅", "❌", "❓", "❕", "🎓", "🏫", "🏢", "💡", "🎯", "📌", "⭐", "🏆", "🥇", "🚀", "⏳", "⏱️", "➡️", "⬅️", "⬆️", "⬇️", "↔️", "↕️", "🟢", "🔴", "🟡", "🔵", "⬛", "⬜", "▬", "⭕"]
+            "الأمن السيبراني والحماية": ["🛡️", "🔒", "🔓", "🔏", "🔐", "🔑", "🗝️", "🕵️", "👁️", "🚨", "⚠️", "🛑", "⛔", "🧱", "🦠", "👾", "🏴‍☠️", "🪪", "💣", "🧨", "🕸️", "🕷️", "🎭"],
+            "الشبكات والاتصالات والسحابة": ["🌐", "📡", "🛰️", "📶", "🔌", "🌍", "🗺️", "🔗", "🔄", "🔀", "📍", "📱", "📞", "☎️", "☁️", "🌩️", "⚡", "🗼", "🛤️", "🚦", "🚥", "📨", "📧"],
+            "الأجهزة والعتاد": ["💻", "🖥️", "🖨️", "🖱️", "⌨️", "🖲️", "🕹️", "💾", "💽", "💿", "📀", "🔋", "🪫", "⌚", "📷", "📸", "📟", "📠", "📺", "📻", "🎙️", "🎛️", "🎚️", "📲"],
+            "البيانات والمعالجة": ["📁", "📂", "🗂️", "🗄️", "📊", "📈", "📉", "📄", "📝", "🧮", "🤖", "🧠", "⚙️", "🛠️", "🔧", "🔥", "💧", "📦", "🧾", "📋", "📌", "🗑️", "🗃️"],
+            "مؤشرات ورموز تعليمية": ["✅", "❌", "❓", "❕", "🎓", "🏫", "🏢", "💡", "🎯", "📌", "⭐", "🏆", "🥇", "🚀", "⏳", "⏱️", "➡️", "⬅️", "⬆️", "⬇️", "↔️", "↕️", "🟢", "🔴", "🟡", "🔵", "⬛", "⬜", "▬", "⭕", "➕", "➖", "✖️", "➗", "💯"]
         };
 
         window.currentEmojiEditor = '';
@@ -1405,8 +1430,8 @@
             document.getElementById('q-render-area').innerHTML = q.questions.map((qu, i) => {
                 let optsHtml = '';
                 if(qu.type === 'short-answer') optsHtml = `<input type="text" class="w-full p-4 md:p-6 bg-white border border-slate-300 rounded-xl text-slate-900 font-black focus:border-tvtcmain outline-none tin text-lg shadow-inner" placeholder="اكتب إجابتك هنا..">`;
-                else if(qu.type === 'multiple-answers') optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${qu.options.map((o, j) => `<label class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-tvtcteal hover:bg-tvtclight/10 transition shadow-sm"><input type="checkbox" class="w-5 h-5 md:w-6 md:h-6 rounded border-slate-400 text-tvtcmain focus:ring-tvtcmain" value="${j}"> <span class="font-bold text-sm md:text-lg text-slate-800">${o}</span></label>`).join('')}</div>`;
-                else optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${qu.options.map((o, j) => `<div onclick="window.selectOpt(this)" class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl cursor-pointer opt-box hover:border-tvtcteal hover:bg-tvtclight/10 font-bold text-sm md:text-lg text-slate-800 transition shadow-sm" data-v="${j}">${o}</div>`).join('')}</div>`;
+                else if(qu.type === 'multiple-answers') optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">${qu.options.map((o, j) => `<label class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-tvtcteal hover:bg-tvtclight/10 transition shadow-sm"><input type="checkbox" class="w-5 h-5 md:w-6 md:h-6 rounded border-slate-400 text-tvtcmain focus:ring-tvtcmain" value="${j}"> <span class="font-bold text-sm md:text-lg text-slate-800">${o}</span></label>`).join('')}</div>`;
+                else optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">${qu.options.map((o, j) => `<div onclick="window.selectOpt(this)" class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl cursor-pointer opt-box hover:border-tvtcteal hover:bg-tvtclight/10 font-bold text-sm md:text-lg text-slate-800 transition shadow-sm" data-v="${j}">${o}</div>`).join('')}</div>`;
                 
                 return `<div class="p-6 md:p-10 bg-white border border-slate-300 rounded-2xl md:rounded-[3rem] q-entry shadow-md" data-i="${i}" data-ty="${qu.type}" data-cr="${typeof qu.correctAnswer==='object'?qu.correctAnswer.join(','):qu.correctAnswer}">
                     <div class="text-lg md:text-2xl font-black mb-6 leading-relaxed text-tvtcdark rich-display p-0 border-none bg-transparent min-h-0 h-auto inline shadow-none">${i+1}. ${qu.text}</div> ${qu.type==='multiple-answers'?'<span class="text-[10px] md:text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2 font-black align-top shadow-sm border border-blue-200">(اختيار متعدد)</span>':''}
