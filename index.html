@@ -289,12 +289,149 @@
             },
             'osi': {
                 title: 'نموذج OSI المرجعي', icon: 'fa-layer-group', color: 'tvtcteal', desc: 'تحليل معماري للطبقات السبع، عمليات التغليف، والمقارنات.',
-                tabs: ['المرجع والطبقات السبع', 'مقارنات بروتوكولات وأجهزة'],
+                tabs: ['المرجع والطبقات السبع', 'التغليف وأنواع الاتصال', 'مقارنات بروتوكولات وأجهزة'],
                 content: [
                     `<div class="rich-display glass-card border-t-[8px] border-tvtcteal">
-                        <div style="text-align: center; margin-bottom: 2rem;">
-                            <h1 style="color: #004d60; margin-bottom: 0.5rem; font-size: 2.2rem; font-weight: 900; text-transform: uppercase;">نموذج OSI للطبقات السبع</h1>
-                            <p style="font-size: 1rem; font-weight: bold; color: #475569; letter-spacing: 1px;">THE 7 LAYERS OF THE OSI MODEL | EDUCATIONAL TEMPLATE</p>
+                        <h1 style="color: #004d60; margin-bottom: 1rem;">📚 مرجع OSI (Open Systems Interconnection)</h1>
+                        <p style="text-align: justify; font-size: 1.1rem; font-weight: bold; color: #1e293b;">هو مراحل تكون البيانات ونقلها من الجهاز المرسل (Source device) إلى الجهاز المستقبل (Destination device). وضعته المنظمة الدولية للمعايير (ISO) سنة 1983 برقم 7498 ليكون نموذج نظري موثوق للاتصالات مقسم لـ 7 طبقات.</p>
+                        
+                        <h2 style="color: #00627a; margin-top: 1.5rem;">فائدة فهم طبقات OSI:</h2>
+                        <ul style="color: #334155; font-weight: bold; margin-bottom: 3rem;">
+                            <li>تستطيع فهم وحل المشاكل (Troubleshooting) للشبكات.</li>
+                            <li>معرفة كيفية تكوين البيانات وما هو شكلها في كل مرحلة.</li>
+                            <li>تفيد بمعرفة النقاط الحساسة وكيفية تشفير وفك البيانات.</li>
+                            <li>معرفة كل جهاز في أية طبقة يعمل (مثل HUB والراوتر والسويتش).</li>
+                        </ul>
+
+                        <div style="text-align: center; margin-bottom: 2rem; border-top: 2px dashed rgba(0,98,122,0.2); padding-top: 2rem;">
+                            <h1 style="color: #004d60; margin-bottom: 0.5rem; font-size: 2.2rem; font-weight: 900; text-transform: uppercase;">THE 7 LAYERS OF THE OSI MODEL | نموذج OSI للطبقات السبع</h1>
+                            <p style="font-size: 1rem; font-weight: bold; color: #475569; letter-spacing: 1px;">EDUCATIONAL TEMPLATE | نموذج تعليمي</p>
+                        </div>
+
+                        <div class="osi-wrapper custom-scrollbar">
+                            <!-- أسهم التغليف (على اليسار) -->
+                            <div class="osi-arrows">
+                                <div class="osi-arrow-down">
+                                    <div class="osi-text-vertical" style="color: #7e22ce;"><span style="font-family: Cairo, sans-serif; font-size: 12px;">تغليف</span><br>ENCAPSULATION</div>
+                                    <div style="width: 4px; background: #7e22ce; flex-grow: 1; border-radius: 4px; margin: 4px 0;"></div>
+                                    <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid #7e22ce;"></div>
+                                </div>
+                                <div class="osi-arrow-up">
+                                    <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid #16a34a;"></div>
+                                    <div style="width: 4px; background: #16a34a; flex-grow: 1; border-radius: 4px; margin: 4px 0;"></div>
+                                    <div class="osi-text-vertical" style="color: #16a34a;"><span style="font-family: Cairo, sans-serif; font-size: 12px;">فك التغليف</span><br>DECAPSULATION</div>
+                                </div>
+                            </div>
+
+                            <!-- جدول الطبقات -->
+                            <table class="osi-table-new">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">Layer</th>
+                                        <th style="width: 70px;">#</th>
+                                        <th>LAYERS / الطبقات</th>
+                                        <th>نوع البيانات</th>
+                                        <th>وظائف الطبقات</th>
+                                        <th>Protocols</th>
+                                        <th>أجهزة الطبقة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="l7-row hover-scale">
+                                        <td>7</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-globe"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة التطبيقات</div><div class="text-xs uppercase font-mono">APPLICATION</div></td>
+                                        <td><div class="font-black text-lg">DATA</div></td>
+                                        <td><div class="font-bold text-sm">تطبيقات الشبكة</div><div class="text-[11px] font-mono">WhatsApp - Snapchat - Telegram - Facebook</div></td>
+                                        <td><div class="font-bold text-sm font-mono">HTTP, SMTP<br>FTP</div></td>
+                                        <td><div class="font-black text-3xl">-</div></td>
+                                    </tr>
+                                    <tr class="l6-row hover-scale">
+                                        <td>6</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-code"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة العرض</div><div class="text-xs uppercase font-mono">PRESENTATION</div></td>
+                                        <td><div class="font-black text-lg">DATA</div></td>
+                                        <td><div class="text-xs font-mono">Formatting, Encryption, Compression</div><div class="font-bold text-sm">تنسيق البيانات، التشفير، الضغط</div></td>
+                                        <td><div class="font-bold text-sm font-mono">HTML<br>JPEG</div></td>
+                                        <td><div class="font-black text-3xl">-</div></td>
+                                    </tr>
+                                    <tr class="l5-row hover-scale">
+                                        <td>5</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-handshake"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة الجلسة</div><div class="text-xs uppercase font-mono">SESSION</div></td>
+                                        <td><div class="font-black text-lg">DATA</div></td>
+                                        <td><div class="text-xs font-mono">Establishment, maintenance, termination</div><div class="font-bold text-sm">إنشاء الجلسات، صيانة، إنهاؤها</div></td>
+                                        <td><div class="font-bold text-sm font-mono">NFS<br>SQL</div></td>
+                                        <td><div class="font-black text-3xl">-</div></td>
+                                    </tr>
+                                    <tr class="l4-row hover-scale">
+                                        <td>4</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-cloud-upload-alt"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة النقل</div><div class="text-xs uppercase font-mono">TRANSPORT</div></td>
+                                        <td><div class="font-black text-lg">Segment</div></td>
+                                        <td><div class="text-xs font-mono">protocol TCP/UDP, Data type</div><div class="font-bold text-sm">تحديد نوع البيانات، تحديد البروتوكول المستخدم</div></td>
+                                        <td><div class="font-bold text-sm font-mono">TCP<br>UDP</div></td>
+                                        <td><div class="font-black text-3xl">-</div></td>
+                                    </tr>
+                                    <tr class="l3-row hover-scale">
+                                        <td>3</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-random"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة الشبكة</div><div class="text-xs uppercase font-mono">NETWORK</div></td>
+                                        <td><div class="font-black text-lg">Packet</div></td>
+                                        <td><div class="text-xs font-mono">Routing, IP Addressing</div><div class="font-bold text-sm">التوجيه، العنونة المنطقية IP</div></td>
+                                        <td><div class="font-bold text-sm font-mono">IP Address<br>OSPF</div></td>
+                                        <td><div class="font-black text-2xl"><i class="fas fa-route"></i></div><div class="text-[10px] font-black">Routers</div></td>
+                                    </tr>
+                                    <tr class="l2-row hover-scale">
+                                        <td>2</td>
+                                        <td><div class="osi-icon-box"><i class="fas fa-link"></i></div></td>
+                                        <td><div class="font-black text-lg">طبقة ربط البيانات</div><div class="text-xs uppercase font-mono">DATA LINK</div></td>
+                                        <td><div class="font-black text-lg">Frame</div></td>
+                                        <td><div class="text-xs font-mono">Physical Addressing (MAC), Error Detection</div><div class="font-bold text-sm">العنونة المادية MAC، كشف الأخطاء</div></td>
+                                        <td><div class="font-bold text-sm font-mono">MAC Address<br>Wi-Fi</div></td>
+                                        <td><div class="font-black text-2xl"><i class="fas fa-network-wired"></i></div><div class="text-[10px] font-black">Switches</div></td>
+                                    </tr>
+                                    <tr class="l1-row hover-scale">
+                                        <td>1</td>
+                                        <td><div class="osi-icon-box flex flex-col leading-[1.2]" style="font-size: 7px; font-family: monospace;"><span>10111</span><span>01010</span><span>10111</span></div></td>
+                                        <td><div class="font-black text-lg">الطبقة الفيزيائية</div><div class="text-xs uppercase font-mono">PHYSICAL</div></td>
+                                        <td><div class="font-black text-lg">Bits</div></td>
+                                        <td><div class="text-xs font-mono">Cabling, Connector Types</div><div class="font-bold text-sm">الكابلات، أنواع الموصلات</div></td>
+                                        <td><div class="font-bold text-sm font-mono">Ethernet<br>802.11</div></td>
+                                        <td><div class="font-black text-2xl flex gap-1 justify-center"><i class="fas fa-ethernet"></i></div><div class="text-[10px] font-black">Cables, NICs</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcmain">
+                        <div style="background: rgba(255,255,255,0.7); padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(0,98,122,0.2); margin-bottom: 2rem;">
+                            <h2 style="margin-top: 0; font-size: 2rem;">📜 ما هو البروتوكول Protocol؟</h2>
+                            <p class="!text-lg text-slate-900 font-bold text-justify mb-0">مجموعة من الأكواد البرمجية والقواعد التي تحدد كيف يمكن لأجهزة الكمبيوتر أن تتفاهم مع بعضها عبر الشبكة التي تتواجد عليها، لتسهيل عملية التخاطب.</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.7); padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(0,98,122,0.2); margin-bottom: 2rem;">
+                            <h2 style="margin-top: 0; font-size: 2rem;">📦 تغليف البيانات (Encapsulation)</h2>
+                            <p class="!text-lg mb-4 text-slate-900 font-bold text-justify">تسمى العملية التي تضيف فيها البروتوكولات الترويسات (Header) والتذييل (Trailer) على البيانات بعملية تغليف البيانات، وهذا ما يحدث في عملية الإرسال نزولاً للطبقة الأولى.</p>
+                            <p class="!text-lg font-black text-white bg-tvtcmain p-4 rounded-xl border border-tvtcdark mt-4 text-center shadow-md">في عملية الاستقبال تسمى عملية فك التغليف (De-Encapsulation) وتحدث صعوداً للطبقة السابعة.</p>
+                        </div>
+                        
+                        <h2 style="text-align: center; border-top: 2px solid rgba(0,98,122,0.2); padding-top: 2rem; margin-top: 3rem; font-size: 2.5rem;">أنواع الاتصالات في طبقة الجلسة</h2>
+                        <div class="custom-grid-container">
+                            <div class="custom-grid-card">
+                                <div style="font-size: 4rem; margin-bottom: 1rem; text-align: center;">➡️</div>
+                                <h3 class="custom-grid-title text-2xl text-center">Simplex</h3>
+                                <p class="custom-grid-desc text-base text-center">إرسال في اتجاه واحد فقط يرسل مرة واحدة مثل الراديو والتلفزيون.</p>
+                            </div>
+                            <div class="custom-grid-card">
+                                <div style="font-size: 4rem; margin-bottom: 1rem; text-align: center;">🔀</div>
+                                <h3 class="custom-grid-title text-2xl text-center">Half Duplex</h3>
+                                <p class="custom-grid-desc text-base text-center">إرسال واستقبال ولكن ليس في نفس الوقت مثل أجهزة الشرطة (اللاسلكي).</p>
+                            </div>
+                            <div class="custom-grid-card">
+                                <div style="font-size: 4rem; margin-bottom: 1rem; text-align: center;">↔️</div>
+                                <h3 class="custom-grid-title text-2xl text-center">Full Duplex</h3>
+                                <p class="custom-grid-desc text-base text-center">استقبال وإرسال بخط واحد في نفس الوقت مثل الاتصال بالجوال.</p>
+                            </div>
                         </div>
                     </div>`,
                     `<div class="rich-display glass-card border-t-[8px] border-tvtcmain">
