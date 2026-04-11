@@ -612,7 +612,7 @@
             },
             'cables': {
                 title: 'كيابل الشبكات', icon: 'fa-ethernet', color: 'tvtcmain', desc: 'وسائط النقل، الأنواع، معايير التأريج وأدوات الفني.',
-                tabs: ['الكيابل النحاسية (المحورية والمجدولة)', 'الألياف الضوئية (Fiber Optic)', 'طرق التوصيل وأدوات الشبكة'],
+                tabs: ['الكيابل النحاسية (المحورية والمجدولة)', 'طرق التوصيل وأدوات الشبكة', 'الألياف الضوئية (Fiber Optic)'],
                 content: [
                     `<div class="rich-display glass-card border-t-[8px] border-blue-500">
                         <div class="text-center mb-10 border-b border-slate-200 pb-6">
@@ -689,61 +689,6 @@
                                     <tr><td class="text-blue-700 font-black">CAT 7</td><td>Up to 10 Gbps</td><td class="text-emerald-600 font-black">100m</td><td>GigabitEthernet, 10G Ethernet <span class="text-xs text-emerald-600 block">(لمسافة 100 متر)</span></td></tr>
                                 </tbody>
                             </table>
-                        </div>
-                    </div>`,
-                    `<div class="rich-display glass-card border-t-[8px] border-orange-500">
-                        <div class="text-center mb-10 border-b border-slate-200 pb-6">
-                            <h1 class="text-3xl md:text-5xl font-black text-orange-600 mb-4">3. الألياف الضوئية (Fiber Optic)</h1>
-                            <p class="text-lg font-bold text-slate-600 max-w-3xl mx-auto bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-inner">تنقسم الألياف الضوئية بصفة عامة إلى نوعين أساسيين بناءً على مسار الضوء بداخل الزجاج (القلب Core / الغلاف Cladding).</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                            <!-- أحادية الوضع -->
-                            <div class="bg-gradient-to-br from-white to-blue-50 p-8 rounded-[2rem] border border-blue-200 shadow-md relative overflow-hidden group hover:shadow-xl transition-all">
-                                <div class="absolute -left-10 -top-10 text-blue-100 text-[10rem] opacity-50 rotate-45 group-hover:rotate-90 transition-transform duration-700"><i class="fas fa-magic"></i></div>
-                                <div class="relative z-10">
-                                    <div class="bg-blue-600 text-white w-max px-4 py-1 rounded-full font-black text-sm mb-4 uppercase tracking-widest shadow-sm">1. Single Mode</div>
-                                    <h3 class="font-black text-2xl text-blue-900 mt-0 mb-4 border-none">الألياف أحادية الوضع</h3>
-                                    <ul class="space-y-4 m-0 text-blue-800 font-bold text-base list-none pr-0">
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> تستخدم تقنية <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900">ليزر</span> لإرسال أشعة ضوء أحادية.</li>
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> القلب الزجاجي (Core) رقيق جداً (حوالي 9 ميكرون).</li>
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> يصل مداها إلى <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900">مئات الكيلومترات</span> (40km وأكثر).</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <!-- متعددة الأوضاع -->
-                            <div class="bg-gradient-to-br from-white to-orange-50 p-8 rounded-[2rem] border border-orange-200 shadow-md relative overflow-hidden group hover:shadow-xl transition-all">
-                                <div class="absolute -left-10 -top-10 text-orange-100 text-[10rem] opacity-50 rotate-45 group-hover:rotate-90 transition-transform duration-700"><i class="fas fa-water"></i></div>
-                                <div class="relative z-10">
-                                    <div class="bg-orange-500 text-white w-max px-4 py-1 rounded-full font-black text-sm mb-4 uppercase tracking-widest shadow-sm">2. Multi-Mode</div>
-                                    <h3 class="font-black text-2xl text-orange-900 mt-0 mb-4 border-none">الألياف متعددة الأوضاع</h3>
-                                    <ul class="space-y-4 m-0 text-orange-800 font-bold text-base list-none pr-0">
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> تستخدم مؤشرات <span class="bg-orange-200 px-2 py-0.5 rounded text-orange-900">LED</span> لإرسال إشارات ضوء متعددة.</li>
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> القلب الزجاجي أوسع (50 أو 62.5 ميكرون).</li>
-                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> مسافات أقصر داخل المباني (يصل إلى 550 متراً).</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="lg:col-span-2 bg-emerald-50 border border-emerald-200 p-8 rounded-[2rem] shadow-sm">
-                                <h3 class="font-black text-2xl text-emerald-800 border-b border-emerald-200 pb-4 mb-6 mt-0"><i class="fas fa-star text-emerald-500 ml-2"></i> مميزات الألياف البصرية</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-tachometer-alt text-emerald-500 text-xl"></i> سريعة جداً في نقل البيانات.</div>
-                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-arrow-down text-emerald-500 text-xl"></i> انخفاض الإشارات منخفض بشكل كبير.</div>
-                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-shield-alt text-emerald-500 text-xl"></i> منيعة ضد التداخل الكهرومغناطيسي (EMI).</div>
-                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-layer-group text-emerald-500 text-xl"></i> تمديد عدة ألياف بكابل واحد.</div>
-                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900 md:col-span-2 justify-center text-center"><i class="fas fa-water text-emerald-500 text-xl"></i> لا تتأثر بالماء (تستخدم لتوصيل الإنترنت بين المحيطات).</div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-red-50 border border-red-200 p-8 rounded-[2rem] shadow-sm text-center flex flex-col justify-center">
-                                <div class="text-red-500 text-6xl mb-4 drop-shadow-sm"><i class="fas fa-exclamation-triangle"></i></div>
-                                <h3 class="font-black text-2xl text-red-800 mt-0 mb-4 border-none">العيب الوحيد</h3>
-                                <p class="font-bold text-red-900 bg-white p-4 rounded-xl border border-red-100 shadow-inner text-sm m-0 leading-relaxed">صعبة التركيب والصيانة لأنها تعتمد على الزجاج، وتحتاج معدات خاصة وفنيين متخصصين تكلفتهم عالية.</p>
-                            </div>
                         </div>
                     </div>`,
                     `<div class="rich-display glass-card border-t-[8px] border-purple-500">
@@ -824,43 +769,152 @@
                                 <p class="text-[11px] font-bold text-slate-600 m-0 bg-slate-50 p-2 rounded-lg border border-slate-100">لتجهيز وقص ولحام أسلاك الزجاج الرقيقة.</p>
                             </div>
                         </div>
+                    </div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-orange-500">
+                        <div class="text-center mb-10 border-b border-slate-200 pb-6">
+                            <h1 class="text-3xl md:text-5xl font-black text-orange-600 mb-4">3. الألياف الضوئية (Fiber Optic)</h1>
+                            <p class="text-lg font-bold text-slate-600 max-w-3xl mx-auto bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-inner">تنقسم الألياف الضوئية بصفة عامة إلى نوعين أساسيين بناءً على مسار الضوء بداخل الزجاج (القلب Core / الغلاف Cladding).</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                            <!-- أحادية الوضع -->
+                            <div class="bg-gradient-to-br from-white to-blue-50 p-8 rounded-[2rem] border border-blue-200 shadow-md relative overflow-hidden group hover:shadow-xl transition-all">
+                                <div class="absolute -left-10 -top-10 text-blue-100 text-[10rem] opacity-50 rotate-45 group-hover:rotate-90 transition-transform duration-700"><i class="fas fa-magic"></i></div>
+                                <div class="relative z-10">
+                                    <div class="bg-blue-600 text-white w-max px-4 py-1 rounded-full font-black text-sm mb-4 uppercase tracking-widest shadow-sm">1. Single Mode</div>
+                                    <h3 class="font-black text-2xl text-blue-900 mt-0 mb-4 border-none">الألياف أحادية الوضع</h3>
+                                    <ul class="space-y-4 m-0 text-blue-800 font-bold text-base list-none pr-0">
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> تستخدم تقنية <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900">ليزر</span> لإرسال أشعة ضوء أحادية.</li>
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> القلب الزجاجي (Core) رقيق جداً (حوالي 9 ميكرون).</li>
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-blue-500"></i> يصل مداها إلى <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900">مئات الكيلومترات</span> (40km وأكثر).</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- متعددة الأوضاع -->
+                            <div class="bg-gradient-to-br from-white to-orange-50 p-8 rounded-[2rem] border border-orange-200 shadow-md relative overflow-hidden group hover:shadow-xl transition-all">
+                                <div class="absolute -left-10 -top-10 text-orange-100 text-[10rem] opacity-50 rotate-45 group-hover:rotate-90 transition-transform duration-700"><i class="fas fa-water"></i></div>
+                                <div class="relative z-10">
+                                    <div class="bg-orange-500 text-white w-max px-4 py-1 rounded-full font-black text-sm mb-4 uppercase tracking-widest shadow-sm">2. Multi-Mode</div>
+                                    <h3 class="font-black text-2xl text-orange-900 mt-0 mb-4 border-none">الألياف متعددة الأوضاع</h3>
+                                    <ul class="space-y-4 m-0 text-orange-800 font-bold text-base list-none pr-0">
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> تستخدم مؤشرات <span class="bg-orange-200 px-2 py-0.5 rounded text-orange-900">LED</span> لإرسال إشارات ضوء متعددة.</li>
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> القلب الزجاجي أوسع (50 أو 62.5 ميكرون).</li>
+                                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-orange-500"></i> مسافات أقصر داخل المباني (يصل إلى 550 متراً).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div class="lg:col-span-2 bg-emerald-50 border border-emerald-200 p-8 rounded-[2rem] shadow-sm">
+                                <h3 class="font-black text-2xl text-emerald-800 border-b border-emerald-200 pb-4 mb-6 mt-0"><i class="fas fa-star text-emerald-500 ml-2"></i> مميزات الألياف البصرية</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-tachometer-alt text-emerald-500 text-xl"></i> سريعة جداً في نقل البيانات.</div>
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-arrow-down text-emerald-500 text-xl"></i> انخفاض الإشارات منخفض بشكل كبير.</div>
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-shield-alt text-emerald-500 text-xl"></i> منيعة ضد التداخل الكهرومغناطيسي (EMI).</div>
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-layer-group text-emerald-500 text-xl"></i> تمديد عدة ألياف بكابل واحد.</div>
+                                    <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900 md:col-span-2 justify-center text-center"><i class="fas fa-water text-emerald-500 text-xl"></i> لا تتأثر بالماء (تستخدم لتوصيل الإنترنت بين المحيطات).</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-50 border border-red-200 p-8 rounded-[2rem] shadow-sm text-center flex flex-col justify-center">
+                                <div class="text-red-500 text-6xl mb-4 drop-shadow-sm"><i class="fas fa-exclamation-triangle"></i></div>
+                                <h3 class="font-black text-2xl text-red-800 mt-0 mb-4 border-none">العيب الوحيد</h3>
+                                <p class="font-bold text-red-900 bg-white p-4 rounded-xl border border-red-100 shadow-inner text-sm m-0 leading-relaxed">صعبة التركيب والصيانة لأنها تعتمد على الزجاج، وتحتاج معدات خاصة وفنيين متخصصين تكلفتهم عالية.</p>
+                            </div>
+                        </div>
                     </div>`
                 ]
             },
             'ip': {
-                title: 'بروتوكول الإنترنت IP Address', icon: 'fa-map-location-dot', color: 'orange', desc: 'نظام العنونة المنطقي، فئات IPv4، وحسابات الـ Subnet.',
-                tabs: ['فئات IPv4 وقاعدة Subnetting'],
-                content: [
-                    `<div class="rich-display glass-card border-t-[8px] border-orange-500">
-                        <h1 style="color: #ea580c;">ما هو الـ IP Address؟</h1>
-                        <p style="text-align: justify; font-size: 1.1rem;">عنوان IP هو المعرف الرقمي لأي جهاز مرتبط بشبكة لكي يتم توجيه البيانات إليه. طول الإصدار الرابع (IPv4) هو 32 بت، مقسم إلى 4 خانات.</p>
-                        
-                        <h2 style="text-align: center; border-top: 1px solid rgba(0,98,122,0.2); padding-top: 3rem; margin-top: 4rem; color: #004d60; font-size: 2.5rem;">فئات العناوين (Classful Networking)</h2>
-                        <div class="custom-grid-container">
-                            <div class="custom-grid-card border-t-rose-500 bg-white/90">
-                                <h3 class="!text-rose-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class A</h3>
-                                <div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">1.0.0.0 - 126.x.x.x</div>
-                                <p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.0.0.0</span></p>
-                            </div>
-                            <div class="custom-grid-card border-t-blue-500 bg-white/90 transform md:-translate-y-4">
-                                <h3 class="!text-blue-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class B</h3>
-                                <div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">128.0.0.0 - 191.x.x.x</div>
-                                <p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.255.0.0</span></p>
-                            </div>
-                            <div class="custom-grid-card border-t-emerald-500 bg-white/90">
-                                <h3 class="!text-emerald-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class C</h3>
-                                <div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">192.0.0.0 - 223.x.x.x</div>
-                                <p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.255.255.0</span></p>
-                            </div>
-                        </div>
+        window.activeSection = '';
 
-                        <div style="background: rgba(255,255,255,0.8); padding: 3rem; border-radius: 2rem; border: 1px solid rgba(234,88,12,0.2); text-align: center; margin-top: 4rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-                            <h2 class="!text-orange-800 !mb-8 !mt-0 text-4xl">🔑 قاعدة الـ Subnetting الذهبية</h2>
-                            <p class="!text-2xl font-black text-slate-900 leading-loose mb-0">الرقم <span style="background: white; border: 2px solid #fdba74; padding: 4px 16px; border-radius: 10px; color: #ea580c;">255</span> في قناع الشبكة يمثل الـ <span style="color: #ea580c;">Network</span> (ثابت للشبكة).<br><br>الرقم <span style="background: white; border: 2px solid #6ee7b7; padding: 4px 16px; border-radius: 10px; color: #059669;">0</span> في قناع الشبكة يمثل الـ <span style="color: #059669;">Host</span> (متغير للأجهزة).</p>
-                        </div>
-                    </div>`
-                ]
+        window.renderSidebar = () => {
+            const nav = document.getElementById('sidebar-nav');
+            if(!nav) return;
+            let html = '';
+            Object.keys(CORE_DATA).forEach(k => {
+                html += `<div onclick="window.openSection('${k}', 0)" class="sidebar-item group" id="side-${k}">
+                    <div class="w-12 h-12 rounded-xl bg-white/70 flex items-center justify-center text-tvtcmain group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${CORE_DATA[k].icon} text-lg"></i></div> <span class="text-sm md:text-base">${CORE_DATA[k].title}</span>
+                </div>
+                <div id="subnav-${k}" class="hidden flex-col bg-white/40 mb-4 py-3 space-y-2 pl-4 border-r-4 border-white/50 mr-8 rounded-bl-2xl shadow-inner"></div>`;
+            });
+            nav.innerHTML = html;
+        };
+
+        window.initMainGrid = () => {
+            const grid = document.getElementById('main-grid');
+            if(!grid) return;
+            grid.innerHTML = Object.keys(CORE_DATA).map(k => {
+                const s = CORE_DATA[k];
+                return `<div onclick="window.openSection('${k}', 0)" class="glass-card p-6 md:p-10 hover-scale border-t-[8px] border-tvtcmain cursor-pointer group text-center flex flex-col items-center gap-4 bg-white/70">
+                    <div class="w-20 h-20 bg-white/90 text-tvtcmain rounded-2xl flex items-center justify-center text-4xl shrink-0 group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${s.icon}"></i></div>
+                    <div><h2 class="text-xl md:text-2xl font-black text-tvtcdark mb-2">${s.title}</h2><p class="text-slate-600 text-xs md:text-sm font-bold leading-relaxed line-clamp-2">${s.desc}</p></div>
+                </div>`;
+            }).join('');
+        };
+
+        window.clearActiveSidebar = () => {
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('[id^="subnav-"]').forEach(el => { el.innerHTML = ''; el.classList.add('hidden'); });
+        };
+
+        window.smoothScrollTop = () => {
+            const scrollArea = document.getElementById('main-scroll-area');
+            if(scrollArea) scrollArea.scrollTo({top: 0, behavior: 'smooth'});
+        };
+
+        window.goHome = () => {
+            localStorage.setItem('app_current_view', 'home');
+            const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.remove('hidden');
+            const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden');
+            const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden');
+            
+            window.clearActiveSidebar(); window.smoothScrollTop();
+            const sidebar = document.getElementById('main-sidebar'); if(sidebar && window.innerWidth < 1024) sidebar.classList.add('hidden');
+        };
+
+        window.openSection = (key, targetTab = 0) => {
+            localStorage.setItem('app_current_view', 'section');
+            localStorage.setItem('app_current_section', key);
+            
+            window.activeSection = key; const s = CORE_DATA[key];
+            const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden');
+            const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden');
+            
+            const sectionContainer = document.getElementById('section-container');
+            if(sectionContainer) sectionContainer.classList.remove('hidden');
+            
+            const titleEl = document.getElementById('section-title');
+            if(titleEl) titleEl.innerText = s.title; 
+            
+            window.clearActiveSidebar();
+            const sideItem = document.getElementById(`side-${key}`);
+            if(sideItem) sideItem.classList.add('active');
+
+            let allTabs = [...s.tabs];
+            if(window.allArticlesMap) {
+                Object.values(window.allArticlesMap).forEach(a => { 
+                    if(a.sectionId === key && !a.id.startsWith('core_')) allTabs.push(a.tabName); 
+                });
             }
+
+            const mobileTabs = document.getElementById('mobile-tabs');
+            if(mobileTabs) mobileTabs.innerHTML = allTabs.map((t, i) => `<button onclick="window.loadTabContent(${i})" id="mtab-${i}" class="px-5 py-2.5 whitespace-nowrap border-b-[6px] font-black text-xs md:text-sm transition bg-white/80 rounded-t-xl shadow-sm ${i===targetTab?'border-tvtcmain text-tvtcdark':'border-transparent text-slate-600 hover:text-tvtcmain'}">${t}</button>`).join('');
+
+            const subNav = document.getElementById(`subnav-${key}`);
+            if(subNav) {
+                subNav.innerHTML = allTabs.map((t, i) => `<div onclick="window.loadTabContent(${i})" id="stab-${i}" class="sub-tab ${i===targetTab?'active':''}"><i class="fas fa-chevron-left ml-2 text-[10px] opacity-40"></i> ${t}</div>`).join('');
+                subNav.classList.remove('hidden');
+            }
+
+            if(window.innerWidth < 1024) {
+                const sidebar = document.getElementById('main-sidebar');
+                if(sidebar) sidebar.classList.add('hidden');
+            }
+
+            window.loadTabContent(targetTab);
         };
 
         let activeSection = '';
@@ -1019,288 +1073,22 @@
                 document.execCommand('styleWithCSS', false, true);
                 window.renderSidebar(); 
                 window.initMainGrid(); 
-                
-                if(window.allArticlesMap && window.allArticlesMap['homepage_settings']) {
-                    const data = window.allArticlesMap['homepage_settings'];
-                    if(data.htmlContent) {
-                        const hr = document.getElementById('home-rich-content');
-                        if(hr) hr.innerHTML = data.htmlContent;
-                    }
-                }
-            }, 100);
-        };
-    </script>
-
-    <!-- النظام السحابي (LMS & CMS) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const config = { apiKey: "AIzaSyCz9Wedr_X3VzoaH0gJj8QFrNIK5vT4vww", authDomain: "networkacademy-795c8.firebaseapp.com", projectId: "networkacademy-795c8", storageBucket: "networkacademy-795c8.firebasestorage.app", messagingSenderId: "458132238000", appId: "1:458132238000:web:bffd7321407b094bb21575" };
-        const app = initializeApp(config); const db = getFirestore(app); const auth = getAuth(app);
-        
-        const PATH = `artifacts/networkacademy-795c8/public/data`;
-        
-        window.quizzesCache = []; window.activeQuiz = null; window.allArticlesMap = {}; window.loadedResults = [];
-
-        signInAnonymously(auth).then(() => { fetchCloudArticles(); }).catch(() => window.toast("النظام السحابي غير متصل", "error"));
-
-        async function fetchCloudArticles() {
-            try {
-                const s = await getDocs(collection(db, PATH, 'articles'));
-                window.allArticlesMap = {};
-                s.forEach(d => { window.allArticlesMap[d.id] = { id: d.id, ...d.data() }; });
-                
-                const hr = document.getElementById('home-rich-content');
-                if(window.allArticlesMap['homepage_settings']) {
-                    const data = window.allArticlesMap['homepage_settings'];
-                    if(hr && data.htmlContent) hr.innerHTML = data.htmlContent;
-                } else {
-                    if(hr) hr.innerHTML = `
-                        <img src="tvtc.png" alt="TVTC Logo" style="height: 100px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); object-fit: contain;">
-                        <h1 class="text-3xl md:text-7xl font-black mb-4 md:mb-8 text-tvtcdark tracking-tight drop-shadow-md">شبكات <span class="text-tvtcteal">الحاسب الآلي</span></h1>
-                        <p class="text-sm md:text-2xl text-tvtcmain max-w-4xl mx-auto font-bold leading-relaxed drop-shadow-sm">المرجع الأكاديمي الشامل لمهندسي الشبكات، يغطي المبادئ، الأمان، بروتوكولات التوجيه، والمعايير الفيزيائية.</p>`;
-                }
-            } catch(e) { console.error("Error fetching articles."); }
-        }
-
-        window.directLMS = (type) => {
-            const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden');
-            const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden');
-            const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.remove('hidden');
-            
-            window.clearActiveSidebar();
-
-            if(window.innerWidth < 1024) {
-                const sidebar = document.getElementById('main-sidebar');
-                if(sidebar) sidebar.classList.add('hidden');
-            }
-            
-            if(type === 'student') window.renderStudentPortal();
-            else if(type === 'admin') window.renderAdminLogin();
-            
-            window.smoothScrollTop();
-        };
-
-        window.renderAdminLogin = () => {
-            const area = document.getElementById('lms-area'); if(!area) return;
-            area.innerHTML = `<div class="max-w-xl mx-auto glass-card p-12 md:p-16 text-center bg-white/80 border-t-[8px] border-tvtcmain"><h3 class="text-3xl font-black mb-8 text-slate-900 border-b border-white/50 pb-4">رمز المرور السري للمعلم</h3><input type="password" id="lpass" class="w-full p-5 rounded-2xl bg-white border border-slate-300 mb-8 text-center text-3xl font-bold tracking-widest text-slate-800 focus:border-tvtcteal outline-none shadow-inner" placeholder="****"><button onclick="window.checkAdmin()" class="btn-primary shadow-md text-xl">دخول للوحة التحكم</button></div>`;
-        };
-
-        window.checkAdmin = () => { const p = document.getElementById('lpass'); if(p && p.value==='1234') window.renderDash(); else window.toast("الرمز غير صحيح", "error"); };
-
-        window.renderDash = () => {
-            const area = document.getElementById('lms-area'); if(!area) return;
-            area.innerHTML = `
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-10 w-full glass-card p-6 md:p-8 border-b-[8px] border-tvtcmain bg-white/80">
-                <h2 class="text-2xl md:text-4xl font-black text-slate-900"><i class="fas fa-cog text-tvtcmain ml-3"></i> لوحة الإدارة السحابية</h2>
-                <button onclick="window.goHome()" class="text-red-600 font-black text-sm md:text-base bg-white hover:bg-red-50 px-6 py-3 rounded-xl transition border border-red-200 shadow-sm"><i class="fas fa-sign-out-alt"></i> خروج من الإدارة</button>
-            </div>
-            
-            <div class="w-full mb-10 flex gap-4 border-b border-white/50 pb-6 overflow-x-auto custom-scrollbar">
-                <button onclick="window.switchTab('home')" id="tab-home" class="admin-tab active flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-tvtcmain text-white shadow-md"><i class="fas fa-laptop-house"></i> واجهة الموقع</button>
-                <button onclick="window.switchTab('add')" id="tab-add" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-layer-group"></i> إضافة درس جديد</button>
-                <button onclick="window.switchTab('edit')" id="tab-edit" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-edit"></i> تعديل الدروس</button>
-                <button onclick="window.switchTab('lms')" id="tab-lms" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-user-graduate"></i> إدارة الاختبارات</button>
-            </div>
-            
-            <div id="view-home" class="w-full page-enter">
-                <div class="glass-card p-8 md:p-12 border-t-[8px] border-tvtcteal relative bg-white/90 w-full">
-                    <h3 class="text-2xl font-black mb-8 text-slate-800 border-b border-slate-200 pb-4"><i class="fas fa-home text-tvtcmain"></i> تصميم وتعديل واجهة الموقع الرئيسية</h3>
-                    <div class="editor-toolbar w-full mb-0 rounded-b-none border-b-0 flex-col md:flex-row items-start md:items-center">
-                        <div class="flex flex-wrap gap-1.5 items-center w-full">
-                            <select onchange="window.execCmd('cms-home-content', 'fontName', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="نوع الخط">
-                                <option value="">نوع الخط</option><option value="Cairo">Cairo</option><option value="Tajawal">Tajawal</option><option value="Almarai">Almarai</option><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option>
-                            </select>
-                            <div class="w-px h-5 bg-slate-300 mx-1 hidden md:block"></div>
-                            <button onclick="window.execCmd('cms-home-content', 'bold')" title="عريض"><i class="fas fa-bold"></i></button>
-                            <button onclick="window.execCmd('cms-home-content', 'italic')" title="مائل"><i class="fas fa-italic"></i></button>
-                            <button onclick="window.execCmd('cms-home-content', 'underline')" title="تسطير"><i class="fas fa-underline"></i></button>
-                            <div class="w-px h-5 bg-slate-300 mx-1 hidden md:block"></div>
-                            <select onchange="window.execCmd('cms-home-content', 'fontSize', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="حجم النص">
-                                <option value="">حجم</option><option value="3">عادي</option><option value="5">كبير</option><option value="6">أكبر</option><option value="7">ضخم</option>
-                            </select>
-                            <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">نص:</span><input type="color" onchange="window.execCmd('cms-home-content', 'foreColor', this.value)" class="cursor-pointer" title="لون النص"></div>
-                            <button onclick="window.insertResizableImage('cms-home-content')" title="إدراج صورة برابط" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 ml-auto"><i class="fas fa-link"></i> صورة</button>
-                            <button onclick="window.showEmojiPicker('cms-home-content')" title="إدراج أيقونات وإيموجي" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-icons"></i> أيقونات</button>
-                        </div>
-                    </div>
-                    <div id="cms-home-content" contenteditable="true" class="rich-editor w-full shadow-inner bg-white/70 min-h-[350px] rounded-t-none border-t-0 mb-8">اكتب الترحيب ووصف الموقع هنا...</div>
-                    <button onclick="window.saveHomepageSettings()" class="bg-tvtcmain hover:bg-tvtcdark text-white px-8 py-4 rounded-xl font-bold text-lg shadow-md transition w-full md:w-auto"><i class="fas fa-check-circle ml-2"></i> حفظ واجهة الرئيسية</button>
-                </div>
-            </div>
-
-            <!-- قسم إضافة درس CMS -->
-            <div id="view-add" class="w-full page-enter hidden">
-                <div class="grid lg:grid-cols-1 gap-10 items-start w-full">
-                    <div class="glass-card p-8 md:p-12 border-t-[8px] border-tvtcteal relative bg-white/90 w-full">
-                        
-                        <h3 class="text-3xl font-black mb-8 text-tvtcdark border-b border-slate-300 pb-4" id="cms-editor-title"><i class="fas fa-plus-circle text-tvtcmain"></i> إضافة درس جديد</h3>
-                        <input type="hidden" id="edit-doc-id" value="">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
-                            <div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">القسم التابع له:</label><select id="cms-section" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold outline-none focus:border-tvtcmain focus:ring-2 focus:ring-tvtcmain/20 text-sm md:text-base shadow-sm"><option value="new">-- قسم جديد مستقل --</option><option value="networks">تابع لـ: مبادئ الشبكات</option><option value="security">تابع لـ: الأمان في الشبكات</option><option value="osi">تابع لـ: نموذج OSI</option><option value="cables">تابع لـ: كيابل الشبكات</option><option value="ip">تابع لـ: بروتوكول IP</option></select></div>
-                            <div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">الترتيب (رقم):</label><input type="number" id="cms-order" value="1" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold outline-none focus:border-tvtcmain focus:ring-2 focus:ring-tvtcmain/20 text-center text-sm md:text-base shadow-sm"></div>
-                        </div>
-
-                        <label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block border-t border-slate-300 pt-6 mt-4">عنوان الدرس (يظهر في القائمة وفي أعلى الدرس):</label>
-                        <div class="flex flex-col md:flex-row gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-inner">
-                            <input type="text" id="cms-tab-name" class="flex-grow p-4 rounded-xl bg-white border border-slate-300 font-black text-slate-900 focus:border-tvtcmain outline-none text-xl shadow-sm" placeholder="اكتب عنوان الدرس هنا..">
-                            <div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-300 shadow-sm shrink-0">
-                                <label class="text-xs font-bold text-slate-600">اللون:</label>
-                                <input type="color" id="cms-title-color" value="#004d60" class="w-10 h-10 rounded cursor-pointer border-none" title="لون العنوان">
-                                <div class="w-px h-6 bg-slate-200"></div>
-                                <label class="text-xs font-bold text-slate-600">الحجم:</label>
-                                <select id="cms-title-size" class="p-2 rounded bg-slate-50 border border-slate-200 text-sm font-bold outline-none">
-                                    <option value="text-3xl md:text-4xl">صغير</option>
-                                    <option value="text-4xl md:text-5xl" selected>متوسط</option>
-                                    <option value="text-5xl md:text-7xl">كبير</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">المحتوى (تظليل أي عنوان أو نص ثم اختيار اللون/الحجم يطبقه عليه فوراً):</label>
-                        
-                        <div class="editor-toolbar w-full flex-col md:flex-row items-start md:items-center">
-                            <div class="flex flex-wrap gap-1.5 items-center w-full">
-                                <button onclick="window.execCmd('cms-content', 'undo')" title="تراجع"><i class="fas fa-undo"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'redo')" title="إعادة"><i class="fas fa-redo"></i></button>
-                                <div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
-                                <select onchange="window.execCmd('cms-content', 'fontName', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="نوع الخط">
-                                    <option value="">نوع الخط</option><option value="Cairo">Cairo</option><option value="Tajawal">Tajawal</option><option value="Almarai">Almarai</option><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option>
-                                </select>
-                                <div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
-                                <button onclick="window.execCmd('cms-content', 'bold')" title="عريض"><i class="fas fa-bold"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'italic')" title="مائل"><i class="fas fa-italic"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'underline')" title="تسطير"><i class="fas fa-underline"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'strikeThrough')" title="شطب"><i class="fas fa-strikethrough"></i></button>
-                                <div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
-                                <select onchange="window.execCmd('cms-content', 'fontSize', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="حجم النص">
-                                    <option value="">الحجم</option><option value="3">عادي</option><option value="5">كبير</option><option value="6">أكبر</option><option value="7">ضخم</option>
-                                </select>
-                                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">نص:</span><input type="color" onchange="window.execCmd('cms-content', 'foreColor', this.value)" class="cursor-pointer" title="لون النص"></div>
-                                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">تظليل:</span><input type="color" onchange="window.execCmd('cms-content', 'hiliteColor', this.value)" class="cursor-pointer" value="#ffffff" title="لون خلفية النص"></div>
-                                <div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
-                                <button onclick="window.execCmd('cms-content', 'justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button><button onclick="window.execCmd('cms-content', 'justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button><button onclick="window.execCmd('cms-content', 'justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button><button onclick="window.execCmd('cms-content', 'justifyFull')" title="ضبط الجانبين"><i class="fas fa-align-justify"></i></button>
-                                <div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div>
-                                <button onclick="window.execCmd('cms-content', 'insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button>
-                                <button onclick="window.execCmd('cms-content', 'removeFormat')" title="مسح التنسيقات"><i class="fas fa-eraser text-red-500"></i></button>
-                                <button onclick="window.toggleImageShadow()" title="تفعيل/إلغاء ظل الصورة المحددة" class="text-slate-600 font-bold text-[10px] md:text-xs flex items-center gap-1"><i class="fas fa-moon"></i> ظل الصورة</button>
-                            </div>
-                            
-                            <div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-slate-300 w-full justify-center md:justify-start bg-slate-50 p-2 rounded-xl">
-                                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">لون المربع:</span><input type="color" onchange="window.changeBoxColor(this.value)" class="cursor-pointer" title="تغيير لون خلفية المربع المحدد"></div>
-                                <button onclick="window.showEmojiPicker('cms-content')" title="مكتبة الأيقونات" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1 bg-white border border-slate-300 px-3 py-2 rounded-lg shadow-sm"><i class="fas fa-icons"></i> أيقونات</button>
-                                <button onclick="window.insertResizableImage('cms-content')" title="إدراج صورة برابط (قابلة للتغيير والتحجيم)" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 bg-white border border-slate-300 px-3 py-2 rounded-lg shadow-sm"><i class="fas fa-link"></i> صورة برابط</button>
-                                <select onchange="window.insertShape(this.value, 'cms-content'); this.value='';" class="text-[10px] md:text-xs p-2 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm">
-                                    <option value="">إدراج شكل هندسي</option><option value="square">مربع ⬛</option><option value="circle">دائرة 🟢</option><option value="rectangle">مستطيل ▬</option>
-                                </select>
-                                <select onchange="window.insertCards(this.value, 'cms-content'); this.value='';" class="text-[10px] md:text-xs p-2 font-bold text-tvtcmain border border-tvtcmain bg-white rounded-lg shadow-sm">
-                                    <option value="">إدراج كروت جاهزة</option>
-                                    <option value="1">كرت واحد</option>
-                                    <option value="2">كارتين</option>
-                                    <option value="3">3 كروت</option>
-                                    <option value="4">4 كروت</option>
-                                    <option value="5">5 كروت</option>
-                                </select>
-                                <button onclick="window.insertTemplate('cms-content', 'table')" title="إدراج جدول منسق" class="text-orange-700 font-bold text-[10px] md:text-xs flex items-center gap-1 w-full justify-center md:w-auto bg-orange-50 border border-orange-200 hover:bg-orange-500 hover:text-white px-4 py-2 rounded-lg shadow-sm transition"><i class="fas fa-table"></i> جدول جاهز</button>
-                            </div>
-                        </div>
-                        <div id="cms-content" contenteditable="true" class="rich-editor w-full shadow-inner bg-white/90">اكتب المحتوى هنا...</div>
-                        
-                        <div class="flex flex-col md:flex-row gap-4 mt-8"><button onclick="window.saveArticle()" class="flex-grow btn-primary text-xl"><i class="fas fa-save ml-2"></i> حفظ الدرس وتحديث الموقع</button><button onclick="window.resetCMSForm()" class="bg-white hover:bg-slate-100 text-slate-800 p-5 rounded-2xl font-black transition text-lg border border-slate-300 shadow-sm">مسح الحقول / تفريغ</button></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="view-edit" class="w-full page-enter hidden">
-                <div class="glass-card p-8 md:p-12 border-t-[8px] border-blue-500 bg-white/90 w-full">
-                    <div class="flex justify-between items-center mb-8 border-b border-slate-300 pb-5"><h3 class="font-black text-2xl md:text-3xl text-blue-900">سجل الدروس (المضافة والمعدلة)</h3><button onclick="window.loadCmsList()" class="text-blue-600 hover:rotate-180 transition bg-white border border-slate-300 w-12 h-12 rounded-xl shadow-sm text-2xl"><i class="fas fa-sync"></i></button></div>
-                    <div id="cms-list" class="space-y-4 overflow-y-auto h-[600px] pr-4 custom-scrollbar">جاري التحميل...</div>
-                </div>
-            </div>
-
-            <div id="view-lms" class="hidden grid lg:grid-cols-2 gap-8 md:gap-10 w-full mx-auto items-start page-enter">
-                <div class="glass-card p-6 md:p-10 border-t-[8px] border-emerald-500 bg-white/90">
-                    <h3 class="text-2xl md:text-3xl font-black mb-6 md:mb-8 flex items-center gap-2 text-emerald-900 border-b border-slate-300 pb-4 md:pb-5"><i class="fas fa-file-circle-plus"></i> تصميم اختبار جديد</h3>
-                    <input type="text" id="quiz-t" class="w-full p-4 md:p-5 rounded-xl md:rounded-2xl bg-white border border-slate-300 mb-6 md:mb-8 font-black text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none shadow-inner text-lg md:text-xl" placeholder="عنوان الاختبار النهائي..">
-                    
-                    <div id="quiz-c" class="space-y-6 md:space-y-8 mb-6 md:mb-8"></div>
-                    
-                    <button onclick="window.addQForm()" class="w-full bg-white text-slate-800 p-4 md:p-5 rounded-xl md:rounded-2xl font-black mb-4 border border-slate-300 hover:bg-slate-50 transition text-base md:text-lg shadow-sm"><i class="fas fa-plus ml-2 text-emerald-600"></i> إضافة سؤال يدوياً (محرر)</button>
-                    <input type="file" id="json-file" accept=".json" class="hidden" onchange="window.impJ(event)">
-                    <button onclick="document.getElementById('json-file').click()" class="w-full bg-blue-50 text-blue-800 font-black py-4 md:py-5 rounded-xl md:rounded-2xl mb-8 md:mb-10 border border-blue-200 hover:bg-blue-100 transition text-base md:text-lg shadow-sm"><i class="fas fa-file-import ml-2"></i> استيراد أسئلة جاهزة (JSON)</button>
-                    <button onclick="window.saveQuiz()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] font-black text-xl md:text-2xl transition shadow-lg shadow-emerald-600/30"><i class="fas fa-cloud-upload-alt ml-2"></i> حفظ الاختبار سحابياً</button>
-                </div>
-                        <div class="flex gap-2 w-full md:w-auto"><button onclick="window.exportToExcel()" class="flex-grow md:flex-grow-0 bg-white hover:bg-emerald-50 border border-slate-300 text-emerald-700 font-bold text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl shadow-sm transition"><i class="fas fa-file-excel ml-1"></i> تحميل (Excel)</button><button onclick="window.loadRes()" class="text-tvtcmain hover:rotate-180 transition bg-white border border-slate-300 shadow-sm w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl text-lg md:text-xl shrink-0"><i class="fas fa-sync-alt"></i></button></div></div>
-                        <div id="res-list" class="overflow-x-auto custom-scrollbar"><p class="text-center font-bold text-slate-500">جاري التحميل..</p></div>
-                    </div>
-                </div>
-            `;
-            
-            // فتح التبويب الافتراضي
-            window.switchTab('home');
-            window.loadCmsList();
-        };
-
-        window.switchTab = tab => {
-            const tabs = ['home', 'add', 'edit', 'lms'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const view = document.getElementById(`view-${t}`);
-                if(btn && view) {
-                    if(t === tab) {
-                        btn.className = 'admin-tab active flex-1 min-w-[160px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-tvtcmain text-white shadow-md border border-transparent';
-                        view.classList.remove('hidden');
-                    } else {
-                        btn.className = 'admin-tab flex-1 min-w-[160px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm';
-                        view.classList.add('hidden');
-                    }
-                }
-            });
-        };
-
-        window.saveHomepageSettings = async () => {
-            const htmlContent = document.getElementById('cms-home-content').innerHTML;
-            if(!htmlContent || htmlContent.trim() === '') return window.toast("محتوى الرئيسية فارغ", "error");
-            try {
-                await setDoc(doc(db, PATH, 'articles', 'homepage_settings'), {
-                    htmlContent, sectionId: 'system', isSettings: true, timestamp: new Date().toISOString()
-                });
-                window.toast("تم تحديث واجهة الموقع الرئيسية بنجاح!");
-                const hr = document.getElementById('home-rich-content'); if(hr) hr.innerHTML = htmlContent;
-                fetchCloudArticles();
-            } catch(e) { window.toast("حدث خطأ أثناء حفظ إعدادات الرئيسية", "error"); }
-        };
-
-        window.execCmd = (editorId, cmd, val=null) => { document.execCommand(cmd, false, val); document.getElementById(editorId).focus(); };
-        
-        window.onload = () => { 
-            setTimeout(() => {
-                document.execCommand('styleWithCSS', false, true);
-                window.renderSidebar(); 
-                window.initMainGrid(); 
-                
-                // استعادة الحالة من LocalStorage هنا ستتم بعد جلب البيانات لضمان الموثوقية
             }, 100);
         };
         
-        // تعديل وظيفة حفظ الحالة و استرجاعها
         window.restoreAppState = () => {
             const currentView = localStorage.getItem('app_current_view') || 'home';
             if(currentView === 'home') {
-                // Do nothing, defaults to home dashboard.
+                window.goHome();
             } else if(currentView === 'section') {
                 const sec = localStorage.getItem('app_current_section');
-                const tab = parseInt(localStorage.getItem('app_current_tab') || '0');
+                let tab = parseInt(localStorage.getItem('app_current_tab') || '0');
                 if (CORE_DATA[sec]) {
-                    window.openSection(sec);
-                    setTimeout(() => {
-                        const tabsCount = document.querySelectorAll('[id^="mtab-"]').length;
-                        if(tab < tabsCount) window.loadTabContent(tab);
-                        else window.loadTabContent(0);
-                    }, 100); 
+                    // حماية من محاولة فتح تبويب تم حذفه
+                    const maxTabs = CORE_DATA[sec].tabs.length + (window.allArticlesMap ? Object.values(window.allArticlesMap).filter(a => a.sectionId === sec && !a.id.startsWith('core_')).length : 0);
+                    if(tab >= maxTabs) tab = 0;
+                    
+                    window.openSection(sec, tab);
                 } else {
                     window.goHome();
                 }
