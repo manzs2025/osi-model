@@ -31,6 +31,11 @@
             .sidebar-item { @apply flex items-center gap-3 px-5 py-3 w-full text-right font-black text-tvtcmain rounded-xl transition cursor-pointer border-r-4 border-transparent hover:bg-white/60 hover:text-tvtcdark shadow-sm mb-1; }
             .sidebar-item.active { @apply bg-tvtcmain/90 backdrop-blur-sm text-white border-tvtcdark shadow-md; }
             .sidebar-item.active i { @apply text-white; }
+            .sidebar-item.active .sidebar-icon-box { @apply bg-white/20 text-white border-white/30; }
+            .sidebar-icon-box { @apply w-12 h-12 rounded-xl bg-white/70 flex items-center justify-center text-tvtcmain transition shadow-sm border border-slate-200 flex-shrink-0; }
+            .sidebar-item:hover .sidebar-icon-box { @apply bg-tvtcmain text-white border-tvtcmain; }
+            .sidebar-item.active .sidebar-arrow { @apply rotate-180 opacity-100 text-white; }
+            .sidebar-arrow { @apply transition-transform duration-300; }
             .sub-tab { @apply block w-full text-right px-10 py-2.5 text-sm font-bold text-slate-700 hover:text-tvtcteal transition cursor-pointer hover:bg-white/60 rounded-lg; }
             .sub-tab.active { @apply text-tvtcmain border-r-4 border-tvtcteal bg-white/80 shadow-sm; }
             .btn-primary { @apply w-full bg-tvtcteal hover:bg-tvtcmain text-white font-black py-3 md:py-4 rounded-xl transition shadow-lg shadow-tvtcteal/40 backdrop-blur-sm; }
@@ -103,6 +108,60 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #29b5a8; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
         .mobile-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+
+        /* ===== الأقسام الفرعية في الـ Sidebar ===== */
+        .sidebar-subnav {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+            opacity: 0;
+            margin-right: 1rem;
+            margin-bottom: 0;
+            border-right: 3px solid rgba(0, 131, 163, 0.2);
+            border-radius: 0 0 1rem 0;
+            background: rgba(255,255,255,0.35);
+        }
+        .sidebar-subnav.open {
+            max-height: 600px;
+            opacity: 1;
+            margin-bottom: 0.5rem;
+        }
+        .sub-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            text-align: right;
+            padding: 0.55rem 1rem 0.55rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border-right: 3px solid transparent;
+            text-decoration: none;
+        }
+        .sub-item:hover {
+            color: #00627a;
+            background: rgba(255,255,255,0.7);
+            border-right-color: #29b5a8;
+            padding-right: 1.25rem;
+        }
+        .sub-item.active-sub {
+            color: #004d60;
+            background: rgba(255,255,255,0.85);
+            border-right-color: #00627a;
+            font-weight: 900;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .sub-item.active-sub .sub-arrow { color: #00627a; }
+        .sub-arrow {
+            font-size: 0.55rem;
+            color: #94a3b8;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
     </style>
 </head>
 <body class="text-slate-800 font-sans selection:bg-tvtcteal selection:text-white flex flex-col h-screen site-bg overflow-hidden relative">
@@ -111,7 +170,6 @@
 
     <nav class="bg-gradient-to-r from-tvtcdark via-tvtcmain to-tvtcteal p-3 md:p-4 sticky top-0 z-50 shadow-md flex justify-between items-center shrink-0 w-full">
         <div class="flex items-center gap-2 md:gap-4">
-            <button onclick="document.getElementById('main-sidebar').classList.remove('hidden')" class="lg:hidden text-white hover:text-tvtcaccent text-xl md:text-2xl p-1 transition"><i class="fas fa-bars"></i></button>
             <div class="font-black text-white text-sm md:text-xl flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition" onclick="window.goHome()">
                 <img src="tvtc.png" alt="TVTC" class="h-8 md:h-10 bg-white/90 p-1 md:p-1.5 rounded-lg shadow-sm" onerror="this.style.display='none'">
                 <div class="flex flex-col">
@@ -131,9 +189,142 @@
     </nav>
 
     <div class="flex-1 flex h-full overflow-hidden w-full relative">
-        <aside id="main-sidebar" class="w-72 md:w-80 sidebar-bg z-[100] flex-col hidden fixed inset-y-0 right-0 lg:static lg:flex h-[100dvh] lg:h-full flex-shrink-0 transition-transform duration-300">
-            <div class="p-4 flex justify-end lg:hidden shrink-0"><button onclick="document.getElementById('main-sidebar').classList.add('hidden')" class="text-slate-500 hover:text-red-500 text-2xl bg-white/70 w-10 h-10 rounded-xl shadow-sm"><i class="fas fa-times"></i></button></div>
-            <nav class="flex-1 mobile-scroll p-4 space-y-2 mt-2 pb-24 lg:pb-4" id="sidebar-nav"></nav>
+        <aside id="main-sidebar" class="w-72 md:w-80 sidebar-bg z-[100] flex-col flex fixed inset-y-0 right-0 lg:static h-[100dvh] lg:h-full flex-shrink-0 transition-transform duration-300">
+            <nav class="flex-1 mobile-scroll p-4 mt-2 pb-24 lg:pb-4" id="sidebar-nav">
+
+                <!-- ====== 1. شبكات الحاسب الآلي ====== -->
+                <div onclick="window.openSection('networks', 0)" class="sidebar-item group" id="side-networks">
+                    <div class="sidebar-icon-box"><i class="fas fa-globe text-lg"></i></div>
+                    <span class="flex-1 text-sm md:text-base">شبكات الحاسب الآلي</span>
+                    <i class="fas fa-chevron-down sidebar-arrow text-xs opacity-50"></i>
+                </div>
+                <div class="sidebar-subnav" id="subnav-networks">
+                    <a onclick="window.openSection('networks', 0)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>ماهي شبكات الحاسب
+                    </a>
+                    <a onclick="window.openSection('networks', 1)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>مكونات شبكات الحاسب
+                    </a>
+                    <a onclick="window.openSection('networks', 2)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>فوائد شبكات الحاسب
+                    </a>
+                    <a onclick="window.openSection('networks', 3)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>أنواع شبكات الحاسب
+                    </a>
+                </div>
+
+                <!-- ====== 2. الأمان في شبكات الحاسب ====== -->
+                <div onclick="window.openSection('security', 0)" class="sidebar-item group" id="side-security">
+                    <div class="sidebar-icon-box"><i class="fas fa-shield-alt text-lg"></i></div>
+                    <span class="flex-1 text-sm md:text-base">الأمان في شبكات الحاسب</span>
+                    <i class="fas fa-chevron-down sidebar-arrow text-xs opacity-50"></i>
+                </div>
+                <div class="sidebar-subnav" id="subnav-security">
+                    <a onclick="window.openSection('security', 0)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>مفهوم أمان الشبكات
+                    </a>
+                    <a onclick="window.openSection('security', 1)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>التهديدات الداخلية للشبكة
+                    </a>
+                    <a onclick="window.openSection('security', 2)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>التهديدات الخارجية للشبكة
+                    </a>
+                    <a onclick="window.openSection('security', 3)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>حلول الأمان في الشبكات
+                    </a>
+                </div>
+
+                <!-- ====== 3. نموذج OSI ====== -->
+                <div onclick="window.openSection('osi', 0)" class="sidebar-item group" id="side-osi">
+                    <div class="sidebar-icon-box"><i class="fas fa-layer-group text-lg"></i></div>
+                    <span class="flex-1 text-sm md:text-base">نموذج OSI Model</span>
+                    <i class="fas fa-chevron-down sidebar-arrow text-xs opacity-50"></i>
+                </div>
+                <div class="sidebar-subnav" id="subnav-osi">
+                    <a onclick="window.openSection('osi', 0)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>ما هو نموذج OSI
+                    </a>
+                    <a onclick="window.openSection('osi', 1)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>فائدة نموذج OSI
+                    </a>
+                    <a onclick="window.openSection('osi', 2)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الهدف من نموذج OSI
+                    </a>
+                    <a onclick="window.openSection('osi', 3)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>عملية التغليف
+                    </a>
+                    <a onclick="window.openSection('osi', 4)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>البروتوكول Protocol
+                    </a>
+                    <a onclick="window.openSection('osi', 5)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>طبقات نموذج OSI
+                    </a>
+                    <a onclick="window.openSection('osi', 6)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الفروقات بين TCP/UDP
+                    </a>
+                    <a onclick="window.openSection('osi', 7)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الفروقات بين السويتش والراوتر
+                    </a>
+                    <a onclick="window.openSection('osi', 8)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>نموذج TCP/IP
+                    </a>
+                </div>
+
+                <!-- ====== 4. كيابل الشبكات ====== -->
+                <div onclick="window.openSection('cables', 0)" class="sidebar-item group" id="side-cables">
+                    <div class="sidebar-icon-box"><i class="fas fa-ethernet text-lg"></i></div>
+                    <span class="flex-1 text-sm md:text-base">كيابل الشبكات</span>
+                    <i class="fas fa-chevron-down sidebar-arrow text-xs opacity-50"></i>
+                </div>
+                <div class="sidebar-subnav" id="subnav-cables">
+                    <a onclick="window.openSection('cables', 0)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>تعريف كيبل الشبكة
+                    </a>
+                    <a onclick="window.openSection('cables', 1)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>أنواع كيابل الشبكة
+                    </a>
+                    <a onclick="window.openSection('cables', 2)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الكيبل المحوري
+                    </a>
+                    <a onclick="window.openSection('cables', 3)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الكيبل المزدوج المجدول
+                    </a>
+                    <a onclick="window.openSection('cables', 4)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>الكيبل الضوئي
+                    </a>
+                    <a onclick="window.openSection('cables', 5)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>عدد وأدوات كيابل الشبكات
+                    </a>
+                </div>
+
+                <!-- ====== 5. بروتوكول IP ====== -->
+                <div onclick="window.openSection('ip', 0)" class="sidebar-item group" id="side-ip">
+                    <div class="sidebar-icon-box"><i class="fas fa-map-location-dot text-lg"></i></div>
+                    <span class="flex-1 text-sm md:text-base">بروتوكول IP</span>
+                    <i class="fas fa-chevron-down sidebar-arrow text-xs opacity-50"></i>
+                </div>
+                <div class="sidebar-subnav" id="subnav-ip">
+                    <a onclick="window.openSection('ip', 0)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>تعريف بروتوكول IP
+                    </a>
+                    <a onclick="window.openSection('ip', 1)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>إصدارات بروتوكول IP
+                    </a>
+                    <a onclick="window.openSection('ip', 2)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>بروتوكول IPv4
+                    </a>
+                    <a onclick="window.openSection('ip', 3)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>تدريبات على IPv4
+                    </a>
+                    <a onclick="window.openSection('ip', 4)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>بروتوكول IPv6
+                    </a>
+                    <a onclick="window.openSection('ip', 5)" class="sub-item">
+                        <i class="fas fa-chevron-left sub-arrow"></i>تدريبات على IPv6
+                    </a>
+                </div>
+
+            </nav>
             <div class="p-4 md:p-6 border-t border-white/40 bg-white/50 text-center shrink-0">
                 <p class="text-[10px] md:text-xs font-black text-tvtcmain leading-relaxed uppercase tracking-widest mb-1">إعداد وتصميم</p>
                 <p class="text-tvtcdark font-black drop-shadow-sm text-sm md:text-lg">منصور مستور الزهراني</p>
@@ -259,30 +450,73 @@
         };
 
         window.activeSection = '';
-        window.renderSidebar = () => { const nav = document.getElementById('sidebar-nav'); if(!nav) return; let html = ''; Object.keys(CORE_DATA).forEach(k => { html += `<div onclick="window.openSection('${k}', 0)" class="sidebar-item group" id="side-${k}"><div class="w-12 h-12 rounded-xl bg-white/70 flex items-center justify-center text-tvtcmain group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${CORE_DATA[k].icon} text-lg"></i></div> <span class="text-sm md:text-base">${CORE_DATA[k].title}</span></div><div id="subnav-${k}" class="hidden flex-col bg-white/40 mb-4 py-3 space-y-2 pl-4 border-r-4 border-white/50 mr-8 rounded-bl-2xl shadow-inner"></div>`; }); nav.innerHTML = html; };
+        window.renderSidebar = () => {
+            const nav = document.getElementById('sidebar-nav');
+            if(!nav) return;
+            let html = '';
+            Object.keys(CORE_DATA).forEach(k => {
+                html += `<div onclick="window.openSection('${k}', 0)" class="sidebar-item group" id="side-${k}">
+                    <div class="w-12 h-12 rounded-xl bg-white/70 flex items-center justify-center text-tvtcmain group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200">
+                        <i class="fas ${CORE_DATA[k].icon} text-lg"></i>
+                    </div>
+                    <span class="text-sm md:text-base">${CORE_DATA[k].title}</span>
+                </div>
+                <div id="subnav-${k}" class="hidden flex-col bg-white/40 mb-4 py-3 space-y-2 pl-4 border-r-4 border-white/50 mr-8 rounded-bl-2xl shadow-inner"></div>`;
+            });
+            nav.innerHTML = html;
+        };
+        // استدعاء فوري لضمان ظهور القائمة قبل تحميل Firebase
+        document.addEventListener('DOMContentLoaded', () => { window.renderSidebar(); window.initMainGrid(); });
         window.initMainGrid = () => { const grid = document.getElementById('main-grid'); if(!grid) return; grid.innerHTML = Object.keys(CORE_DATA).map(k => { const s = CORE_DATA[k]; return `<div onclick="window.openSection('${k}', 0)" class="glass-card p-6 md:p-10 hover-scale border-t-[8px] border-tvtcmain cursor-pointer group text-center flex flex-col items-center gap-4 bg-white/70"><div class="w-20 h-20 bg-white/90 text-tvtcmain rounded-2xl flex items-center justify-center text-4xl shrink-0 group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${s.icon}"></i></div><div><h2 class="text-xl md:text-2xl font-black text-tvtcdark mb-2">${s.title}</h2><p class="text-slate-600 text-xs md:text-sm font-bold leading-relaxed line-clamp-2">${s.desc}</p></div></div>`; }).join(''); };
-        window.clearActiveSidebar = () => { document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active')); document.querySelectorAll('[id^="subnav-"]').forEach(el => { el.innerHTML = ''; el.classList.add('hidden'); }); };
+        window.clearActiveSidebar = () => {
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-subnav').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.sub-item').forEach(el => el.classList.remove('active-sub'));
+            document.querySelectorAll('[id^="subnav-"]').forEach(el => { el.innerHTML = ''; el.classList.add('hidden'); });
+        };
         window.smoothScrollTop = () => { const scrollArea = document.getElementById('main-scroll-area'); if(scrollArea) scrollArea.scrollTo({top: 0, behavior: 'smooth'}); };
 
-        window.goHome = () => { localStorage.setItem('app_current_view', 'home'); const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.remove('hidden'); const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden'); window.clearActiveSidebar(); window.smoothScrollTop(); const sidebar = document.getElementById('main-sidebar'); if(sidebar && window.innerWidth < 1024) sidebar.classList.add('hidden'); };
+        window.goHome = () => { localStorage.setItem('app_current_view', 'home'); const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.remove('hidden'); const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden'); window.clearActiveSidebar(); window.smoothScrollTop(); };
 
         window.openSection = (key, targetTab = 0) => {
             if (typeof targetTab !== 'number') targetTab = 0; localStorage.setItem('app_current_view', 'section'); localStorage.setItem('app_current_section', key);
             window.activeSection = key; const s = CORE_DATA[key];
             const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden');
             const sectionContainer = document.getElementById('section-container'); if(sectionContainer) sectionContainer.classList.remove('hidden');
-            const titleEl = document.getElementById('section-title'); if(titleEl) titleEl.innerText = s.title; 
-            window.clearActiveSidebar(); const sideItem = document.getElementById(`side-${key}`); if(sideItem) sideItem.classList.add('active');
+            const titleEl = document.getElementById('section-title'); if(titleEl) titleEl.innerText = s.title;
+
+            // تنشيط القسم الرئيسي في الـ sidebar
+            window.clearActiveSidebar();
+            const sideItem = document.getElementById(`side-${key}`); if(sideItem) sideItem.classList.add('active');
+
+            // فتح الـ subnav الثابت للقسم المحدد
+            const staticSubnav = document.getElementById(`subnav-${key}`);
+            if(staticSubnav) {
+                staticSubnav.classList.add('open');
+                // تمييز العنصر الفرعي الصحيح
+                const subItems = staticSubnav.querySelectorAll('.sub-item');
+                subItems.forEach((item, i) => {
+                    item.classList.toggle('active-sub', i === targetTab);
+                });
+            }
+
             let allTabs = s.tabs.slice(); if(window.allArticlesMap) { Object.values(window.allArticlesMap).forEach(a => { if(a.sectionId === key && !a.id.startsWith('core_')) allTabs.push(a.tabName); }); }
             const mobileTabs = document.getElementById('mobile-tabs'); if(mobileTabs) mobileTabs.innerHTML = allTabs.map((t, i) => `<button onclick="window.loadTabContent(${i})" id="mtab-${i}" class="px-5 py-2.5 whitespace-nowrap border-b-[6px] font-black text-xs md:text-sm transition bg-white/80 rounded-t-xl shadow-sm ${i===targetTab?'border-tvtcmain text-tvtcdark':'border-transparent text-slate-600 hover:text-tvtcmain'}">${t}</button>`).join('');
-            const subNav = document.getElementById(`subnav-${key}`); if(subNav) { subNav.innerHTML = allTabs.map((t, i) => `<div onclick="window.loadTabContent(${i})" id="stab-${i}" class="sub-tab ${i===targetTab?'active':''}"><i class="fas fa-chevron-left ml-2 text-[10px] opacity-40"></i> ${t}</div>`).join(''); subNav.classList.remove('hidden'); }
-            if(window.innerWidth < 1024) { const sidebar = document.getElementById('main-sidebar'); if(sidebar) sidebar.classList.add('hidden'); } window.loadTabContent(targetTab);
+            window.loadTabContent(targetTab);
         };
 
         window.loadTabContent = (index) => {
             localStorage.setItem('app_current_tab', index); const area = document.getElementById('content-area'); if(!area) return; const s = CORE_DATA[window.activeSection]; const titleEl = document.getElementById('section-title');
             document.querySelectorAll('[id^="mtab-"]').forEach(t => { t.classList.remove('border-tvtcmain', 'text-tvtcdark'); t.classList.add('border-transparent', 'text-slate-600'); }); document.querySelectorAll('[id^="stab-"]').forEach(t => t.classList.remove('active'));
             const activeMTab = document.getElementById(`mtab-${index}`); if(activeMTab) activeMTab.classList.add('border-tvtcmain', 'text-tvtcdark'); const activeSTab = document.getElementById(`stab-${index}`); if(activeSTab) activeSTab.classList.add('active');
+
+            // تحديث تمييز العنصر الفرعي في الـ sidebar الثابت
+            const staticSubnav = document.getElementById(`subnav-${window.activeSection}`);
+            if(staticSubnav) {
+                staticSubnav.querySelectorAll('.sub-item').forEach((item, i) => {
+                    item.classList.toggle('active-sub', i === index);
+                });
+            }
             area.classList.remove('page-enter'); void area.offsetWidth; area.classList.add('page-enter');
             let currentContent = ''; let titleColor = '#004d60'; let titleSize = 'text-3xl md:text-5xl'; let finalTitle = s.title;
             if (index < s.content.length) {
@@ -299,7 +533,7 @@
 
         window.toggleFS = () => { const icon = document.getElementById('fs-icon'); if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); if(icon) icon.className = 'fas fa-compress'; } else { document.exitFullscreen(); if(icon) icon.className = 'fas fa-expand'; } };
         window.toast = (m, t='success') => { const e = document.getElementById('tst'), i = document.getElementById('tsti'), tx = document.getElementById('tstt'); if(!e || !i || !tx) return; tx.innerText = m; e.className = `toast show ${t==='success'?'border-tvtcmain text-tvtcdark':'border-red-500 text-red-800'}`; i.className = `fas ${t==='success'?'fa-check-circle text-tvtcmain':'fa-exclamation-triangle text-red-600'}`; setTimeout(() => e.className='toast', 3500); };
-        window.onload = () => { setTimeout(() => { document.execCommand('styleWithCSS', false, true); window.renderSidebar(); window.initMainGrid(); }, 100); };
+        window.onload = () => { setTimeout(() => { document.execCommand('styleWithCSS', false, true); window.renderSidebar(); window.initMainGrid(); }, 50); };
         
         window.restoreAppState = () => {
             const currentView = localStorage.getItem('app_current_view') || 'home';
@@ -348,7 +582,7 @@
         
         window.directLMS = (type) => {
             localStorage.setItem('app_current_view', 'lms_' + type); const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden'); const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.remove('hidden');
-            window.clearActiveSidebar(); if(window.innerWidth < 1024) { const sidebar = document.getElementById('main-sidebar'); if(sidebar) sidebar.classList.add('hidden'); }
+            window.clearActiveSidebar();
             if(type === 'student') window.renderStudentPortal(); else if(type === 'admin') window.renderAdminLogin(); window.smoothScrollTop();
         };
 
