@@ -4,1753 +4,235 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>مبادئ شبكات الحاسب الآلي</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <style>
-  :root {
-    --primary: #6c2fa0;
-    --primary-light: #8b46c8;
-    --primary-dark: #4a1f6e;
-    --accent: #00c9b1;
-    --accent2: #ff6b35;
-    --teal: #0097a7;
-    --bg: #0b0d1a;
-    --bg2: #111327;
-    --bg3: #1a1d35;
-    --card: #161928;
-    --card2: #1e2240;
-    --text: #e8eaf6;
-    --text-muted: #8c90b5;
-    --border: rgba(108,47,160,0.25);
-    --shadow: 0 8px 32px rgba(0,0,0,0.4);
-    --radius: 16px;
-    --radius-sm: 8px;
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Cairo', 'Tajawal', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    direction: rtl;
-    overflow-x: hidden;
-    line-height: 1.8;
-  }
-
-  /* ─── SCROLLBAR ─── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
-
-  /* ─── NAV ─── */
-  nav {
-    position: fixed;
-    top: 0; right: 0; left: 0;
-    z-index: 1000;
-    background: rgba(11,13,26,0.92);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-  }
-
-  .nav-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    gap: 1rem;
-  }
-
-  .nav-logo {
-    font-size: 1.1rem;
-    font-weight: 900;
-    color: var(--accent);
-    white-space: nowrap;
-    letter-spacing: -0.5px;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 0.25rem;
-    list-style: none;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav-links a {
-    display: block;
-    padding: 0.4rem 0.8rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 0.82rem;
-    font-weight: 600;
-    border-radius: 20px;
-    transition: all 0.3s;
-    white-space: nowrap;
-  }
-
-  .nav-links a:hover, .nav-links a.active {
-    color: #fff;
-    background: var(--primary);
-  }
-
-  /* ─── HERO ─── */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 2rem 80px;
-    position: relative;
-    overflow: hidden;
-    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(108,47,160,0.3) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 80% 70%, rgba(0,201,177,0.15) 0%, transparent 60%),
-                var(--bg);
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle, rgba(108,47,160,0.12) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: gridMove 20s linear infinite;
-  }
-
-  @keyframes gridMove {
-    from { transform: translateY(0); }
-    to { transform: translateY(40px); }
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1.25rem;
-    background: rgba(108,47,160,0.2);
-    border: 1px solid rgba(108,47,160,0.4);
-    border-radius: 30px;
-    font-size: 0.85rem;
-    color: var(--accent);
-    font-weight: 700;
-    margin-bottom: 2rem;
-    animation: fadeIn 0.8s ease forwards;
-  }
-
-  .hero h1 {
-    font-size: clamp(2.2rem, 6vw, 5rem);
-    font-weight: 900;
-    line-height: 1.15;
-    margin-bottom: 1.5rem;
-    animation: slideUp 0.8s ease 0.2s both;
-  }
-
-  .hero h1 span {
-    background: linear-gradient(135deg, var(--primary-light), var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    max-width: 600px;
-    margin-bottom: 3rem;
-    animation: slideUp 0.8s ease 0.4s both;
-  }
-
-  .hero-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    animation: slideUp 0.8s ease 0.6s both;
-  }
-
-  .hero-card {
-    padding: 1rem 1.5rem;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.3s;
-    backdrop-filter: blur(10px);
-  }
-
-  .hero-card:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    transform: translateY(-3px);
-    color: #fff;
-  }
-
-  .hero-card .num {
-    display: block;
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-  @keyframes slideUp { from { opacity:0; transform:translateY(30px) } to { opacity:1; transform:translateY(0) } }
-
-  /* ─── SECTIONS ─── */
-  .section {
-    padding: 100px 2rem;
-    max-width: 1300px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    margin-bottom: 3rem;
-    position: relative;
-  }
-
-  .section-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3rem 1rem;
-    background: rgba(108,47,160,0.15);
-    border: 1px solid rgba(108,47,160,0.3);
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--primary-light);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-  }
-
-  .section-title span {
-    color: var(--accent);
-  }
-
-  .section-desc {
-    font-size: 1rem;
-    color: var(--text-muted);
-    max-width: 700px;
-    line-height: 1.8;
-  }
-
-  /* ─── DIVIDER ─── */
-  .section-divider {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border), transparent);
-    margin: 0;
-  }
-
-  /* ─── CARDS GRID ─── */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-
-  .info-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .info-card::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 80px; height: 80px;
-    background: radial-gradient(circle, rgba(108,47,160,0.2) 0%, transparent 70%);
-    border-radius: 0 var(--radius) 0 80px;
-  }
-
-  .info-card:hover {
-    border-color: rgba(108,47,160,0.6);
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(108,47,160,0.2);
-  }
-
-  .info-card .card-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .info-card h3 {
-    font-size: 1.1rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
-    color: var(--text);
-  }
-
-  .info-card p {
-    font-size: 0.92rem;
-    color: var(--text-muted);
-    line-height: 1.8;
-  }
-
-  /* ─── CONTENT BLOCK ─── */
-  .content-block {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .content-block h3 {
-    font-size: 1.3rem;
-    font-weight: 800;
-    margin-bottom: 1.25rem;
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .content-block h3 .dot {
-    width: 10px; height: 10px;
-    background: var(--accent);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .content-block p {
-    color: var(--text-muted);
-    line-height: 1.9;
-    font-size: 0.95rem;
-  }
-
-  .content-block ul {
-    list-style: none;
-    margin-top: 1rem;
-  }
-
-  .content-block ul li {
-    padding: 0.5rem 0 0.5rem 1.5rem;
-    color: var(--text-muted);
-    font-size: 0.93rem;
-    line-height: 1.7;
-    position: relative;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-
-  .content-block ul li:last-child { border-bottom: none; }
-
-  .content-block ul li::before {
-    content: '◆';
-    position: absolute;
-    right: 0;
-    color: var(--primary-light);
-    font-size: 0.5rem;
-    top: 0.85rem;
-  }
-
-  /* ─── TWO-COL ─── */
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    .two-col { grid-template-columns: 1fr; }
-  }
-
-  /* ─── HIGHLIGHT BOX ─── */
-  .highlight-box {
-    background: linear-gradient(135deg, rgba(108,47,160,0.15), rgba(0,201,177,0.08));
-    border: 1px solid rgba(0,201,177,0.3);
-    border-radius: var(--radius);
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .highlight-box p {
-    font-size: 1rem;
-    line-height: 1.9;
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  /* ─── TABLE ─── */
-  .table-wrap {
-    overflow-x: auto;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin: 1.5rem 0;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-  }
-
-  thead { background: var(--primary-dark); }
-  thead th {
-    padding: 1rem 1.25rem;
-    text-align: right;
-    font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-  }
-
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(108,47,160,0.08); }
-
-  tbody td {
-    padding: 0.9rem 1.25rem;
-    color: var(--text-muted);
-    font-size: 0.87rem;
-    line-height: 1.6;
-  }
-
-  tbody td:first-child { font-weight: 700; color: var(--text); }
-
-  /* ─── OSI LAYERS ─── */
-  .osi-layers {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin: 1.5rem 0;
-  }
-
-  .osi-layer {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    transition: all 0.3s;
-  }
-
-  .osi-layer:hover { transform: translateX(-4px); }
-
-  .layer-num {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    color: #fff;
-  }
-
-  .layer-info { flex: 1; }
-  .layer-name { font-weight: 800; font-size: 0.95rem; }
-  .layer-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem; }
-  .layer-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    background: rgba(255,255,255,0.08);
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  /* ─── NETWORK TYPES ─── */
-  .network-types-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-  }
-
-  .net-type-card {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s;
-  }
-
-  .net-type-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-  }
-
-  .net-type-badge {
-    display: inline-block;
-    padding: 0.35rem 1rem;
-    border-radius: 20px;
-    font-weight: 900;
-    font-size: 0.85rem;
-    margin-bottom: 0.75rem;
-    color: #fff;
-  }
-
-  .net-type-card h4 { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; }
-  .net-type-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
-
-  /* ─── NUMBERED LIST ─── */
-  .numbered-list { counter-reset: item; list-style: none; margin: 1rem 0; }
-  .numbered-list li {
-    counter-increment: item;
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.93rem;
-    color: var(--text-muted);
-  }
-  .numbered-list li:last-child { border-bottom: none; }
-  .numbered-list li::before {
-    content: counter(item);
-    min-width: 28px; height: 28px;
-    background: var(--primary);
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-  }
-
-  /* ─── CABLE SECTION ─── */
-  .cable-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cable-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-  }
-
-  .cable-card h3 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    color: var(--text);
-  }
-
-  .cable-card h3 span { color: var(--accent); }
-  .cable-card p { color: var(--text-muted); line-height: 1.9; font-size: 0.93rem; }
-  .cable-card ul { margin-top: 0.75rem; list-style: none; }
-  .cable-card ul li {
-    padding: 0.4rem 1rem 0.4rem 0;
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    position: relative;
-  }
-  .cable-card ul li::before { content: '▶ '; color: var(--primary-light); font-size: 0.6rem; }
-
-  /* ─── SECTION BG ALTERNATING ─── */
-  .section-alt { background: var(--bg2); }
-  .section-alt .section { margin: 0 auto; }
-
-  .section-wrapper-alt {
-    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
-  }
-
-  /* ─── SECURITY CARDS ─── */
-  .threat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-  }
-
-  .threat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
-
-  .threat-card .threat-icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    display: block;
-  }
-
-  .threat-card h4 { font-size: 1rem; font-weight: 800; margin-bottom: 0.6rem; color: var(--text); }
-  .threat-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.75; }
-  .threat-card .threat-tag {
-    display: inline-block;
-    padding: 0.2rem 0.7rem;
-    border-radius: 10px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-  }
-
-  /* ─── FOOTER ─── */
-  footer {
-    text-align: center;
-    padding: 3rem 2rem;
-    border-top: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    background: var(--bg2);
-  }
-
-  footer strong { color: var(--accent); }
-
-  /* ─── SCROLL TO TOP ─── */
-  .scroll-top {
-    position: fixed;
-    bottom: 2rem;
-    left: 2rem;
-    width: 44px; height: 44px;
-    background: var(--primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s;
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
-    z-index: 999;
-  }
-
-  .scroll-top.visible { opacity: 1; transform: translateY(0); }
-  .scroll-top:hover { background: var(--accent); }
-
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 768px) {
-    nav { padding: 0 1rem; }
-    .nav-links { display: none; }
-    .section { padding: 60px 1.25rem; }
-    .hero { padding: 100px 1.25rem 60px; }
-  }
-
-  /* ─── TOPOLOGY GRID ─── */
-  .topo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0;
-  }
-
-  .topo-card {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 1.25rem;
-    text-align: center;
-    transition: all 0.3s;
-  }
-
-  .topo-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-  .topo-card .topo-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-  .topo-card h4 { font-size: 0.9rem; font-weight: 700; color: var(--text); }
-  .topo-card p { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem; }
-
-  /* ─── SOLUTIONS GRID ─── */
-  .solutions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
-    margin: 1.5rem 0;
-  }
-
-  .solution-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
-    transition: all 0.3s;
-  }
-
-  .solution-card:hover { border-color: var(--accent); transform: translateY(-4px); }
-
-  .solution-card .sol-icon {
-    width: 44px; height: 44px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(0,201,177,0.2), rgba(108,47,160,0.2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-    border: 1px solid rgba(0,201,177,0.2);
-  }
-
-  .solution-card h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 0.6rem; color: var(--accent); }
-  .solution-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
-
-  /* section separators */
-  .sec-sep {
-    background: var(--bg3);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .tag-purple { background: rgba(108,47,160,0.2); color: #c58af9; }
-  .tag-red    { background: rgba(244,67,54,0.15); color: #ff6b6b; }
-  .tag-teal   { background: rgba(0,201,177,0.15); color: #00c9b1; }
-
-  .badge-a { background: #4CAF50; }
-  .badge-b { background: #2196F3; }
-  .badge-c { background: #FF9800; }
-  .badge-lan { background: #6c2fa0; }
-  .badge-wlan { background: #0097a7; }
-  .badge-pan { background: #e91e63; }
-  .badge-man { background: #ff6b35; }
-  .badge-wan { background: #4CAF50; }
-
-  .l7 { background: #5c6bc0; }
-  .l6 { background: #26a69a; }
-  .l5 { background: #66bb6a; }
-  .l4 { background: #ffa726; }
-  .l3 { background: #ef5350; }
-  .l2 { background: #ab47bc; }
-  .l1 { background: #8d6e63; }
+/* ─── HOME-ONLY STYLES ─── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: calc(var(--nav-h) + 60px) 2rem 80px;
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 30%, rgba(108,47,160,0.3) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 85% 75%, rgba(0,201,177,0.12) 0%, transparent 55%),
+    var(--bg);
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(108,47,160,0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: bgMove 22s linear infinite;
+  pointer-events: none;
+}
+@keyframes bgMove { to { transform: translateY(40px); } }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1.2rem;
+  background: rgba(108,47,160,0.18);
+  border: 1px solid rgba(108,47,160,0.38);
+  border-radius: 30px;
+  font-size: 0.82rem; font-weight: 700; color: var(--accent);
+  margin-bottom: 1.75rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  font-weight: 900; line-height: 1.15; margin-bottom: 1.25rem;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 1.05rem; color: var(--text-muted);
+  max-width: 580px; margin-bottom: 3rem; line-height: 1.85;
+}
+
+/* page cards grid */
+.pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 60px 2rem 80px;
+}
+.page-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.25rem 2rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+.page-card::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(108,47,160,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.page-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transform: scaleX(0);
+  transition: transform 0.35s;
+}
+.page-card:hover {
+  border-color: rgba(108,47,160,0.55);
+  transform: translateY(-6px);
+  box-shadow: 0 18px 45px rgba(108,47,160,0.2);
+}
+.page-card:hover::after { transform: scaleX(1); }
+
+.pc-num {
+  font-size: 3rem; font-weight: 900; line-height: 1;
+  color: rgba(108,47,160,0.3);
+  margin-bottom: 0.75rem;
+  font-family: 'Cairo', monospace;
+}
+.pc-icon {
+  font-size: 2.2rem; margin-bottom: 1rem; display: block;
+}
+.pc-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.4rem; }
+.pc-en { font-size: 0.82rem; color: var(--accent); font-weight: 600; margin-bottom: 0.85rem; }
+.pc-desc { font-size: 0.87rem; color: var(--text-muted); line-height: 1.75; }
+.pc-topics { margin-top: 1rem; list-style: none; }
+.pc-topics li {
+  font-size: 0.8rem; color: var(--text-muted);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.pc-topics li::before { content: '◈'; color: var(--primary-light); font-size: 0.55rem; }
+.pc-topics li:last-child { border-bottom: none; }
+.pc-arrow {
+  margin-top: 1.25rem;
+  font-size: 0.82rem; font-weight: 700; color: var(--accent);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+@media (max-width: 600px) {
+  .pages-grid { padding: 40px 1.25rem 60px; }
+  .hero { padding: calc(var(--nav-h) + 40px) 1.25rem 60px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ═══ NAVIGATION ═══ -->
-<nav>
-  <div class="nav-inner">
-    <span class="nav-logo">🌐 مبادئ الشبكات</span>
-    <ul class="nav-links">
-      <li><a href="#networks">شبكات الحاسب</a></li>
-      <li><a href="#security">الأمان</a></li>
-      <li><a href="#osi">نموذج OSI</a></li>
-      <li><a href="#cables">الكيابل</a></li>
-      <li><a href="#ip">بروتوكول IP</a></li>
-    </ul>
-  </div>
-</nav>
+<!-- nav injected by shared-nav.js -->
 
 <!-- ═══ HERO ═══ -->
 <section class="hero">
-  <div class="hero-badge">📡 المؤسسة العامة للتدريب التقني والمهني</div>
-  <h1>مبادئ <span>شبكات الحاسب</span> الآلي</h1>
-  <p class="hero-sub">دليل شامل لتعلم شبكات الحاسب — من المفاهيم الأساسية إلى بروتوكولات الشبكة والأمان والكيابل</p>
-  <div class="hero-cards">
-    <a href="#networks" class="hero-card"><span class="num">01</span>شبكات الحاسب</a>
-    <a href="#security" class="hero-card"><span class="num">02</span>الأمان</a>
-    <a href="#osi" class="hero-card"><span class="num">03</span>نموذج OSI</a>
-    <a href="#cables" class="hero-card"><span class="num">04</span>كيابل الشبكات</a>
-    <a href="#ip" class="hero-card"><span class="num">05</span>بروتوكول IP</a>
-  </div>
+  <div class="hero-badge anim-1">📡 المؤسسة العامة للتدريب التقني والمهني</div>
+  <h1 class="anim-2">مبادئ <span class="grad">شبكات الحاسب</span> الآلي</h1>
+  <p class="hero-sub anim-3">دليل شامل ومتكامل لتعلم شبكات الحاسب — من المفاهيم الأساسية حتى بروتوكولات الشبكة والأمان والكيابل</p>
+  <p class="anim-4" style="font-size:0.88rem; color:var(--text-muted);">اختر أحد الأقسام للبدء ↓</p>
 </section>
 
-<div class="section-divider"></div>
+<!-- ═══ PAGES GRID ═══ -->
+<div class="pages-grid">
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- SECTION 1: شبكات الحاسب الآلي             -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="networks">
-<div class="section">
-
-  <div class="section-header">
-    <div class="section-tag">📡 القسم الأول</div>
-    <h2 class="section-title">شبكات الحاسب الآلي<br><span>Computer Networks</span></h2>
-    <p class="section-desc">مقدمة شاملة عن شبكات الحاسب الآلي — تعريفها، مكوناتها، فوائدها، وأنواعها المختلفة.</p>
-  </div>
-
-  <!-- ما هي شبكات الحاسب -->
-  <div class="content-block">
-    <h3><span class="dot"></span>ما هي شبكة الحاسب؟ (Network Computer)</h3>
-    <div class="highlight-box">
-      <p>شبكة الحاسب عبارة عن مجموعة من الحاسبات والأجهزة الأخرى المتصلة مع بعضها البعض حيث يكون لها القدرة على مشاركة عدد كبير من المستخدمين للبيانات (Data) والأجهزة (Hardware) كما تعتبر الشبكة وسيلة اتصال إلكتروني بين الأفراد.</p>
-    </div>
-  </div>
-
-  <!-- مكونات شبكات الحاسب -->
-  <div class="content-block">
-    <h3><span class="dot"></span>مكونات شبكة الحاسب</h3>
-    <p style="margin-bottom:1.5rem;">تتكون شبكة الحاسب من ثلاث مكونات رئيسية وهي:</p>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">💻</div>
-        <h3>① الأجهزة الطرفية (Clients)</h3>
-        <p>أي جهاز يُرسل المعلومات ويستقبلها على الشبكة مثل كمبيوتر، طابعة. الجهاز الطرفي هو المكان الذي تنشأ منه الرسالة أو المكان الذي يتم استلامها فيه. تنشأ البيانات باستخدام جهاز طرفي، وتتدفق خلال الشبكة، وتصل إلى جهاز طرفي آخر.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🔀</div>
-        <h3>② الأجهزة الوسيطة</h3>
-        <p>هي الأجهزة المسؤولة عن توجيه الحزم ما بين المرسل والمستقبل مثل سويتش، راوتر، نقطة الوصول. وتقوم الأجهزة الوسيطة بالاتصال البيني بين الأجهزة الطرفية ومن الأمثلة عليها: أجهزة التبديل (Switch)، ونقاط الوصول اللاسلكية (Access Point)، وأجهزة التوجيه (Router)، وجدران الحماية (Firewall).</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">📶</div>
-        <h3>③ وسائط الشبكة</h3>
-        <p>مكون تنتقل عبره الرسالة من المصدر إلى الوجهة مثل الكابل أو الموجة اللاسلكية. يتم نقل الاتصالات عبر الشبكة من خلال وسيط يسمح للرسالة بالانتقال من المصدر إلى الوجهة. أنواعه: Cable (كابل)، Fiber Optic (ألياف ضوئية)، Wireless (لاسلكي).</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- فوائد شبكات الحاسب -->
-  <div class="content-block">
-    <h3><span class="dot"></span>فوائد شبكات الحاسب</h3>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">🖨️</div>
-        <h3>مشاركة موارد الشبكة (Hardware)</h3>
-        <p>مشاركة موارد الشبكة بين المستخدمين مثل الطابعة وأجهزة التخزين دون الحاجة لنسخ متعددة من الجهاز.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">💾</div>
-        <h3>مشاركة البرمجيات (Software)</h3>
-        <p>مشاركة البرمجيات بين المستخدمين على الشبكة مما يوفر تكلفة شراء نسخ متعددة من البرامج.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">📁</div>
-        <h3>مشاركة الملفات مباشرة</h3>
-        <p>مشاركة الملفات مباشرة بين الأجهزة بدلاً من نقلها عبر البريد الإلكتروني أو وسائط التخزين المحمولة.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🎮</div>
-        <h3>ممارسة الألعاب الجماعية (Multiplayer)</h3>
-        <p>ممارسة ألعاب الكمبيوتر الجماعية بين أكثر من مستخدم في نفس الوقت عبر الشبكة.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- أنواع شبكات الحاسب -->
-  <div class="content-block">
-    <h3><span class="dot"></span>أنواع شبكات الحاسب</h3>
-
-    <p style="font-weight:700; color:var(--text); margin-bottom:1rem;">أولاً: الشبكات من حيث المدى الجغرافي</p>
-    <div class="network-types-grid">
-      <div class="net-type-card">
-        <div class="net-type-badge badge-lan">LAN</div>
-        <h4>الشبكة المحلية</h4>
-        <p>هي شبكة تربط مجموعة من أجهزة الحاسوب والأجهزة الطرفية داخل منطقة جغرافية محدودة مثل منزل، مكتب، مدرسة أو مؤسسة. تُستخدم لتبادل البيانات ومشاركة الموارد مثل الطابعات والملفات والاتصال بالإنترنت.</p>
-      </div>
-      <div class="net-type-card">
-        <div class="net-type-badge badge-wlan">WLAN</div>
-        <h4>الشبكة المحلية اللاسلكية</h4>
-        <p>هي شبكة تستخدم تقنية الاتصال اللاسلكي (Wi-Fi) لربط الأجهزة مثل الحواسيب والهواتف الذكية والطابعات بنقطة وصول (Access Point) أو راوتر، مما يتيح تبادل البيانات والوصول إلى الإنترنت دون الحاجة إلى توصيلات سلكية.</p>
-      </div>
-      <div class="net-type-card">
-        <div class="net-type-badge badge-pan">PAN</div>
-        <h4>الشبكة الخاصة (الشخصية)</h4>
-        <p>الشبكة الشخصية (PAN) هي نوع من الشبكات التي تُستخدم لتوصيل الأجهزة القريبة من الشخص، عادةً في نطاق بضعة أمتار. تُستخدم لتبادل البيانات بين الأجهزة الشخصية مثل الهواتف الذكية، الأجهزة اللوحية، أجهزة الكمبيوتر المحمولة، والسماعات اللاسلكية.</p>
-      </div>
-      <div class="net-type-card">
-        <div class="net-type-badge badge-man">MAN</div>
-        <h4>الشبكة المتوسطة</h4>
-        <p>تعني "شبكة الاقليمية". وهي شبكة حاسوبية تربط عدة شبكات محلية (LAN) ضمن نطاق جغرافي متوسط في حدود المنطقة.</p>
-      </div>
-      <div class="net-type-card">
-        <div class="net-type-badge badge-wan">WAN</div>
-        <h4>الشبكة الواسعة</h4>
-        <p>تعني "شبكة منطقة واسعة". وهي شبكة تربط بين شبكات محلية (LAN) أو شبكات اقليمية (MAN) عبر مسافات جغرافية كبيرة، مثل مدن أو دول أو حتى قارات.</p>
-      </div>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin: 2rem 0 1rem;">ثانياً: الشبكات من حيث معمارية الشبكة</p>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon">🔗</div>
-        <h3>شبكة نظير إلى نظير (Peer to Peer)</h3>
-        <p>في هذا النوع من الشبكات تتصل الحواسيب ببعضها البعض مباشرة دون الحاجة لخادم مركزي، وكل جهاز يعمل كعميل وخادم في آن واحد.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🖥️</div>
-        <h3>شبكة العميل والخادم (Client Server)</h3>
-        <p>في هذا النوع يوجد خادم مركزي (Server) يقدم الخدمات للعملاء (Clients)، حيث يطلب العملاء الخدمات من الخادم الذي يستجيب لطلباتهم.</p>
-      </div>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin: 2rem 0 1rem;">ثالثاً: الشبكات حسب التصميم الهندسي (Topology)</p>
-    <div class="topo-grid">
-      <div class="topo-card">
-        <div class="topo-icon">━</div>
-        <h4>الشبكة الخطية (Bus)</h4>
-        <p>جميع الأجهزة متصلة بخط واحد</p>
-      </div>
-      <div class="topo-card">
-        <div class="topo-icon">⭐</div>
-        <h4>الشبكة النجمية (Star)</h4>
-        <p>جميع الأجهزة متصلة بمركز واحد</p>
-      </div>
-      <div class="topo-card">
-        <div class="topo-icon">⭕</div>
-        <h4>الشبكة الحلقية (Ring)</h4>
-        <p>الأجهزة متصلة في شكل حلقة مغلقة</p>
-      </div>
-      <div class="topo-card">
-        <div class="topo-icon">🕸️</div>
-        <h4>الشبكة المعقدة (Mesh)</h4>
-        <p>كل جهاز متصل بجميع الأجهزة الأخرى</p>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /section -->
-</div><!-- /#networks -->
-
-<div class="section-divider"></div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- SECTION 2: الأمان في شبكات الحاسب         -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="security" class="sec-sep">
-<div class="section">
-
-  <div class="section-header">
-    <div class="section-tag">🔒 القسم الثاني</div>
-    <h2 class="section-title">الأمان في شبكات الحاسب</h2>
-    <p class="section-desc">مفهوم أمان الشبكات والتهديدات الداخلية والخارجية وحلول الأمان المتاحة.</p>
-  </div>
-
-  <!-- مفهوم أمان الشبكات -->
-  <div class="content-block">
-    <h3><span class="dot"></span>مفهوم أمان الشبكات</h3>
-    <div class="highlight-box">
-      <p>أمان الشبكات هو مجموعة من السياسات والتقنيات التي تهدف إلى حماية البيانات والأجهزة المتصلة بالشبكة من الوصول غير المصرح به، أو سوء الاستخدام، أو الهجمات.</p>
-    </div>
-    <p style="font-weight:700; color:var(--text); margin-bottom:1rem;">أهمية أمان الشبكات:</p>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">🛡️</div>
-        <h3>حماية البيانات الحساسة</h3>
-        <p>حماية المعلومات الحساسة والسرية من الوصول غير المصرح به أو السرقة أو التلف.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">⚡</div>
-        <h3>ضمان استمرارية العمل</h3>
-        <p>ضمان عمل الأنظمة والخدمات بشكل مستمر دون انقطاع بسبب الهجمات الإلكترونية.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">✅</div>
-        <h3>تعزيز الثقة في الأنظمة التقنية</h3>
-        <p>بناء الثقة في الأنظمة التقنية لدى المستخدمين والمؤسسات مما يدعم استمرارية الأعمال.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">💰</div>
-        <h3>منع الخسائر المالية</h3>
-        <p>الوقاية من الخسائر المالية الناجمة عن اختراق البيانات أو التوقف عن العمل أو الابتزاز الإلكتروني.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- التهديدات الداخلية -->
-  <div class="content-block">
-    <h3><span class="dot"></span>التهديدات الداخلية للشبكة</h3>
-    <div class="highlight-box">
-      <p>هي التهديدات التي تأتي من داخل المؤسسة نفسها، سواء بقصد أو بدون قصد. لماذا هي خطيرة؟ لأن أصحابها غالباً يمتلكون صلاحيات وصول واسعة.</p>
-    </div>
-    <p style="font-weight:700; color:var(--text); margin-bottom:1rem;">أمثلة على التهديدات الداخلية:</p>
-    <div class="cards-grid">
-      <div class="threat-card">
-        <span class="threat-tag tag-purple">داخلي</span>
-        <span class="threat-icon">🔑</span>
-        <h4>مشاركة كلمة المرور</h4>
-        <p>موظف يشارك كلمة المرور مع الآخرين مما يتيح وصول غير مصرح به للبيانات والأنظمة.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-purple">داخلي</span>
-        <span class="threat-icon">🗑️</span>
-        <h4>حذف الملفات بالخطأ</h4>
-        <p>حذف ملفات مهمة عن طريق الخطأ مما يسبب فقدان البيانات الحيوية للمؤسسة.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-purple">داخلي</span>
-        <span class="threat-icon">📱</span>
-        <h4>الأجهزة الشخصية غير الآمنة</h4>
-        <p>استخدام أجهزة شخصية غير آمنة داخل الشبكة يفتح ثغرات أمنية خطيرة.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-purple">داخلي</span>
-        <span class="threat-icon">😤</span>
-        <h4>التخريب المتعمد</h4>
-        <p>موظف غاضب يقوم بتخريب البيانات أو تعطيل الأنظمة بشكل متعمد.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- التهديدات الخارجية -->
-  <div class="content-block">
-    <h3><span class="dot"></span>التهديدات الخارجية للشبكة</h3>
-    <div class="highlight-box">
-      <p>هي التهديدات التي تأتي من خارج حدود الشبكة. خطورتها: قد تؤدي إلى سرقة بيانات، تعطيل خدمات، أو ابتزاز مالي.</p>
-    </div>
-    <p style="font-weight:700; color:var(--text); margin-bottom:1rem;">أمثلة على التهديدات الخارجية:</p>
-    <div class="cards-grid">
-      <div class="threat-card">
-        <span class="threat-tag tag-red">خارجي</span>
-        <span class="threat-icon">💻</span>
-        <h4>هجمات الاختراق (Hacking)</h4>
-        <p>محاولات الوصول غير المصرح به للأنظمة والشبكات من قِبل قراصنة خارجيين.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-red">خارجي</span>
-        <span class="threat-icon">🦠</span>
-        <h4>البرمجيات الخبيثة (Malware)</h4>
-        <p>برامج ضارة مصممة لإلحاق الضرر بالأنظمة أو سرقة البيانات أو التجسس.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-red">خارجي</span>
-        <span class="threat-icon">⚠️</span>
-        <h4>هجمات حجب الخدمة (DDoS)</h4>
-        <p>إغراق الخوادم بطلبات زائفة لتعطيلها وجعلها غير قادرة على تقديم خدماتها.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-red">خارجي</span>
-        <span class="threat-icon">🎣</span>
-        <h4>التصيد الإلكتروني (Phishing)</h4>
-        <p>خداع المستخدمين للحصول على بياناتهم الشخصية وكلمات المرور عبر رسائل مزيفة.</p>
-      </div>
-      <div class="threat-card">
-        <span class="threat-tag tag-red">خارجي</span>
-        <span class="threat-icon">🔓</span>
-        <h4>استغلال الثغرات الأمنية</h4>
-        <p>استغلال نقاط الضعف في البرامج والأنظمة للوصول غير المصرح به إلى الشبكة.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- حلول الأمان -->
-  <div class="content-block">
-    <h3><span class="dot"></span>حلول الأمان في الشبكات</h3>
-    <div class="solutions-grid">
-      <div class="solution-card">
-        <div class="sol-icon">🔥</div>
-        <h4>الجدران النارية (Firewalls)</h4>
-        <p>تعمل كحارس بين الشبكة الداخلية والعالم الخارجي، وتسمح فقط بالاتصالات المصرح بها.</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">🔍</div>
-        <h4>أنظمة كشف ومنع التسلل (IDS/IPS)</h4>
-        <p>يكتشف الهجمات (IDS). يكتشف ويمنع الهجمات تلقائياً (IPS).</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">🔐</div>
-        <h4>التشفير (Encryption)</h4>
-        <p>تحويل البيانات إلى صيغة غير مفهومة إلا لمن يملك مفتاح فك التشفير.</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">🔄</div>
-        <h4>تحديث الأنظمة والبرامج</h4>
-        <p>سد الثغرات الأمنية باستمرار عبر تحديثات منتظمة للأنظمة والبرامج.</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">💾</div>
-        <h4>النسخ الاحتياطي (Backup)</h4>
-        <p>حماية البيانات من الفقدان أو التشفير (مثل هجمات الفدية) عبر نسخ احتياطية منتظمة.</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">👤</div>
-        <h4>إدارة الهوية والصلاحيات (Access Control)</h4>
-        <p>تحديد من يمكنه الوصول إلى ماذا داخل الشبكة عبر نظام صلاحيات محكم.</p>
-      </div>
-      <div class="solution-card">
-        <div class="sol-icon">📚</div>
-        <h4>التوعية الأمنية</h4>
-        <p>تدريب المستخدمين على: عدم فتح الروابط المشبوهة، استخدام كلمات مرور قوية، الإبلاغ عن أي نشاط غير طبيعي.</p>
-      </div>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<div class="section-divider"></div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- SECTION 3: نموذج OSI                       -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="osi">
-<div class="section">
-
-  <div class="section-header">
-    <div class="section-tag">🔁 القسم الثالث</div>
-    <h2 class="section-title">نموذج <span>OSI</span></h2>
-    <p class="section-desc">Open Systems Interconnection — النموذج المرجعي لبروتوكولات الاتصال في شبكات الحاسب.</p>
-  </div>
-
-  <!-- ما هو نموذج OSI -->
-  <div class="content-block">
-    <h3><span class="dot"></span>ما هو نموذج OSI؟</h3>
-    <div class="highlight-box">
-      <p><strong>OSI</strong> هو مراحل تكون البيانات ونقلها من الجهاز المرسل (Source device) إلى الجهاز المستقبل (Destination device). المرجع وضعته المنظمة الدولية للمعايير (ISO) سنة 1983 برقم 7498، ليكون نموذجاً نظرياً موثوقاً لبروتوكولات الاتصالات بين شبكات الحاسب. وظائف الاتصال والتنظيم حسب مرجع أو إس آي (OSI) مقسمة على سبع طبقات (Layers) مختلفة.</p>
-    </div>
-  </div>
-
-  <!-- فائدة نموذج OSI -->
-  <div class="content-block">
-    <h3><span class="dot"></span>فائدة فهم OSI Layers</h3>
-    <ol class="numbered-list">
-      <li>تستطيع فهم وحل المشاكل Troubleshooting الشبكات.</li>
-      <li>معرفة كيفية تكوين البيانات وما هو شكلها في كل مرحلة Encapsulations.</li>
-      <li>تفيد بمعرفة النقاط الحساسة في الشبكات واخذ الحذر منه وكيفية تشفير البيانات وفك التشفير.</li>
-      <li>معرفة كل جهاز في اية طبقة يعمل مثل HUB والراوتر والسويتش وجهاز الكمبيوتر.</li>
-    </ol>
-  </div>
-
-  <!-- الهدف من نموذج OSI -->
-  <div class="content-block">
-    <h3><span class="dot"></span>الهدف من نموذج OSI</h3>
-    <div class="highlight-box">
-      <p>الهدف هو فهم عملية إرسال واستقبال البيانات عبر الشبكة. يتم إرسال البيانات من جهاز (Source / مرسل) إلى جهاز آخر (Destination / مستقبل) عبر الشبكة من خلال المرور بطبقات النموذج السبع.</p>
-    </div>
-  </div>
-
-  <!-- عملية التغليف -->
-  <div class="content-block">
-    <h3><span class="dot"></span>عملية التغليف (Encapsulation)</h3>
-    <div class="highlight-box">
-      <p>تسمى العملية التي تضيف فيها البروتوكولات الترويسات والتذييل على البيانات بعملية تغليف البيانات (Encapsulation)، هذا ما يحدث في عملية الإرسال. أما في عملية الاستقبال تسمى عملية فك تغليف البيانات (De-Encapsulation).</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>الطبقة</th>
-            <th>شكل البيانات</th>
-            <th>المحتوى</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>طبقات 7، 6، 5</td><td>DATA (بيانات التطبيق)</td><td>بيانات التطبيق الأصلية</td></tr>
-          <tr><td>طبقة النقل (4)</td><td>Segment</td><td>ترويسة النقل + بيانات التطبيق</td></tr>
-          <tr><td>طبقة الشبكة (3)</td><td>Packet</td><td>ترويسة الشبكة + ترويسة النقل + البيانات</td></tr>
-          <tr><td>طبقة ربط البيانات (2)</td><td>Frame</td><td>رأس الاطار + ترويسة الشبكة + ترويسة النقل + البيانات + تذييل الاطار</td></tr>
-          <tr><td>الطبقة الفيزيائية (1)</td><td>Bits</td><td>1100011100 (إشارات ثنائية)</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- البروتوكول -->
-  <div class="content-block">
-    <h3><span class="dot"></span>ما هو البروتوكول (Protocol)؟</h3>
-    <div class="highlight-box">
-      <p>البروتوكول عبارة عن مجموعة القواعد التي تحدد كيف يمكن لأجهزة الكمبيوتر أن تتفاهم مع بعضها عبر الشبكة التي تتواجد عليها. كما أنه مجموعة من الأكواد البرمجية كتبت (برمجت) لتسهيل عملية التخاطب بين أجهزة الكمبيوتر في الشبكة.</p>
-    </div>
-  </div>
-
-  <!-- طبقات نموذج OSI -->
-  <div class="content-block">
-    <h3><span class="dot"></span>طبقات نموذج OSI</h3>
-    <div class="osi-layers">
-      <div class="osi-layer">
-        <div class="layer-num l7">7</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة التطبيقات (Application Layer)</div>
-          <div class="layer-desc">هذه الطبقة مسؤولة عن التطبيقات التي نستخدمها لإرسال رسالة باستخدام الشبكات مثل: WhatsApp، Snapchat، Telegram، Gmail، iCloud. البروتوكولات التي تعمل في طبقة التطبيقات: HTTP (نقل البيانات في ويب WWW)، FTP (نقل الملفات)، SMTP (إرسال البريد).</div>
-        </div>
-        <span class="layer-badge">HTTP · FTP · SMTP</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l6">6</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة التقديم (Presentation Layer)</div>
-          <div class="layer-desc">هذه الطبقة مسؤولة عن تهيئة البيانات والتفريق ما بين كل نوع من البيانات. في هذه الطبقة يتم العمل على اخذ كل امتداد على حسب نوع البيانات مثل النصوص والصور والفيديو والملفات المضغوطة. تقوم هذه الطبقة بعمل تشفير وفك التشفير للبيانات. البروتوكولات: JPEG (ضغط الصور)، HTML (نقل النص المتشعّب).</div>
-        </div>
-        <span class="layer-badge">JPEG · HTML</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l5">5</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة الجلسة (Session Layer)</div>
-          <div class="layer-desc">هي الطبقة المسؤولة عن جلسة العمل وعن إدارة وفتح واغلاق الاتصال ما بين المرسل والمستقبل. تحدد نوع الاتصال Simplex، Half duplex، و Full duplex. البروتوكولات: NFS (مشاركة الملفات بين الخوادم)، SQL (بروتوكول قواعد البيانات).</div>
-        </div>
-        <span class="layer-badge">NFS · SQL</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l4">4</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة النقل (Transport Layer)</div>
-          <div class="layer-desc">هذه الطبقة مسؤولة عن تحديد نوع البيانات المرسلة والمستقبلة وبعد ذلك تقوم بتحديد نوع البروتوكول المناسب للبيانات في عملية إرسال ونقل البيانات. البروتوكولات: TCP (نقل البيانات المهمة مثل رفع الملفات)، UDP (نقل ملفات الصوت والفيديو).</div>
-        </div>
-        <span class="layer-badge">TCP · UDP</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l3">3</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة الشبكة (Network Layer)</div>
-          <div class="layer-desc">بعد نزول البيانات على شكل Segment من طبقة النقل، تقوم طبقة الشبكة بتغليفها إلى Packet مع أضافة عنوان (IP) المرسل والمستقبل. يحدد مسار الـ Packet الذي سيتم نقل البيانات اليه ويسمى التوجيه (Routing). أهم الأجهزة المستخدمة في هذه الطبقة: الراوتر (ROUTER). البروتوكولات: IPv4، IPv6، OSPF، RIP.</div>
-        </div>
-        <span class="layer-badge">Router · IP</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l2">2</div>
-        <div class="layer-info">
-          <div class="layer-name">طبقة ربط البيانات (Data Link Layer)</div>
-          <div class="layer-desc">تقوم بتقسيم البيانات إلى أجزاء أصغر تسمى Frames وتضيف إليها أجزاء الرأس Header والذيل Trailer والتي تحتوي على معلومات تحكم للتأكد من خلو الـ Frames من أي أخطاء. أهم جهاز في هذه الطبقة: السويتش (SWITCH). تستخدم هذه الطبقة عنواناً لكل جهاز في الشبكة يُعرَف بـ MAC Address / Physical Address مثل: A0:C9:14:C8:29:00</div>
-        </div>
-        <span class="layer-badge">Switch · MAC</span>
-      </div>
-      <div class="osi-layer">
-        <div class="layer-num l1">1</div>
-        <div class="layer-info">
-          <div class="layer-name">الطبقة الفيزيائية (Physical Layer)</div>
-          <div class="layer-desc">هي الطبقة المسؤولة عن نقل البيانات على شكل إشارات كهربائية (Bits — أصفار وآحاد) عبر الوسائط الفيزيائية كالكابلات والأسلاك. تتعامل مع الجانب المادي للشبكة مثل الكابلات والموصلات والمعدات.</div>
-        </div>
-        <span class="layer-badge">Bits · Cables</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- أنواع الاتصال في طبقة الجلسة -->
-  <div class="content-block">
-    <h3><span class="dot"></span>أنواع الاتصالات في طبقة الجلسة</h3>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">➡️</div>
-        <h3>Simplex (أحادي الاتجاه)</h3>
-        <p>هذا يعني الإرسال في اتجاه واحد يرسل مرة واحدة مثل الراديو والتلفزيون. الإرسال في اتجاه واحد فقط.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">↔️</div>
-        <h3>Half Duplex (ثنائي غير متزامن)</h3>
-        <p>هذا يعني الإرسال والاستقبال ليس في نفس الوقت مثل أجهزة الشرطة. الإرسال والاستقبال بالتناوب وليس في آن واحد.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">⇄</div>
-        <h3>Full Duplex (ثنائي متزامن)</h3>
-        <p>هذا النوع من الاتصال يكون بشكل مباشرة استقبال وإرسال بخط واحد من دون انتظار بمعنى يستقبل ويرسل في نفس الوقت مثل الاتصال من خلال الجوال.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- TCP vs UDP -->
-  <div class="content-block">
-    <h3><span class="dot"></span>الفروقات بين TCP و UDP</h3>
-    <p style="margin-bottom:1.5rem;color:var(--text-muted);">
-      <strong style="color:var(--text);">TCP (Transmission Communication Protocol):</strong> يستخدم في نقل البيانات المهمة مثل رفع الملفات أو تحميل (تنزيل) الملفات. يتأكد من وصول البيانات بشكل كامل.<br><br>
-      <strong style="color:var(--text);">UDP (User Datagram Protocol):</strong> يستخدم في نقل ملفات الصوت والفيديو. لا يهتم في توصيل البيانات بشكل كامل.
-    </p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>الفروق</th><th>TCP</th><th>UDP</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>حجم الـ Header</td><td>20 bytes</td><td>8 bytes</td></tr>
-          <tr><td>السرعة</td><td>أبطئ من بروتوكول UDP</td><td>أسرع من بروتوكول TCP</td></tr>
-          <tr><td>التحقق من الأخطاء</td><td>نعم</td><td>لا</td></tr>
-          <tr><td>ترتيب أجزاء الرسالة</td><td>نعم</td><td>لا</td></tr>
-          <tr><td>الاستخدام</td><td>تحميل الملفات</td><td>مشاهدة الفيديو</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- الفروقات بين السويتش والراوتر -->
-  <div class="content-block">
-    <h3><span class="dot"></span>الفروقات بين السويتش والراوتر</h3>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon">🔀</div>
-        <h3>السويتش (Switch)</h3>
-        <ul>
-          <li>يعمل في طبقة ربط البيانات (Layer 2)</li>
-          <li>يستخدم عناوين MAC للتعرف على الأجهزة</li>
-          <li>يوصل الأجهزة داخل نفس الشبكة المحلية LAN</li>
-          <li>يقسم البيانات إلى Frames</li>
-          <li>أهم جهاز في طبقة Data Link</li>
-        </ul>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🗺️</div>
-        <h3>الراوتر (Router)</h3>
-        <ul>
-          <li>يعمل في طبقة الشبكة (Layer 3)</li>
-          <li>يستخدم عناوين IP للتوجيه</li>
-          <li>يوصل شبكات مختلفة ببعضها</li>
-          <li>يحدد أفضل مسار لنقل البيانات (Routing)</li>
-          <li>أهم جهاز في طبقة Network</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- نموذج TCP/IP -->
-  <div class="content-block">
-    <h3><span class="dot"></span>نموذج TCP/IP</h3>
-    <div class="highlight-box">
-      <p>نموذج TCP/IP هو النموذج العملي المستخدم فعلياً في الإنترنت. يتكون من 4 طبقات تقابل طبقات نموذج OSI السبع. يُعد النموذج الأساسي الذي يعمل عليه الإنترنت اليوم.</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>طبقة TCP/IP</th><th>الطبقات المقابلة في OSI</th><th>البروتوكولات</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>طبقة التطبيق</td><td>التطبيق، التقديم، الجلسة (7، 6، 5)</td><td>HTTP، FTP، SMTP، DNS</td></tr>
-          <tr><td>طبقة النقل</td><td>طبقة النقل (4)</td><td>TCP، UDP</td></tr>
-          <tr><td>طبقة الإنترنت</td><td>طبقة الشبكة (3)</td><td>IPv4، IPv6، OSPF</td></tr>
-          <tr><td>طبقة وصول الشبكة</td><td>ربط البيانات، الفيزيائية (2، 1)</td><td>Ethernet، Wi-Fi</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<div class="section-divider"></div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- SECTION 4: كيابل الشبكات                  -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="cables" class="sec-sep">
-<div class="section">
-
-  <div class="section-header">
-    <div class="section-tag">🔌 القسم الرابع</div>
-    <h2 class="section-title">كيابل الشبكات<br><span>Networking Cables</span></h2>
-    <p class="section-desc">أنواع كابلات الشبكات واستخداماتها وأدوات تصنيعها.</p>
-  </div>
-
-  <!-- تعريف كيبل الشبكة -->
-  <div class="content-block">
-    <h3><span class="dot"></span>تعريف كيبل الشبكة</h3>
-    <div class="highlight-box">
-      <p>الكابل هو الذي تنتقل من خلاله البيانات والمعلومات من حاسب إلى أخرى في الشبكة أو من شبكة إلى شبكة أخرى.</p>
-    </div>
-  </div>
-
-  <!-- أنواع كيابل الشبكة -->
-  <div class="content-block">
-    <h3><span class="dot"></span>أنواع كابلات الشبكات</h3>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">📺</div>
-        <h3>① الكابل المحوري (Coaxial Cable)</h3>
-        <p>كابل نحاسي يحتوي على: الغلاف الخارجي، وقاء نحاسي مجدول، عازل بلاستيك، موصل نحاسي. يُستخدم في شبكات التلفزيون والشبكات القديمة.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🌐</div>
-        <h3>② الكابل المزدوج المجدول (Twisted Pair)</h3>
-        <p>الكابل الأكثر شيوعاً في شبكات LAN. يتكون من أزواج من الأسلاك الملفوفة على بعضها لتقليل التشويش أو التداخل الكهرومغناطيسي.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">💡</div>
-        <h3>③ الكابل الضوئي (Fiber Optic)</h3>
-        <p>يستخدم ضوء الليزر أو LED لنقل البيانات. يوفر سرعات نقل عالية جداً وقادر على نقل البيانات لمسافات طويلة.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- الكابل المحوري -->
-  <div class="cable-card">
-    <h3>الكابل المحوري <span>(Coaxial Cable)</span></h3>
-    <p>يتكون الكابل المحوري من عدة طبقات:</p>
-    <ul>
-      <li><strong>الغلاف الخارجي:</strong> طبقة الحماية الخارجية للكابل</li>
-      <li><strong>وقاء نحاسي مجدول:</strong> يحمي من التداخل الكهرومغناطيسي</li>
-      <li><strong>عازل بلاستيك:</strong> يعزل الموصل عن الوقاء</li>
-      <li><strong>موصل نحاسي:</strong> السلك الذي تنتقل عبره البيانات</li>
+  <a href="networks.html" class="page-card">
+    <span class="pc-num">01</span>
+    <span class="pc-icon">📡</span>
+    <div class="pc-title">شبكات الحاسب الآلي</div>
+    <div class="pc-en">Computer Networks</div>
+    <p class="pc-desc">مقدمة شاملة عن شبكات الحاسب الآلي وتعريفها ومكوناتها وفوائدها وأنواعها.</p>
+    <ul class="pc-topics">
+      <li>ما هي شبكة الحاسب؟</li>
+      <li>مكونات شبكة الحاسب (الأجهزة الطرفية، الوسيطة، وسائط الشبكة)</li>
+      <li>فوائد شبكات الحاسب</li>
+      <li>أنواع الشبكات (LAN, WAN, MAN, PAN, WLAN)</li>
     </ul>
-    <p style="margin-top:1rem;">أنواع موصلات الكابل المحوري: <strong>BNC</strong>، <strong>النوع N</strong>، <strong>النوع F</strong></p>
-  </div>
+    <div class="pc-arrow">ابدأ التعلم ←</div>
+  </a>
 
-  <!-- الكابل المزدوج المجدول -->
-  <div class="content-block">
-    <h3><span class="dot"></span>الكابل المزدوج المجدول (Twisted Pair Cable)</h3>
-    <p style="margin-bottom:1.5rem;">يتكون هذا النوع من الاسلاك من عدد من الأزواج الملفوفة على بعضها كما بالصور التالية وهذا الالتفاف يعمل على تقليل التشويش أو التداخل الكهرومغناطيسي نوعاً ما.</p>
+  <a href="security.html" class="page-card">
+    <span class="pc-num">02</span>
+    <span class="pc-icon">🔒</span>
+    <div class="pc-title">الأمان في الشبكات</div>
+    <div class="pc-en">Network Security</div>
+    <p class="pc-desc">مفهوم أمان الشبكات والتهديدات الداخلية والخارجية وحلول الأمان الفعّالة.</p>
+    <ul class="pc-topics">
+      <li>مفهوم أمان الشبكات وأهميته</li>
+      <li>التهديدات الداخلية للشبكة</li>
+      <li>التهديدات الخارجية (Hacking, Malware, DDoS)</li>
+      <li>حلول الأمان (Firewall, Encryption, Backup)</li>
+    </ul>
+    <div class="pc-arrow">ابدأ التعلم ←</div>
+  </a>
 
-    <div class="two-col">
-      <div class="cable-card">
-        <h3>الكابل المزدوج المجدول المحمي<br><span>STP – Shielded Twisted Pair</span></h3>
-        <p>هو عبارة عن أزواج من الأسلاك الملتوية محمية بطبقة من القصدير ثم بغلاف بلاستيكي خارجي. يوفر حماية أفضل من التداخل الكهرومغناطيسي مقارنة بـ UTP.</p>
-      </div>
-      <div class="cable-card">
-        <h3>الكابل المزدوج المجدول الغير محمي<br><span>UTP – Unshielded Twisted Pair</span></h3>
-        <p>يتكون من أسالك ملتوية داخل غطاء بلاستيكي بسيط. يُستخدم على نطاق واسع في شبكات المكاتب والمنازل نظراً لتكلفته المنخفضة وسهولة التركيب.</p>
-      </div>
-    </div>
+  <a href="osi.html" class="page-card">
+    <span class="pc-num">03</span>
+    <span class="pc-icon">🔁</span>
+    <div class="pc-title">نموذج OSI</div>
+    <div class="pc-en">OSI Model</div>
+    <p class="pc-desc">النموذج المرجعي لبروتوكولات الاتصال في شبكات الحاسب — سبع طبقات ووظائفها.</p>
+    <ul class="pc-topics">
+      <li>ما هو نموذج OSI وفائدته</li>
+      <li>عملية التغليف (Encapsulation)</li>
+      <li>البروتوكول (Protocol)</li>
+      <li>الطبقات السبع بالتفصيل</li>
+      <li>الفروقات TCP/UDP والسويتش والراوتر</li>
+    </ul>
+    <div class="pc-arrow">ابدأ التعلم ←</div>
+  </a>
 
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">تصنيفات كابل UTP (UTP Categories – Copper Cable):</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>الفئة</th><th>سرعة البيانات</th><th>الحد الأقصى للطول</th><th>نوع الكابل</th><th>الاستخدام</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>CAT1</td><td>Up to 1Mbps</td><td>-</td><td>Twisted Pair</td><td>Old Telephone Cable</td></tr>
-          <tr><td>CAT2</td><td>Up to 4Mbps</td><td>-</td><td>Twisted Pair</td><td>Token Ring Networks</td></tr>
-          <tr><td>CAT3</td><td>Up to 10Mbps</td><td>100m</td><td>Twisted Pair</td><td>Token Ring &amp; 10BASE-T Ethernet</td></tr>
-          <tr><td>CAT4</td><td>Up to 16Mbps</td><td>100m</td><td>Twisted Pair</td><td>Token Ring Networks</td></tr>
-          <tr><td>CAT5</td><td>Up to 100Mbps</td><td>100m</td><td>Twisted Pair</td><td>Ethernet, FastEthernet, Token Ring</td></tr>
-          <tr><td>CAT5e</td><td>Up to 1 Gbps</td><td>100m</td><td>Twisted Pair</td><td>Ethernet, FastEthernet, Gigabit Ethernet</td></tr>
-          <tr><td>CAT6</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (55 meters)</td></tr>
-          <tr><td>CAT6a</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (55 meters)</td></tr>
-          <tr><td>CAT7</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (100 meters)</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="margin-top:1rem; color:var(--text-muted);">يُصنف كابل الـ UTP إلى 6 فئات مشهورة هي: Cat1, Cat2, Cat3, Cat4, Cat5, Cat6, Cat7 and Cat7A</p>
+  <a href="cables.html" class="page-card">
+    <span class="pc-num">04</span>
+    <span class="pc-icon">🔌</span>
+    <div class="pc-title">كيابل الشبكات</div>
+    <div class="pc-en">Networking Cables</div>
+    <p class="pc-desc">تعريف كابلات الشبكات وأنواعها المختلفة وأدوات تصنيعها وتركيبها.</p>
+    <ul class="pc-topics">
+      <li>الكابل المحوري (Coaxial Cable)</li>
+      <li>الكابل المزدوج المجدول (Twisted Pair)</li>
+      <li>الكابل الضوئي (Fiber Optic)</li>
+      <li>أدوات تصنيع الكيابل</li>
+    </ul>
+    <div class="pc-arrow">ابدأ التعلم ←</div>
+  </a>
 
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">أنواع التوصيل في الكابل STP وUTP:</p>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon">🔵</div>
-        <h3>التوصيل المتناظر (Straight-through cable)</h3>
-        <p>يستخدم لتوصيل أجهزة مختلفة مثل كمبيوتر مع سويتش.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🔴</div>
-        <h3>التوصيل العكسي (Crossover cable)</h3>
-        <p>يستخدم لتوصيل أجهزة متشابهة مثل سويتش مع سويتش.</p>
-      </div>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">نظامَي ترتيب الأسلاك في الـ RJ-45:</p>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon">🟢</div>
-        <h3>نظام T568A</h3>
-        <p>أحد نظامَي ترتيب أسلاك المزدوجة المجدولة القياسيَّين. يُستخدم في كابلات Crossover مع نظام T568B.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🟠</div>
-        <h3>نظام T568B</h3>
-        <p>النظام الأكثر شيوعاً في توصيلات كابلات Straight-through. تستخدم الكابلات STP وUTP مشبكاً من نوع RJ-45.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- الكابل الضوئي -->
-  <div class="content-block">
-    <h3><span class="dot"></span>الكابل الضوئي (Fiber Optic Cable)</h3>
-    <div class="highlight-box">
-      <p>الكابل الضوئي يستخدم الضوء بدلاً من الإشارات الكهربائية لنقل البيانات. يوفر سرعات نقل عالية جداً ومسافات نقل طويلة مع مقاومة للتداخل الكهرومغناطيسي.</p>
-    </div>
-    <div class="two-col">
-      <div class="cable-card">
-        <h3>الألياف أحادية الوضع<br><span>Single Mode Fiber (SMF)</span></h3>
-        <p>تستخدم تقنية ليزر لإرسال أشعة ضوء أحادية ويصل مداها إلى مئات الكيلومترات. مناسبة للاتصالات بعيدة المدى.</p>
-      </div>
-      <div class="cable-card">
-        <h3>الألياف متعددة الأوضاع<br><span>Multi-mode Fibers (MMF)</span></h3>
-        <p>تستخدم مؤشرات LED لإرسال إشارات ضوء متعددة ويصل مداها إلى 550 متراً. مناسبة للشبكات المحلية.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- عدد وأدوات كيابل الشبكات -->
-  <div class="content-block">
-    <h3><span class="dot"></span>وحدات قياس البيانات في الحاسب الآلي</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>الوحدة (Unit)</th><th>القيمة (Value)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>bit</td><td>1 or 0</td></tr>
-          <tr><td>byte</td><td>8 bits</td></tr>
-          <tr><td>Kilobyte</td><td>1024 bytes</td></tr>
-          <tr><td>Megabyte</td><td>1024 kilobytes</td></tr>
-          <tr><td>Gigabyte</td><td>1024 Megabytes</td></tr>
-          <tr><td>Terabyte</td><td>1024 Gigabytes</td></tr>
-          <tr><td>Petabyte</td><td>1024 Terabytes</td></tr>
-          <tr><td>Exabyte</td><td>1024 Petabytes</td></tr>
-          <tr><td>Zettabyte</td><td>1024 Exabytes</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="content-block">
-    <h3><span class="dot"></span>أدوات تستخدم لتصنيع كيابل الشبكة (Network cables tools)</h3>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">🔌</div>
-        <h3>RG45</h3>
-        <p>المشبك (الكونكتور) الذي يُثبَّت في نهاية كابل الشبكة للتوصيل بالجهاز أو السويتش.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🔧</div>
-        <h3>COMPRESSION / CRIMPING TOOL</h3>
-        <p>أداة تستخدم لتثبيت قطعة RG45 على الكيبل بشكل محكم وآمن.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">📟</div>
-        <h3>CABLE TESTER</h3>
-        <p>جهاز اختبار الكيبل — يُستخدم للتحقق من صحة التوصيلات داخل الكابل وسلامة الأسلاك.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">✂️</div>
-        <h3>STRIPPER</h3>
-        <p>أداة إزالة الاسلاك — تُستخدم لإزالة الغلاف الخارجي للكابل بدقة دون إتلاف الأسلاك الداخلية.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">💡</div>
-        <h3>FIBER OPTIC TOOL</h3>
-        <p>أداة تستخدم لتصنيع كيبل الفايبر — متخصصة للتعامل مع الألياف الضوئية.</p>
-      </div>
-    </div>
-  </div>
+  <a href="ip.html" class="page-card">
+    <span class="pc-num">05</span>
+    <span class="pc-icon">🌍</span>
+    <div class="pc-title">بروتوكول IP</div>
+    <div class="pc-en">Internet Protocol Address</div>
+    <p class="pc-desc">تعريف بروتوكول IP وإصداراته وتدريبات عملية على IPv4 وIPv6.</p>
+    <ul class="pc-topics">
+      <li>تعريف بروتوكول IP</li>
+      <li>عنوان IPv4 وفئاته</li>
+      <li>تدريبات عملية على IPv4</li>
+      <li>بروتوكول IPv6 ومزاياه</li>
+    </ul>
+    <div class="pc-arrow">ابدأ التعلم ←</div>
+  </a>
 
 </div>
-</div>
 
-<div class="section-divider"></div>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- SECTION 5: بروتوكول IP                     -->
-<!-- ═══════════════════════════════════════════ -->
-<div id="ip">
-<div class="section">
-
-  <div class="section-header">
-    <div class="section-tag">🌍 القسم الخامس</div>
-    <h2 class="section-title">بروتوكول <span>IP</span><br>Internet Protocol Address</h2>
-    <p class="section-desc">تعريف عنوان بروتوكول الإنترنت، إصداراته المختلفة، وتدريبات عملية على IPv4 و IPv6.</p>
-  </div>
-
-  <!-- تعريف بروتوكول IP -->
-  <div class="content-block">
-    <h3><span class="dot"></span>تعريف بروتوكول IP</h3>
-    <div class="highlight-box">
-      <p>عنوان بروتوكول الإنترنت (IP address) هو المعرف الرقمي لأي جهاز حاسوب، هاتف، آلة طابعة، موجّه،...( مرتبط بشبكة معلوماتية ) تعمل ببروتوكولات الإنترنت، سواء أكانت شبكة محلية أو شبكة الشبكات الإنترنت. يقابل عنوان IP مثلاً في شبكات الهاتف رقم الهاتف.</p>
-    </div>
-  </div>
-
-  <!-- إصدارات بروتوكول IP -->
-  <div class="content-block">
-    <h3><span class="dot"></span>إصدارات عناوين الشبكة</h3>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon" style="font-size:1.6rem;background:linear-gradient(135deg,#2196F3,#00BCD4);">4</div>
-        <h3>عنوان الإصدار الرابع IPv4</h3>
-        <p>هو الإصدار الرابع من بروتوكول الانترنت. يدعم 4.2 مليار عنوان (4.2 billion IP addresses) مما أصبح غير كافٍ لعدد سكان العالم البالغ 7 مليار شخص.</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon" style="font-size:1.6rem;background:linear-gradient(135deg,#4CAF50,#00BCD4);">6</div>
-        <h3>عنوان الإصدار السادس IPv6</h3>
-        <p>طُوِّر للتغلب على محدودية IPv4. يدعم عدداً هائلاً من العناوين (340 undecillion عنوان) مما يكفي الاحتياجات المستقبلية.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- بروتوكول IPv4 -->
-  <div class="content-block">
-    <h3><span class="dot"></span>بروتوكول IPv4</h3>
-    <div class="highlight-box">
-      <p>هو الإصدار الرابع من بروتوكول الانترنت. طول العنوان (IP) 32 بت. مقسم إلى أربع خانات (Octets) وكل خانة تحتوي على 8 بت. مدى الأرقام لكل خانة يبدأ من 0 إلى 255. مثال: <strong>192.168.10.2</strong> تمثيلها الثنائي: 11000000.10101000.00001010.00000010</p>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">نظام الترقيم في الحاسب الآلي:</p>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">🔟</div>
-        <h3>النظام العشري (Decimal System)</h3>
-        <p>كل رقم في هذا النظام يكون من إحدى القيم التالية، من 0 إلى 9. مثال: 8723 و 1209</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">💻</div>
-        <h3>النظام الثنائي (Binary System)</h3>
-        <p>كل رقم في هذا النظام يمثل بإحدى القيمتين الوحيدتين وهما 1 أو 0. مثال: 1111 و 1101</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🔡</div>
-        <h3>النظام الستة عشري (Hexadecimal)</h3>
-        <p>سمي بذلك لأنه يحتوي على 16 (ستة عشر) رمزاً لتمثيله (كتابته)، وهم بالترتيب من الرمز الأصغر (0 - صفر) إلى الرمز الأكبر (F): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">⚡</div>
-        <h3>البت (Bit) والبايت (Byte)</h3>
-        <p>البت (Bit): هو عبارة عن رقم واحد بمعنى رقم ثنائي واحد، يكون 0 أو 1 وهذه القيمة تعتبر أصغر وحدة قياس بالحاسب الآلي. البايت (Byte): هو عبارة عن مجموع ثمانية أرقام من البت ليصبح بايت.</p>
-      </div>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">العناوين الخاصة والعامة في الإصدار الرابع (IPv4 Private and Public addresses):</p>
-    <div class="two-col">
-      <div class="info-card">
-        <div class="card-icon">🏠</div>
-        <h3>العنوان الخاص (Private address)</h3>
-        <p>يستخدم العنوان الخاص للاتصال في الشبكات المحلية. نظراً لكثرة مستخدمي الانترنت في العالم فقد تم تجزئة IPv4 إلى جزئيين: عناوين عامة (Public addresses) وعناوين خاصة (Private addresses). يتم تحويل العنوان الخاص إلى عنوان عام والعكس عن طريق بروتوكول NAT (Network Address Translation).</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">🌐</div>
-        <h3>العنوان العام (Public address)</h3>
-        <p>يستخدم العنوان العام للاتصال بشبكة الانترنت. العناوين المحجوزة في IPv4: يستخدم الآبي 127.0.0.0 لـ Loopback.</p>
-      </div>
-    </div>
-
-    <p style="font-weight:700; color:var(--text); margin:1.5rem 0 1rem;">فئات العناوين (Classful Networking):</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>الفئة (Class)</th><th>المدى (Range)</th><th>جزء الشبكة والمضيف</th><th>قناع الشبكة (Subnet Mask)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>A</td><td>1.0.0.0 – 126.255.255.255</td><td>N.H.H.H</td><td>255.0.0.0</td></tr>
-          <tr><td>B</td><td>128.0.0.0 – 191.255.255.255</td><td>N.N.H.H</td><td>255.255.0.0</td></tr>
-          <tr><td>C</td><td>192.0.0.0 – 223.255.255.255</td><td>N.N.N.H</td><td>255.255.255.0</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p style="color:var(--text-muted); margin-top:0.75rem;">N يُرمز للجزء الخاص بالشبكة | H يُرمز للجزء الخاص بالأجهزة</p>
-  </div>
-
-  <!-- تدريبات IPv4 -->
-  <div class="content-block">
-    <h3><span class="dot"></span>تدريبات على IPv4</h3>
-    <p style="margin-bottom:1.5rem; color:var(--text-muted);">التحويل من النظام العشري إلى الثنائي (Subnetting) — مثال: 177.10.9.1 → فئة B → قناع الشبكة: 255.255.0.0 → عنوان الشبكة: 177.10.0.0/16</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>عنوان الشبكة (Network ID)</th><th>الفئة (Class)</th><th>قناع الشبكة (Subnet Mask)</th><th>عنوان أول مضيف</th><th>عنوان آخر مضيف</th><th>عنوان البث (Broadcast)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>13.0.0.0/8</td><td>A</td><td>255.0.0.0</td><td style="color:#00c9b1;">13.0.0.1</td><td style="color:#00c9b1;">13.255.255.254</td><td style="color:#00c9b1;">13.255.255.255</td></tr>
-          <tr><td>192.168.8.0/24</td><td>C</td><td>255.255.255.0</td><td style="color:#00c9b1;">192.168.8.1</td><td style="color:#00c9b1;">192.168.8.254</td><td style="color:#00c9b1;">192.168.8.255</td></tr>
-          <tr><td>120.0.0.0/8</td><td>A</td><td>255.0.0.0</td><td style="color:#00c9b1;">120.0.0.1</td><td style="color:#00c9b1;">120.255.255.254</td><td style="color:#00c9b1;">120.255.255.255</td></tr>
-          <tr><td>130.168.0.0/16</td><td>B</td><td>255.255.0.0</td><td style="color:#00c9b1;">130.168.0.1</td><td style="color:#00c9b1;">130.168.255.254</td><td style="color:#00c9b1;">130.168.255.255</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- بروتوكول IPv6 -->
-  <div class="content-block">
-    <h3><span class="dot"></span>بروتوكول IPv6</h3>
-    <div class="highlight-box">
-      <p>جاء IPv6 لحل مشكلة نفاد عناوين IPv4. طول العنوان 128 بت مقسمة على 8 مجموعات، كل مجموعة تحتوي على 16 بت تُمثَّل بالنظام السادس عشري. يدعم عدداً هائلاً من العناوين يصل إلى 340 Undecillion عنوان.</p>
-    </div>
-    <div class="cards-grid">
-      <div class="info-card">
-        <div class="card-icon">📏</div>
-        <h3>طول العنوان</h3>
-        <p>128 بت (مقارنةً بـ 32 بت في IPv4). يُمثَّل بالنظام السادس عشري (Hexadecimal). مثال: 2001:0db8:85a3:0000:0000:8a2e:0370:7334</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">♾️</div>
-        <h3>سعة العناوين</h3>
-        <p>يدعم 340 undecillion عنوان (3.4 × 10^38) مما يضمن توفر عناوين كافية للمستقبل مع توسع إنترنت الأشياء (IoT).</p>
-      </div>
-      <div class="info-card">
-        <div class="card-icon">⚡</div>
-        <h3>مزايا IPv6</h3>
-        <p>لا حاجة لـ NAT، أمان مدمج (IPSec)، تكوين تلقائي (Auto-configuration)، رؤوس أبسط وأسرع في المعالجة، دعم أفضل لنوعية الخدمة (QoS).</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- تدريبات IPv6 -->
-  <div class="content-block">
-    <h3><span class="dot"></span>تدريبات على IPv6</h3>
-    <div class="highlight-box">
-      <p>في IPv6 يُكتب العنوان بالنظام السادس عشري مقسماً على 8 مجموعات مفصولة بنقطتين. يمكن اختصار الأصفار المتتالية بـ :: لمرة واحدة فقط في العنوان.</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>العنوان الكامل IPv6</th><th>الاختصار المقبول</th><th>ملاحظة</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>2001:0db8:0000:0000:0000:0000:0000:0001</td><td>2001:db8::1</td><td>حذف الأصفار البادئة + اختصار الأصفار المتتالية</td></tr>
-          <tr><td>fe80:0000:0000:0000:0202:b3ff:fe1e:8329</td><td>fe80::202:b3ff:fe1e:8329</td><td>Link-local address</td></tr>
-          <tr><td>0000:0000:0000:0000:0000:0000:0000:0001</td><td>::1</td><td>عنوان Loopback في IPv6</td></tr>
-          <tr><td>2001:0db8:85a3:0000:0000:8a2e:0370:7334</td><td>2001:db8:85a3::8a2e:370:7334</td><td>عنوان توثيقي نموذجي</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<!-- ═══ FOOTER ═══ -->
 <footer>
   <p>إعداد: <strong>الكلية التقنية بالمندق</strong> | المدرب: <strong>منصور الزهراني</strong></p>
-  <p style="margin-top:0.5rem;">المؤسسة العامة للتدريب التقني والمهني — <strong>مبادئ شبكات الحاسب الآلي</strong></p>
+  <p style="margin-top:0.35rem;">المؤسسة العامة للتدريب التقني والمهني — مبادئ شبكات الحاسب الآلي</p>
+  <div class="footer-links">
+    <a href="networks.html">شبكات الحاسب</a>
+    <a href="security.html">الأمان</a>
+    <a href="osi.html">نموذج OSI</a>
+    <a href="cables.html">الكيابل</a>
+    <a href="ip.html">بروتوكول IP</a>
+  </div>
 </footer>
 
-<!-- Scroll to top -->
-<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-<script>
-  // Scroll to top visibility
-  window.addEventListener('scroll', () => {
-    const btn = document.getElementById('scrollTop');
-    if (window.scrollY > 400) btn.classList.add('visible');
-    else btn.classList.remove('visible');
-  });
-
-  // Active nav highlight
-  const sections = document.querySelectorAll('[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        navLinks.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === '#' + entry.target.id) {
-            link.classList.add('active');
-          }
-        });
-      }
-    });
-  }, { threshold: 0.3 });
-
-  sections.forEach(s => observer.observe(s));
-
-  // Animate cards on scroll
-  const cards = document.querySelectorAll('.info-card, .content-block, .cable-card, .solution-card, .threat-card, .net-type-card');
-  const cardObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }, (i % 4) * 80);
-        cardObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-
-  cards.forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    cardObserver.observe(card);
-  });
-</script>
+<script src="shared-nav.js"></script>
 </body>
 </html>
