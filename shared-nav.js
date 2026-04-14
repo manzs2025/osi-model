@@ -1,12 +1,12 @@
 /* shared-nav.js — يُحقن في كل صفحة لتوليد nav ديناميكياً */
 (function () {
   const pages = [
-    { href: 'index.html',    label: 'الرئيسية',       icon: '🏠', num: '' },
-    { href: 'networks.html', label: 'شبكات الحاسب',   icon: '📡', num: '01' },
-    { href: 'security.html', label: 'الأمان',          icon: '🔒', num: '02' },
-    { href: 'osi.html',      label: 'نموذج OSI',       icon: '🔁', num: '03' },
-    { href: 'cables.html',   label: 'الكيابل',         icon: '🔌', num: '04' },
-    { href: 'ip.html',       label: 'بروتوكول IP',     icon: '🌍', num: '05' },
+    { href: 'index.html',    label: 'الرئيسية',       icon: '🏠'  },
+    { href: 'networks.html', label: 'شبكات الحاسب',   icon: '📡' },
+    { href: 'security.html', label: 'الأمان',          icon: '🔒' },
+    { href: 'osi.html',      label: 'نموذج OSI',       icon: '🔁' },
+    { href: 'cables.html',   label: 'الكيابل',         icon: '🔌' },
+    { href: 'ip.html',       label: 'بروتوكول IP',     icon: '🌍' },
   ];
 
   const current = window.location.pathname.split('/').pop() || 'index.html';
