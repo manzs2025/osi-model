@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الكلية التقنية بالمندق | قسم تقنية الشبكات</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;700;900&family=Almarai:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'], tajawal: ['Tajawal', 'sans-serif'], almarai: ['Almarai', 'sans-serif'] },
+                    colors: { tvtcdark: '#004d60', tvtcmain: '#00627a', tvtclight: '#0083a3', tvtcteal: '#29b5a8', tvtcaccent: '#4bd5c9' }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .site-bg { background-image: url('bakground.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-color: #e2e8f0; }
+            .glass-card { @apply bg-white/60 backdrop-blur-lg border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.1)] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden; }
+            .hover-scale { @apply transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:border-tvtcteal hover:bg-white/75; }
+            .sidebar-bg { @apply bg-white/65 backdrop-blur-2xl border-l border-white/50 shadow-2xl; }
+            .sidebar-item { @apply flex items-center gap-3 px-5 py-3 w-full text-right font-black text-tvtcmain rounded-xl transition cursor-pointer border-r-4 border-transparent hover:bg-white/60 hover:text-tvtcdark shadow-sm mb-1; }
+            .sidebar-item.active { @apply bg-tvtcmain/90 backdrop-blur-sm text-white border-tvtcdark shadow-md; }
+            .sidebar-item.active i { @apply text-white; }
+            .sub-tab { @apply block w-full text-right px-10 py-2.5 text-sm font-bold text-slate-700 hover:text-tvtcteal transition cursor-pointer hover:bg-white/60 rounded-lg; }
+            .sub-tab.active { @apply text-tvtcmain border-r-4 border-tvtcteal bg-white/80 shadow-sm; }
+            .btn-primary { @apply w-full bg-tvtcteal hover:bg-tvtcmain text-white font-black py-3 md:py-4 rounded-xl transition shadow-lg shadow-tvtcteal/40 backdrop-blur-sm; }
+            
+            /* المحرر والأدوات */
+            .editor-toolbar { @apply sticky top-0 z-[60] bg-white/95 backdrop-blur-xl border border-slate-300 border-b-0 rounded-t-2xl p-3 shadow-sm w-full flex flex-col gap-3; }
+            .editor-toolbar button, .editor-toolbar select { @apply bg-white hover:bg-slate-100 text-slate-800 px-2 py-1.5 md:px-2.5 rounded-lg cursor-pointer transition text-xs md:text-sm font-bold border border-slate-200 outline-none shadow-sm flex items-center gap-1; }
+            .editor-toolbar input[type="color"] { @apply bg-white border border-slate-200 cursor-pointer w-7 h-7 md:w-8 md:h-8 p-0.5 rounded-lg shadow-sm; }
+            .rich-editor, .rich-display { @apply w-full p-5 md:p-8 text-slate-900 outline-none leading-loose text-base md:text-lg font-medium; }
+            
+            /* تم زيادة المساحة السفلية لضمان القدرة على النقر أسفل العناصر دائماً */
+            .rich-editor { @apply bg-white/90 shadow-inner border border-slate-300 border-t-0 rounded-b-2xl overflow-y-auto resize-y pb-[150px]; min-height: 400px; max-height: 65vh; }
+            
+            .rich-editor h1, .rich-display h1 { @apply font-black mb-4 mt-4 text-tvtcdark text-2xl md:text-4xl; }
+            .rich-editor h2, .rich-display h2 { @apply font-black mb-4 mt-4 text-tvtcmain text-xl md:text-3xl; }
+            .rich-editor h3, .rich-display h3 { @apply font-black mb-3 mt-3 text-tvtcteal text-lg md:text-2xl; }
+            .rich-editor p, .rich-display p { @apply mb-4 text-justify; }
+            .rich-editor ul, .rich-display ul { @apply list-disc list-inside mb-6 mr-4 space-y-2 font-bold text-slate-800 text-sm md:text-base; }
+            
+            /* الكروت والجداول المخصصة */
+            .cg-container { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 my-6 md:my-8 text-center items-stretch; }
+            .cg-card { @apply bg-white/70 backdrop-blur-md border-t-[6px] p-6 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm transition hover:-translate-y-1 hover:shadow-md flex flex-col h-full border-tvtcteal; }
+            .cg-title { @apply text-lg md:text-xl font-black mb-2 md:mb-3 text-tvtcmain; }
+            .cg-desc { @apply text-xs md:text-sm font-bold leading-relaxed flex-grow text-slate-700; }
+            .info-box { @apply bg-white/80 p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all; }
+            .info-icon { @apply absolute -right-4 -top-4 text-8xl opacity-10 group-hover:scale-110 transition-transform; }
+            .list-check li { @apply flex items-center gap-3 font-bold text-slate-800 mb-3; }
+            .list-check i { @apply text-tvtcteal; }
+            .badge-light { @apply bg-slate-100 text-slate-700 font-black text-xs px-3 py-1 rounded-lg border border-slate-300 inline-block m-1; }
+            
+            /* التحديد القابل للتعديل - تم فك القفل عن كل شيء */
+            .editable-img { @apply transition-all duration-200 shadow-[0_8px_25px_rgba(0,0,0,0.1)] rounded-2xl cursor-pointer block mx-auto align-middle; }
+            .rich-display img:not(.editable-img) { @apply max-w-full h-auto rounded-xl shadow-md my-4 object-contain inline-block border border-slate-200; }
+            .table-wrapper { @apply shadow-[0_10px_25px_rgba(0,0,0,0.05)] rounded-[1.5rem] overflow-auto bg-white my-8 mx-auto cursor-text border-2 border-transparent transition-all; }
+            .card-element { @apply cursor-text border-2 border-transparent transition-all; }
+        }
+        
+        .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 0; min-width: 400px; }
+        .modern-table thead { background: linear-gradient(90deg, #004d60, #0083a3); color: white; }
+        .modern-table th { padding: 1rem; font-weight: 900; font-size: 1.1rem; text-align: center; border: 1px solid #cbd5e1; }
+        .modern-table td { padding: 1rem; font-weight: bold; color: #334155; text-align: center; background: #ffffff; border: 1px solid #cbd5e1; transition: background 0.3s; }
+        .modern-table tr:hover td { background: #f1f5f9; }
+        
+        .osi-wrapper { display: flex; gap: 0.5rem; align-items: stretch; margin-top: 2rem; direction: ltr; font-family: 'Cairo', sans-serif; overflow-x: auto; padding-bottom: 1rem; justify-content: center; min-width: 100%; }
+        .osi-arrows { display: flex; flex-direction: column; justify-content: space-between; width: 40px; flex-shrink: 0; padding: 2rem 0; align-items: center; }
+        .osi-arrow-down, .osi-arrow-up { display: flex; flex-direction: column; align-items: center; height: 48%; }
+        .osi-text-vertical { writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 900; font-size: 0.75rem; letter-spacing: 1px; text-align: center; }
+        .osi-table-new { border-collapse: separate; border-spacing: 0 8px; width: 100%; min-width: 900px; text-align: center; }
+        .osi-table-new th { background-color: #e2e8f0; color: #334155; font-weight: 900; padding: 0.75rem; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: Tahoma, sans-serif; border-radius: 0; }
+        .osi-table-new th:first-child { border-radius: 8px 0 0 8px; } .osi-table-new th:last-child { border-radius: 0 8px 8px 0; }
+        .osi-table-new td { padding: 0.5rem; border-top: 1px solid; border-bottom: 1px solid; font-weight: bold; color: #1e293b; font-size: 0.9rem; transition: transform 0.2s; }
+        .osi-table-new tr:hover td { transform: scale(1.01); z-index: 10; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .osi-table-new td:first-child { border-left: 1px solid; border-radius: 8px 0 0 8px; font-size: 1.5rem; font-weight: 900; }
+        .osi-table-new td:last-child { border-right: 1px solid; border-radius: 0 8px 8px 0; }
+        .osi-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; margin: auto; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-direction: column; }
+        
+        .l7-row td { background-color: #f3e8ff; border-color: #e9d5ff; color: #4c1d95; } .l7-row td:first-child, .l7-row .osi-icon-box { background-color: #7e22ce; color: white; border-color: #7e22ce; }
+        .l6-row td { background-color: #ffedd5; border-color: #fed7aa; color: #7c2d12; } .l6-row td:first-child, .l6-row .osi-icon-box { background-color: #ea580c; color: white; border-color: #ea580c; }
+        .l5-row td { background-color: #fce7f3; border-color: #fbcfe8; color: #831843; } .l5-row td:first-child, .l5-row .osi-icon-box { background-color: #be185d; color: white; border-color: #be185d; }
+        .l4-row td { background-color: #e0f2fe; border-color: #bae6fd; color: #0c4a6e; } .l4-row td:first-child, .l4-row .osi-icon-box { background-color: #0284c7; color: white; border-color: #0284c7; }
+        .l3-row td { background-color: #dcfce7; border-color: #bbf7d0; color: #064e3b; } .l3-row td:first-child, .l3-row .osi-icon-box { background-color: #16a34a; color: white; border-color: #16a34a; }
+        .l2-row td { background-color: #ccfbf1; border-color: #99f6e4; color: #134e4a; } .l2-row td:first-child, .l2-row .osi-icon-box { background-color: #0d9488; color: white; border-color: #0d9488; }
+        .l1-row td { background-color: #fee2e2; border-color: #fecaca; color: #881337; } .l1-row td:first-child, .l1-row .osi-icon-box { background-color: #e11d48; color: white; border-color: #e11d48; }
+
+        .page-enter { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .toast { @apply fixed bottom-5 left-5 z-[9999] opacity-0 translate-y-10 transition-all duration-300 bg-white/95 backdrop-blur border border-slate-200 px-6 py-4 rounded-2xl font-bold flex items-center gap-3 shadow-2xl text-slate-800; }
+        .toast.show { @apply opacity-100 translate-y-0; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #29b5a8; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .mobile-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+    </style>
+</head>
+<body class="text-slate-800 font-sans selection:bg-tvtcteal selection:text-white flex flex-col h-screen site-bg overflow-hidden relative">
+
+    <div class="absolute inset-0 bg-white/10 backdrop-blur-[2px] -z-10"></div>
+
+    <nav class="bg-gradient-to-r from-tvtcdark via-tvtcmain to-tvtcteal p-3 md:p-4 sticky top-0 z-50 shadow-md flex justify-between items-center shrink-0 w-full">
+        <div class="flex items-center gap-2 md:gap-4">
+            <button onclick="document.getElementById('main-sidebar').classList.remove('hidden')" class="lg:hidden text-white hover:text-tvtcaccent text-xl md:text-2xl p-1 transition"><i class="fas fa-bars"></i></button>
+            <div class="font-black text-white text-sm md:text-xl flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition" onclick="window.goHome()">
+                <img src="tvtc.png" alt="TVTC" class="h-8 md:h-10 bg-white/90 p-1 md:p-1.5 rounded-lg shadow-sm" onerror="this.style.display='none'">
+                <div class="flex flex-col">
+                    <span class="hidden sm:block tracking-wide">الكلية التقنية بالمندق</span>
+                    <span class="hidden sm:block text-[10px] md:text-xs text-tvtcaccent">قسم تقنية الشبكات</span>
+                    <span class="sm:hidden tracking-wide text-xs">تقنية الشبكات</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 md:gap-4">
+            <button onclick="window.goHome()" class="text-white/90 hover:text-white font-bold transition text-[10px] md:text-sm flex items-center gap-1 md:gap-1.5 bg-white/10 hover:bg-white/20 px-2 md:px-4 py-1.5 md:py-2.5 rounded-lg border border-white/20 shadow-sm whitespace-nowrap"><i class="fas fa-home"></i> <span class="hidden md:inline">الرئيسية</span><span class="md:hidden">الرئيسية</span></button>
+            <button onclick="window.directLMS('admin')" class="text-white/90 hover:text-white font-bold transition text-[10px] md:text-sm flex items-center gap-1 md:gap-1.5 bg-white/10 hover:bg-white/20 px-2 md:px-4 py-1.5 md:py-2.5 rounded-lg border border-white/20 shadow-sm whitespace-nowrap"><i class="fas fa-cog"></i> <span class="hidden md:inline">إدارة الموقع</span><span class="md:hidden">إدارة</span></button>
+            <button onclick="window.directLMS('student')" class="text-tvtcmain bg-white hover:bg-slate-100 font-black transition text-[10px] md:text-sm flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-1.5 md:py-2.5 rounded-lg shadow-sm whitespace-nowrap"><i class="fas fa-user-graduate"></i> <span class="hidden md:inline">الواجبات والاختبارات</span><span class="md:hidden">الواجبات</span></button>
+            <div class="w-px h-5 bg-white/30 hidden md:block mx-1"></div>
+            <button onclick="window.toggleFS()" class="hidden md:flex text-white/90 hover:text-white text-lg transition p-1"><i class="fas fa-expand" id="fs-icon"></i></button>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex h-full overflow-hidden w-full relative">
+        <aside id="main-sidebar" class="w-72 md:w-80 sidebar-bg z-[100] flex-col hidden fixed inset-y-0 right-0 lg:static lg:flex h-[100dvh] lg:h-full flex-shrink-0 transition-transform duration-300">
+            <div class="p-4 flex justify-end lg:hidden shrink-0"><button onclick="document.getElementById('main-sidebar').classList.add('hidden')" class="text-slate-500 hover:text-red-500 text-2xl bg-white/70 w-10 h-10 rounded-xl shadow-sm"><i class="fas fa-times"></i></button></div>
+            <nav class="flex-1 mobile-scroll p-4 space-y-2 mt-2 pb-24 lg:pb-4" id="sidebar-nav"></nav>
+            <div class="p-4 md:p-6 border-t border-white/40 bg-white/50 text-center shrink-0">
+                <p class="text-[10px] md:text-xs font-black text-tvtcmain leading-relaxed uppercase tracking-widest mb-1">إعداد وتصميم</p>
+                <p class="text-tvtcdark font-black drop-shadow-sm text-sm md:text-lg">منصور مستور الزهراني</p>
+            </div>
+        </aside>
+
+        <main id="main-scroll-area" class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+            <div id="portal-dashboard" class="block page-enter max-w-7xl mx-auto">
+                <header class="glass-card p-6 md:p-16 text-center border-t-[8px] border-tvtcmain mb-8 md:mb-12 relative overflow-hidden bg-white/70">
+                    <div class="relative z-10 w-full"><div id="home-rich-content" class="w-full mx-auto rich-display bg-transparent border-none shadow-none text-center h-auto min-h-0 p-0"><div class="py-12 text-tvtclight opacity-50"><i class="fas fa-circle-notch fa-spin text-5xl mb-4"></i></div></div></div>
+                </header>
+                <div id="main-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8"></div>
+            </div>
+
+            <div id="section-container" class="hidden page-enter max-w-6xl mx-auto pb-10 md:pb-20">
+                <header class="glass-card p-6 md:p-10 mb-6 md:mb-8 text-center border-t-[8px] border-tvtcmain bg-white/70"><h1 id="section-title" class="font-black tracking-tight drop-shadow-sm text-3xl md:text-5xl text-tvtcdark transition-all duration-300">العنوان</h1></header>
+                <div id="mobile-tabs" class="lg:hidden flex gap-2 overflow-x-auto custom-scrollbar mb-6 pb-2"></div>
+                <div id="content-area" class="w-full page-enter overflow-x-hidden"></div>
+            </div>
+
+            <div id="section-exams" class="hidden page-enter w-full mx-auto pb-10 md:pb-20"><div id="lms-area"></div></div>
+        </main>
+    </div>
+
+    <!-- نافذة الأيقونات -->
+    <div id="emoji-picker-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h3 class="font-black text-tvtcdark text-xl"><i class="fas fa-icons text-tvtcteal ml-2"></i> مكتبة الأيقونات</h3>
+                <div class="flex gap-3">
+                    <button onclick="window.addCustomEmoji()" class="bg-white border border-slate-300 px-4 py-2 rounded-xl text-sm font-bold text-tvtcmain shadow-sm hover:bg-slate-100 transition"><i class="fas fa-plus"></i> إضافة مخصصة</button>
+                    <button onclick="document.getElementById('emoji-picker-modal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl transition bg-white w-10 h-10 rounded-xl shadow-sm border border-slate-200"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-white" id="emoji-grid-container"></div>
+        </div>
+    </div>
+
+    <div id="tst" class="toast"><i id="tsti" class="fas"></i><span id="tstt"></span></div>
+
+    <!-- تم ضغط المصفوفة مع الإبقاء على كافة الشروحات والنصوص كاملة 100% -->
+    <script>
+        const CORE_DATA = {
+            'networks': {
+                title: 'مبادئ شبكات الحاسب', icon: 'fa-globe', color: 'tvtcmain', desc: 'مفهوم الشبكة، المكونات، الفوائد، والتصاميم الهندسية بالكامل.', tabs: ['مفهوم الشبكة والفوائد', 'المكونات والوسائط', 'التصاميم الجغرافية والمعمارية'],
+                content: [
+                    `<div class="rich-display glass-card border-t-[6px] border-tvtcteal"><h1>🌐 ماهي شبكة الحاسب؟</h1><p>شبكة الحاسب عبارة عن مجموعة من الحاسبات والأجهزة الأخرى المتصلة مع بعضها البعض حيث يكون لها القدرة على مشاركة عدد كبير من المستخدمين للبيانات والأجهزة كما تعتبر الشبكة وسيلة اتصال الكتروني بين الأفراد.</p><h2 class="text-center mt-8">💡 فوائد شبكات الحاسب</h2><div class="cg-container"><div class="cg-card border-t-tvtcmain"><div class="text-5xl mb-2">💾</div><div class="cg-title">مشاركة البيانات</div><p class="cg-desc">نقل المعلومات والملفات بسرعة فائقة.</p></div><div class="cg-card border-t-tvtcteal"><div class="text-5xl mb-2">🖨️</div><div class="cg-title">مشاركة الموارد</div><p class="cg-desc">تتيح للجميع استخدام الطابعات والماسحات.</p></div><div class="cg-card border-t-purple-500"><div class="text-5xl mb-2">💻</div><div class="cg-title">مشاركة البرمجيات</div><p class="cg-desc">العمل على برامج موحدة على الخادم للجميع.</p></div><div class="cg-card border-t-orange-500"><div class="text-5xl mb-2">📂</div><div class="cg-title">مشاركة الملفات</div><p class="cg-desc">نقل مباشر بين الأجهزة بدلاً من الإيميل.</p></div><div class="cg-card md:col-span-2 border-t-rose-500"><div class="text-5xl mb-2">🎮</div><div class="cg-title !text-rose-700">ألعاب جماعية</div><p class="cg-desc">التفاعل بين أكثر من مستخدم للعب في نفس البيئة.</p></div></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcmain"><h1 class="text-center">🖥️ مكونات شبكة الحاسب</h1><div class="cg-container"><div class="cg-card border-t-tvtcmain"><div class="text-5xl mb-2">💻</div><div class="cg-title">الأجهزة الطرفية</div><p class="cg-desc text-justify">هو المكان الذي تنشأ منه الرسالة. تنشأ البيانات باستخدام جهاز طرفي وتتدفق خلال الشبكة وتصل إلى جهاز طرفي آخر. (أجهزة الكمبيوتر، الكاميرات).</p></div><div class="cg-card border-t-tvtcdark"><div class="text-5xl mb-2">🔀</div><div class="cg-title">الأجهزة الوسيطة</div><p class="cg-desc text-justify">تقوم بالاتصال البيني بين الأجهزة الطرفية وتوجيه الحزم واختيار المسار وحماية الشبكة. (المحولات، الموجهات، الجدران النارية).</p></div><div class="cg-card border-t-tvtcteal"><div class="text-5xl mb-2">📡</div><div class="cg-title">وسائط الشبكة</div><p class="cg-desc text-justify">يتم نقل الاتصالات عبر الشبكة من خلال وسيط يسمح للرسالة بالانتقال. وتشمل: الكابلات النحاسية، كابلات الألياف الضوئية، والموجات اللاسلكية.</p></div></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcmain"><h2 class="text-center">🌍 الشبكات من حيث المدى الجغرافي</h2><div class="cg-container"><div class="cg-card border-t-blue-500"><div class="text-5xl mb-2">📱</div><div class="cg-title text-blue-800">PAN</div><p class="cg-desc">نطاق أمتار.</p></div><div class="cg-card border-t-emerald-500"><div class="text-5xl mb-2">🏢</div><div class="cg-title text-emerald-800">LAN</div><p class="cg-desc">الشبكة المحلية (مباني).</p></div><div class="cg-card border-t-purple-500"><div class="text-5xl mb-2">🏙️</div><div class="cg-title text-purple-800">MAN</div><p class="cg-desc">الشبكة الإقليمية (مدينة).</p></div><div class="cg-card border-t-orange-500"><div class="text-5xl mb-2">🌍</div><div class="cg-title text-orange-800">WAN</div><p class="cg-desc">الشبكة الواسعة (دول).</p></div></div><hr class="my-10 border-slate-200"><div class="flex flex-wrap gap-8"><div class="flex-1 min-w-[250px]"><h2>🏗️ المعمارية التقنية</h2><div class="bg-white/60 p-6 rounded-2xl mb-4 border border-slate-200"><h3 class="text-tvtcdark mt-0">👥 نظير إلى نظير (P2P)</h3><p class="font-bold m-0 text-slate-700">كل جهاز يسمى "نظير" ويعمل كعميل وخادم.</p></div><div class="bg-white/60 p-6 rounded-2xl border border-slate-200"><h3 class="text-tvtcmain mt-0">🗄️ العميل والخادم (Client/Server)</h3><p class="font-bold m-0 text-slate-700">بنية تعتمد على وجود خادم مركزي يقدم خدمات وموارد.</p></div></div><div class="flex-1 min-w-[250px]"><h2>📐 التصميم الهندسي (Topologies)</h2><div class="grid grid-cols-2 gap-4 text-center"><div class="bg-white/60 p-4 rounded-2xl border border-slate-200"><div class="text-4xl mb-2">➖</div><span class="font-black text-tvtcteal">الخطية (Bus)</span></div><div class="bg-white/60 p-4 rounded-2xl border border-slate-200"><div class="text-4xl mb-2">⭐</div><span class="font-black text-tvtcteal">النجمية (Star)</span></div><div class="bg-white/60 p-4 rounded-2xl border border-slate-200"><div class="text-4xl mb-2">⭕</div><span class="font-black text-tvtcteal">الحلقية (Ring)</span></div><div class="bg-white/60 p-4 rounded-2xl border border-slate-200"><div class="text-4xl mb-2">🕸️</div><span class="font-black text-tvtcteal">المعقدة (Mesh)</span></div></div></div></div></div>`
+                ]
+            },
+            'security': {
+                title: 'الأمان في الشبكات', icon: 'fa-shield-alt', color: 'red', desc: 'التهديدات الداخلية والخارجية والحلول الأمنية.', tabs: ['التهديدات والحلول'],
+                content: [
+                    `<div class="rich-display glass-card border-t-[6px] border-red-500"><h1 class="text-red-600">🛡️ التهديدات الأمنية والحلول</h1><div class="flex flex-wrap gap-6 mt-6"><div class="flex-1 min-w-[250px] bg-white/60 p-8 rounded-3xl border border-slate-200"><h2 class="text-orange-600 mt-0 text-center">👔 التهديدات الداخلية</h2><p class="font-bold text-justify m-0">تأتي من داخل المؤسسة نفسها، مثل: مشاركة كلمة المرور، أو التخريب المتعمد من قبل الموظفين.</p></div><div class="flex-1 min-w-[250px] bg-white/60 p-8 rounded-3xl border border-slate-200"><h2 class="text-red-700 mt-0 text-center">🥷 التهديدات الخارجية</h2><p class="font-bold text-justify m-0">تأتي من خارج الشبكة مثل: هجمات حجب الخدمة (DDoS) والفيروسات والاختراق المباشر عبر الإنترنت.</p></div></div><h2 class="text-center mt-12 mb-6">✅ الترسانة التقنية والحلول</h2><div class="cg-container"><div class="cg-card border-t-rose-500"><div class="text-5xl mb-2">🔥</div><div class="cg-title text-rose-800">الجدران النارية (Firewalls)</div></div><div class="cg-card border-t-blue-500"><div class="text-5xl mb-2">👁️</div><div class="cg-title text-blue-800">كشف ومنع التسلل (IDS/IPS)</div></div><div class="cg-card border-t-purple-500"><div class="text-5xl mb-2">🔑</div><div class="cg-title text-purple-800">التشفير (Encryption)</div></div><div class="cg-card border-t-emerald-500"><div class="text-5xl mb-2">🪪</div><div class="cg-title text-emerald-800">إدارة الصلاحيات</div></div><div class="cg-card border-t-orange-500"><div class="text-5xl mb-2">💾</div><div class="cg-title text-orange-800">النسخ الاحتياطي (Backup)</div></div><div class="cg-card border-t-yellow-500"><div class="text-5xl mb-2">🎓</div><div class="cg-title text-yellow-800">التوعية الأمنية</div></div></div></div>`
+                ]
+            },
+            'osi': {
+                title: 'نموذج OSI المرجعي', icon: 'fa-layer-group', color: 'tvtcteal', desc: 'تحليل معماري للطبقات السبع، عمليات التغليف، والمقارنات.', tabs: ['المرجع والطبقات السبع', 'التغليف وأنواع الاتصال', 'مقارنات بروتوكولات وأجهزة'],
+                content: [
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcteal"><div class="bg-gradient-to-l from-[#004d60] to-[#0083a3] rounded-[2rem] p-8 md:p-10 mb-10 shadow-lg relative overflow-hidden text-white"><i class="fas fa-layer-group absolute -left-10 -bottom-10 text-[10rem] opacity-10"></i><h1 class="text-white border-none mt-0 mb-2 text-3xl md:text-5xl font-black drop-shadow-md">📚 نموذج OSI المرجعي</h1><p class="text-[#4bd5c9] font-mono tracking-widest text-xs md:text-sm mb-6 uppercase">The 7 Layers of the OSI Model</p><p class="text-base md:text-lg font-bold leading-relaxed max-w-4xl">هو مراحل تكوّن البيانات ونقلها من الجهاز المرسل <span class="bg-white/20 px-2 py-1 rounded text-sm font-mono mx-1">Source</span> إلى الجهاز المستقبل <span class="bg-white/20 px-2 py-1 rounded text-sm font-mono mx-1">Destination</span>. وضعته المنظمة الدولية للمعايير (ISO) ليكون نموذجاً نظرياً موثوقاً للاتصالات مقسم لـ 7 طبقات.</p></div><h2 class="text-center text-[#004d60] mb-8 border-none">💡 لماذا ندرس ونفهم طبقات OSI؟</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-12"><div class="info-box border-tvtcteal"><i class="fas fa-tools info-icon text-tvtcteal"></i><h4 class="font-black text-slate-800 text-lg m-0 mb-1">اكتشاف الأعطال</h4><p class="text-sm font-bold text-slate-600 m-0">تسهيل فهم وحل المشاكل المعقدة للشبكات (Troubleshooting).</p></div><div class="info-box border-tvtcmain"><i class="fas fa-microscope info-icon text-tvtcmain"></i><h4 class="font-black text-slate-800 text-lg m-0 mb-1">تتبع البيانات</h4><p class="text-sm font-bold text-slate-600 m-0">معرفة كيفية تكوين البيانات وما هو شكلها الفعلي في كل مرحلة.</p></div><div class="info-box border-red-500"><i class="fas fa-shield-alt info-icon text-red-500"></i><h4 class="font-black text-slate-800 text-lg m-0 mb-1">أمن المعلومات</h4><p class="text-sm font-bold text-slate-600 m-0">معرفة النقاط الحساسة وكيفية تشفير وفك البيانات أثناء النقل.</p></div><div class="info-box border-emerald-500"><i class="fas fa-server info-icon text-emerald-500"></i><h4 class="font-black text-slate-800 text-lg m-0 mb-1">تصنيف الأجهزة</h4><p class="text-sm font-bold text-slate-600 m-0">معرفة كل جهاز في أية طبقة يعمل (مثل الراوتر والسويتش).</p></div></div><div class="osi-wrapper custom-scrollbar"><div class="osi-arrows"><div class="osi-arrow-down"><div class="osi-text-vertical text-purple-700"><span>تغليف</span><br>ENCAPSULATION</div><div class="w-1 bg-purple-700 flex-grow my-1"></div><div style="border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 12px solid #7e22ce;"></div></div><div class="osi-arrow-up"><div style="border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 12px solid #16a34a;"></div><div class="w-1 bg-emerald-600 flex-grow my-1"></div><div class="osi-text-vertical text-emerald-600"><span>فك التغليف</span><br>DECAPSULATION</div></div></div><table class="osi-table-new"><thead><tr><th>Layer</th><th></th><th>LAYERS / الطبقات</th><th>نوع البيانات</th><th>وظائف الطبقات</th><th>Protocols</th><th>أجهزة الطبقة</th></tr></thead><tbody><tr class="l7-row"><td>7</td><td><div class="osi-icon-box"><i class="fas fa-globe"></i></div></td><td><div>طبقة التطبيقات</div><div class="font-mono text-xs">APPLICATION</div></td><td>DATA</td><td><div>تطبيقات الشبكة</div><div class="font-mono text-[10px] text-slate-500">WhatsApp - Snapchat - Telegram</div></td><td>HTTP, SMTP<br>FTP</td><td class="text-2xl">-</td></tr><tr class="l6-row"><td>6</td><td><div class="osi-icon-box"><i class="fas fa-file-code"></i></div></td><td><div>طبقة العرض</div><div class="font-mono text-xs">PRESENTATION</div></td><td>DATA</td><td><div class="font-mono text-[10px] text-slate-500">Formatting, Encryption, Compression</div><div>تنسيق البيانات، التشفير، الضغط</div></td><td>HTML<br>JPEG</td><td class="text-2xl">-</td></tr><tr class="l5-row"><td>5</td><td><div class="osi-icon-box"><i class="fas fa-handshake"></i></div></td><td><div>طبقة الجلسة</div><div class="font-mono text-xs">SESSION</div></td><td>DATA</td><td><div class="font-mono text-[10px] text-slate-500">Establishment, maintenance, termination</div><div>إنشاء الجلسات، صيانة، إنهاؤها</div></td><td>NFS<br>SQL</td><td class="text-2xl">-</td></tr><tr class="l4-row"><td>4</td><td><div class="osi-icon-box"><i class="fas fa-box-open"></i></div></td><td><div>طبقة النقل</div><div class="font-mono text-xs">TRANSPORT</div></td><td>Segment</td><td><div class="font-mono text-[10px] text-slate-500">protocol TCP/UDP, Data type</div><div>تحديد نوع البيانات، والبروتوكول المستخدم</div></td><td>TCP<br>UDP</td><td class="text-2xl">-</td></tr><tr class="l3-row"><td>3</td><td><div class="osi-icon-box"><i class="fas fa-project-diagram"></i></div></td><td><div>طبقة الشبكة</div><div class="font-mono text-xs">NETWORK</div></td><td>Packet</td><td><div class="font-mono text-[10px] text-slate-500">Routing, IP Addressing</div><div>التوجيه، العنونة المنطقية IP</div></td><td>IP Address<br>OSPF</td><td><div><i class="fas fa-route text-2xl"></i></div><div class="text-[10px]">Routers</div></td></tr><tr class="l2-row"><td>2</td><td><div class="osi-icon-box"><i class="fas fa-link"></i></div></td><td><div>طبقة ربط البيانات</div><div class="font-mono text-xs">DATA LINK</div></td><td>Frame</td><td><div class="font-mono text-[10px] text-slate-500">Physical Addressing (MAC), Error Detection</div><div>العنونة المادية MAC، كشف الأخطاء</div></td><td>MAC Address<br>Wi-Fi</td><td><div><i class="fas fa-network-wired text-2xl"></i></div><div class="text-[10px]">Switches</div></td></tr><tr class="l1-row"><td>1</td><td><div class="osi-icon-box text-[8px] leading-tight"><span>10111</span><span>01010</span><span>10111</span></div></td><td><div>الطبقة الفيزيائية</div><div class="font-mono text-xs">PHYSICAL</div></td><td>Bits</td><td><div class="font-mono text-[10px] text-slate-500">Cabling, Connector Types</div><div>الكابلات، أنواع الموصلات</div></td><td>Ethernet<br>802.11</td><td><div><i class="fas fa-plug text-2xl"></i></div><div class="text-[10px]">Cables, NICs</div></td></tr></tbody></table></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcmain"><div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 mt-4"><div class="info-box border-blue-200"><i class="fas fa-scroll info-icon text-blue-500"></i><div class="text-blue-500 text-5xl mb-6 drop-shadow-sm"><i class="fas fa-scroll"></i></div><h2 class="text-slate-800 border-none mt-0">ما هو البروتوكول؟ <span class="text-sm font-mono text-slate-400 uppercase">(Protocol)</span></h2><p class="font-bold text-slate-600 m-0">مجموعة من الأكواد البرمجية والقواعد المتفق عليها التي تحدد كيف يمكن لأجهزة الكمبيوتر أن تتفاهم مع بعضها عبر الشبكة، لتسهيل وتنظيم عملية التخاطب.</p></div><div class="info-box border-emerald-200"><i class="fas fa-box-open info-icon text-emerald-500"></i><div class="text-emerald-500 text-5xl mb-6 drop-shadow-sm"><i class="fas fa-box-open"></i></div><h2 class="text-slate-800 border-none mt-0">تغليف البيانات <span class="text-sm font-mono text-slate-400 uppercase">(Encapsulation)</span></h2><p class="font-bold text-slate-600 text-sm mb-4">العملية التي تضيف فيها البروتوكولات الترويسات (Header) والتذييل (Trailer) على البيانات.</p><ul class="list-check"><li><i class="fas fa-arrow-down"></i> <span class="text-emerald-700">في الإرسال:</span> تغليف نزولاً للطبقة الأولى.</li><li><i class="fas fa-arrow-up text-purple-600"></i> <span class="text-purple-700">في الاستقبال:</span> فك التغليف صعوداً للطبقة السابعة.</li></ul></div></div><h2 class="text-center text-tvtcdark border-t border-slate-200 pt-10 border-none">أنواع الاتصالات في طبقة الجلسة</h2><p class="text-center text-slate-500 font-bold mb-8">كيفية تدفق البيانات بين الأطراف</p><div class="grid grid-cols-1 md:grid-cols-3 gap-5"><div class="info-box text-center hover:border-tvtcteal"><div class="w-16 h-16 mx-auto bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:bg-tvtcteal group-hover:text-white transition-colors"><i class="fas fa-long-arrow-alt-right"></i></div><h3 class="border-none m-0 mb-3">Simplex</h3><p class="text-sm font-bold text-slate-600">إرسال في اتجاه واحد فقط دائماً.<br><span class="badge-light text-tvtcmain">مثل: الراديو والتلفزيون</span></p></div><div class="info-box text-center hover:border-tvtcteal"><div class="w-16 h-16 mx-auto bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:bg-tvtcteal group-hover:text-white transition-colors"><i class="fas fa-exchange-alt"></i></div><h3 class="border-none m-0 mb-3">Half Duplex</h3><p class="text-sm font-bold text-slate-600">إرسال واستقبال ولكن ليس في نفس الوقت.<br><span class="badge-light text-tvtcmain">مثل: أجهزة اللاسلكي</span></p></div><div class="info-box text-center hover:border-tvtcteal"><div class="w-16 h-16 mx-auto bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:bg-tvtcteal group-hover:text-white transition-colors"><i class="fas fa-arrows-alt-h"></i></div><h3 class="border-none m-0 mb-3">Full Duplex</h3><p class="text-sm font-bold text-slate-600">استقبال وإرسال في نفس الوقت.<br><span class="badge-light text-tvtcmain">مثل: الجوال والإنترنت</span></p></div></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-tvtcmain"><h1 class="text-center text-tvtcdark border-none mb-10">المقارنة بين الراوتر والسويتش باحترافية</h1><div class="grid grid-cols-[1fr_auto_1fr] gap-3 md:gap-6 items-center max-w-5xl mx-auto text-xs md:text-base relative z-0"><div class="absolute top-10 bottom-10 left-1/2 w-1 bg-slate-200 transform -translate-x-1/2 z-[-1] rounded-full"></div><div class="text-center z-10 bg-white p-2 rounded-2xl"><div class="w-16 h-16 md:w-20 md:h-20 mx-auto bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 shadow-sm border-4 border-white"><i class="fas fa-route"></i></div><h2 class="text-emerald-700 m-0 uppercase border-none">الراوتر</h2></div><div class="z-10 w-[80px] md:w-[120px]"></div><div class="text-center z-10 bg-white p-2 rounded-2xl"><div class="w-16 h-16 md:w-20 md:h-20 mx-auto bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 shadow-sm border-4 border-white"><i class="fas fa-network-wired"></i></div><h2 class="text-orange-700 m-0 uppercase border-none">السويتش</h2></div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">ربط شبكات مختلفة ومتباعدة</div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">الوظيفة الرئيسية</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">ربط أجهزة داخل نفس الشبكة</div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">الطبقة الثالثة <span class="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded text-xs ml-1">L3</span><br><span class="text-emerald-700 text-sm">(Network Layer)</span></div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">طبقة OSI</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform"><span class="bg-orange-200 text-orange-800 px-2 py-0.5 rounded text-xs mr-1">L2</span> الطبقة الثانية<br><span class="text-orange-700 text-sm">(Data Link Layer)</span></div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">يعتمد على <span class="text-emerald-700 font-black">IP Address</span></div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">العنونة</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">يعتمد على <span class="text-orange-700 font-black">MAC Address</span></div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">حزم البيانات <span class="text-emerald-700 font-black">(Packets)</span></div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">البيانات</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">إطارات البيانات <span class="text-orange-700 font-black">(Frames)</span></div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">جدول التوجيه <span class="text-emerald-700 font-black mb-1 block">(Routing Table)</span><span class="badge-light text-emerald-600 border-none bg-emerald-100">يحدد أفضل مسار</span></div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">القرار</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform">جدول الماك <span class="text-orange-700 font-black mb-1 block">(MAC Table)</span><span class="badge-light text-orange-600 border-none bg-orange-100">يوجّه للمنفذ الصحيح</span></div><div class="bg-emerald-50 p-4 md:p-6 rounded-2xl border border-emerald-100 text-center md:text-left text-emerald-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform flex items-center justify-end gap-2"><span>الاتصال بالإنترنت</span><i class="fas fa-globe text-emerald-500 text-2xl"></i></div><div class="bg-white text-slate-800 font-black px-3 py-2 md:px-6 md:py-3 rounded-xl border-2 border-slate-200 text-center shadow-md whitespace-nowrap z-20 mx-[-15px] md:mx-[-25px]">مثال</div><div class="bg-orange-50 p-4 md:p-6 rounded-2xl border border-orange-100 text-center md:text-right text-orange-900 font-bold shadow-sm z-10 hover:-translate-y-1 transition-transform flex items-center justify-start gap-2"><i class="fas fa-network-wired text-orange-500 text-2xl"></i><span>توسيع عدد المنافذ</span></div></div></div><h2 class="text-center text-tvtcmain mt-16 border-none">الفروق بين TCP و UDP (في طبقة النقل)</h2><div class="overflow-x-auto"><table class="modern-table"><thead><tr><th>وجه المقارنة</th><th>بروتوكول TCP</th><th class="text-yellow-200">بروتوكول UDP</th></tr></thead><tbody><tr><td>حجم الـ Header</td><td>20 bytes</td><td>8 bytes</td></tr><tr><td>السرعة</td><td>أبطأ</td><td>أسرع</td></tr><tr><td>التحقق من الأخطاء وترتيب الأجزاء</td><td class="text-emerald-600 font-black">نعم</td><td class="text-red-500 font-black">لا</td></tr><tr><td>الاستخدام الشائع</td><td>تحميل الملفات، التصفح، الإيميل</td><td>البث المرئي، ألعاب الأونلاين المباشرة</td></tr></tbody></table></div></div>`
+                ]
+            },
+            'cables': {
+                title: 'كيابل الشبكات', icon: 'fa-ethernet', color: 'tvtcmain', desc: 'وسائط النقل، الأنواع، معايير التأريج وأدوات الفني.', tabs: ['الكيابل النحاسية (المحورية والمجدولة)', 'طرق التوصيل وأدوات الشبكة', 'الألياف الضوئية (Fiber Optic)'],
+                content: [
+                    `<div class="rich-display glass-card border-t-[8px] border-blue-500"><div class="text-center mb-10 border-b border-slate-200 pb-6"><h1 class="text-3xl md:text-5xl font-black text-[#004d60] mb-4">أنواع الكابلات في الشبكات</h1><p class="text-lg font-bold text-slate-600 max-w-3xl mx-auto bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner mb-12">الكابل هو الوسيط الذي تنتقل من خلاله البيانات والمعلومات من حاسب إلى آخر في الشبكة أو من شبكة إلى شبكة أخرى.</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"><div class="info-box border-slate-200 !p-0"><div class="bg-slate-800 text-white p-4 text-center"><h3 class="text-cyan-400 m-0 border-none">1. الكابل المحوري</h3><p class="font-mono text-sm text-slate-400 m-0 uppercase">Coaxial Cable</p></div><div class="p-6"><div class="flex flex-wrap justify-center gap-2 mb-6"><span class="badge-light">الغلاف الخارجي</span><span class="badge-light">وقاء نحاسي مجدول</span><span class="badge-light">عازل بلاستيك</span><span class="badge-light !bg-orange-100 !text-orange-700 !border-orange-300">موصل نحاسي</span></div><h4 class="text-center text-tvtcdark font-black border-b border-slate-100 pb-2 mb-4">موصلات متحدة المحور</h4><div class="flex justify-around"><div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-black border-2 border-slate-300 shadow-inner">BNC</div><div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-black border-2 border-slate-300 shadow-inner">N</div><div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-black border-2 border-slate-300 shadow-inner">F</div></div></div></div><div class="info-box border-blue-200 !p-0"><div class="bg-blue-600 text-white p-4 text-center"><h3 class="text-white m-0 border-none">2. الكابل المزدوج المجدول</h3><p class="font-mono text-sm text-blue-200 m-0 uppercase">Twisted Pair Cable</p></div><div class="p-6"><p class="text-center font-bold text-sm text-slate-700 mb-6">أزواج ملفوفة لتقليل التشويش والتداخل الكهرومغناطيسي.</p><div class="grid grid-cols-2 gap-4"><div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center shadow-inner"><div class="font-black text-blue-800 text-lg">STP</div><p class="text-xs font-bold text-blue-600 m-0">محمي (Shielded)<br>أزواج ملتوية محمية بطبقة قصدير ثم غلاف بلاستيكي.</p></div><div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center shadow-inner"><div class="font-black text-slate-800 text-lg">UTP</div><p class="text-xs font-bold text-slate-600 m-0">غير محمي (Unshielded)<br>أسلاك ملتوية داخل غطاء بلاستيكي بسيط.</p></div></div></div></div></div><h2 class="text-center text-blue-800 border-none mt-16 mb-6">فئات الكابل المزدوج المجدول (UTP Categories)</h2><div class="overflow-x-auto"><table class="modern-table"><thead><tr><th>الفئة (Category)</th><th>سرعة نقل البيانات</th><th>أقصى طول</th><th>الاستخدام الشهير (Application)</th></tr></thead><tbody><tr><td class="text-blue-700 font-black">CAT 1</td><td>Up to 1 Mbps</td><td class="text-slate-400">-</td><td>Old Telephone Cable (أسلاك الهاتف القديمة)</td></tr><tr><td class="text-blue-700 font-black">CAT 2</td><td>Up to 4 Mbps</td><td class="text-slate-400">-</td><td>Token Ring Networks</td></tr><tr><td class="text-blue-700 font-black">CAT 3</td><td>Up to 10 Mbps</td><td class="text-emerald-600 font-black">100m</td><td>Token Ring & 10BASE-T Ethernet</td></tr><tr><td class="text-blue-700 font-black">CAT 4</td><td>Up to 16 Mbps</td><td class="text-emerald-600 font-black">100m</td><td>Token Ring Networks</td></tr><tr><td class="text-blue-700 font-black">CAT 5</td><td>Up to 100 Mbps</td><td class="text-emerald-600 font-black">100m</td><td>Ethernet, FastEthernet, Token Ring</td></tr><tr><td class="text-blue-700 font-black">CAT 5e</td><td>Up to 1 Gbps</td><td class="text-emerald-600 font-black">100m</td><td>Ethernet, FastEthernet, Gigabit Ethernet</td></tr><tr><td class="text-blue-700 font-black">CAT 6</td><td>Up to 10 Gbps</td><td class="text-emerald-600 font-black">100m</td><td>GigabitEthernet, 10G Ethernet <span class="text-[10px] text-red-500 block">(لمسافة 55 متر)</span></td></tr><tr><td class="text-blue-700 font-black">CAT 6a</td><td>Up to 10 Gbps</td><td class="text-emerald-600 font-black">100m</td><td>GigabitEthernet, 10G Ethernet <span class="text-[10px] text-red-500 block">(لمسافة 55 متر)</span></td></tr><tr><td class="text-blue-700 font-black">CAT 7</td><td>Up to 10 Gbps</td><td class="text-emerald-600 font-black">100m</td><td>GigabitEthernet, 10G Ethernet <span class="text-[10px] text-emerald-600 block">(لمسافة 100 متر)</span></td></tr></tbody></table></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-purple-500"><div class="text-center mb-10 border-b border-slate-200 pb-6"><h1 class="text-3xl md:text-5xl font-black text-purple-900 mb-4">أنواع التوصيل والأدوات الفنية</h1><p class="text-lg font-bold text-slate-600 max-w-3xl mx-auto m-0">معايير التأريج وتجهيز الكيابل وبنية الشبكات الأساسية</p></div><div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-6 mb-12 text-center shadow-sm"><h3 class="text-slate-800 mt-0 mb-6 border-none">أنظمة الترتيب لأسلاك المزدوج المجدول (داخل RJ-45)</h3><div class="flex justify-center gap-6"><span class="bg-white font-black text-purple-700 px-8 py-3 rounded-xl border-2 border-purple-200 shadow-sm text-2xl tracking-widest">T568A</span><span class="bg-white font-black text-purple-700 px-8 py-3 rounded-xl border-2 border-purple-200 shadow-sm text-2xl tracking-widest">T568B</span></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16"><div class="info-box border-t-4 border-blue-500"><div class="absolute -right-4 -top-4 text-blue-50 text-8xl -z-10"><i class="fas fa-align-justify"></i></div><h2 class="text-blue-700 mt-0 mb-2 border-none">1. التوصيل المتناظر</h2><p class="font-mono text-sm text-slate-400 uppercase mb-4">Straight-through Cable</p><p class="text-slate-700 font-bold mb-6">يستخدم نفس ترتيب الألوان تماماً في الطرفين.</p><div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="font-black text-blue-900 text-sm mb-3 m-0"><i class="fas fa-info-circle ml-1"></i> لربط أجهزة (مختلفة) في طبيعة عملها:</p><div class="flex flex-col gap-2"><span class="bg-white text-blue-800 font-bold px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-between border border-blue-100"><span>كمبيوتر</span> <i class="fas fa-link text-blue-300"></i> <span>سويتش</span></span><span class="bg-white text-blue-800 font-bold px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-between border border-blue-100"><span>راوتر</span> <i class="fas fa-link text-blue-300"></i> <span>سويتش</span></span></div></div></div><div class="info-box border-t-4 border-orange-500"><div class="absolute -right-4 -top-4 text-orange-50 text-8xl -z-10"><i class="fas fa-random"></i></div><h2 class="text-orange-700 mt-0 mb-2 border-none">2. التوصيل العكسي</h2><p class="font-mono text-sm text-slate-400 uppercase mb-4">Crossover Cable</p><p class="text-slate-700 font-bold mb-6">يتم عكس أزواج الإرسال والاستقبال بين طرفي الكابل (1 بـ 3، و 2 بـ 6).</p><div class="bg-orange-50 p-4 rounded-xl border border-orange-100"><p class="font-black text-orange-900 text-sm mb-3 m-0"><i class="fas fa-info-circle ml-1"></i> لربط أجهزة (متشابهة) في طبيعة عملها:</p><div class="flex flex-col gap-2"><span class="bg-white text-orange-800 font-bold px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-between border border-orange-100"><span>سويتش</span> <i class="fas fa-link text-orange-300"></i> <span>سويتش</span></span><span class="bg-white text-orange-800 font-bold px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-between border border-orange-100"><span>كمبيوتر</span> <i class="fas fa-link text-orange-300"></i> <span>كمبيوتر</span></span><span class="bg-white text-orange-800 font-bold px-4 py-2 rounded-lg text-sm shadow-sm flex items-center justify-between border border-orange-100"><span>راوتر</span> <i class="fas fa-link text-orange-300"></i> <span>راوتر</span></span></div></div></div></div><h2 class="text-center text-purple-900 border-none mb-8"><i class="fas fa-toolbox text-purple-400 ml-2"></i> أدوات تصنيع وفحص الكيابل</h2><div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="info-box text-center p-6"><div class="text-4xl text-slate-700 mb-4"><i class="fas fa-cut"></i></div><h4 class="font-black text-slate-800 text-lg m-0 mb-2">أداة التعرية</h4><p class="text-xs font-bold text-slate-500 font-mono uppercase m-0 mb-3">Stripper</p><p class="text-[11px] font-bold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 m-0">لإزالة الغلاف البلاستيكي الخارجي للأسلاك.</p></div><div class="info-box text-center p-6"><div class="text-4xl text-tvtcmain mb-4"><i class="fas fa-compress-arrows-alt"></i></div><h4 class="font-black text-slate-800 text-lg m-0 mb-2">أداة الكبس</h4><p class="text-xs font-bold text-slate-500 font-mono uppercase m-0 mb-3">Crimping Tool</p><p class="text-[11px] font-bold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 m-0">لتثبيت قطعة RJ-45 على الكيبل النحاسي.</p></div><div class="info-box text-center p-6"><div class="text-4xl text-emerald-600 mb-4"><i class="fas fa-tablet-alt"></i></div><h4 class="font-black text-slate-800 text-lg m-0 mb-2">جهاز الفحص</h4><p class="text-xs font-bold text-slate-500 font-mono uppercase m-0 mb-3">Cable Tester</p><p class="text-[11px] font-bold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 m-0">للتأكد من سلامة توصيل الأطراف الثمانية.</p></div><div class="info-box text-center p-6"><div class="text-4xl text-orange-500 mb-4"><i class="fas fa-fire"></i></div><h4 class="font-black text-slate-800 text-lg m-0 mb-2">أداة الفايبر</h4><p class="text-xs font-bold text-slate-500 font-mono uppercase m-0 mb-3">Fiber Optic Tool</p><p class="text-[11px] font-bold text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 m-0">لتجهيز وقص ولحام أسلاك الزجاج الرقيقة.</p></div></div></div>`,
+                    `<div class="rich-display glass-card border-t-[8px] border-orange-500"><div class="text-center mb-10 border-b border-slate-200 pb-6"><h1 class="text-orange-600 border-none mb-4">3. الألياف الضوئية (Fiber Optic)</h1><p class="text-lg font-bold text-slate-600 max-w-3xl mx-auto bg-orange-50 p-4 rounded-xl border border-orange-200 shadow-inner">تنقسم الألياف الضوئية بصفة عامة إلى نوعين أساسيين بناءً على مسار الضوء بداخل الزجاج (القلب Core / الغلاف Cladding).</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"><div class="info-box bg-gradient-to-br from-white to-blue-50 border-blue-200 !p-8"><i class="fas fa-magic info-icon text-blue-100 !text-[10rem] rotate-45"></i><div class="relative z-10"><div class="badge-light !bg-blue-600 !text-white !px-4 !py-1 !rounded-full !mb-4 !text-sm uppercase tracking-widest shadow-sm">1. Single Mode</div><h3 class="text-blue-900 mt-0 mb-6 border-none">الألياف أحادية الوضع</h3><ul class="list-check text-blue-800 m-0 pr-0 text-base"><li><i class="fas fa-check-circle text-blue-500"></i> تستخدم تقنية <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900 mx-1">ليزر</span> لإرسال أشعة ضوء أحادية.</li><li><i class="fas fa-check-circle text-blue-500"></i> القلب الزجاجي (Core) رقيق جداً (حوالي 9 ميكرون).</li><li><i class="fas fa-check-circle text-blue-500"></i> يصل مداها إلى <span class="bg-blue-200 px-2 py-0.5 rounded text-blue-900 mx-1">مئات الكيلومترات</span> (40km وأكثر).</li></ul></div></div><div class="info-box bg-gradient-to-br from-white to-orange-50 border-orange-200 !p-8"><i class="fas fa-water info-icon text-orange-100 !text-[10rem] rotate-45"></i><div class="relative z-10"><div class="badge-light !bg-orange-500 !text-white !px-4 !py-1 !rounded-full !mb-4 !text-sm uppercase tracking-widest shadow-sm">2. Multi-Mode</div><h3 class="text-orange-900 mt-0 mb-6 border-none">الألياف متعددة الأوضاع</h3><ul class="list-check text-orange-800 m-0 pr-0 text-base"><li><i class="fas fa-check-circle text-orange-500"></i> تستخدم مؤشرات <span class="bg-orange-200 px-2 py-0.5 rounded text-orange-900 mx-1">LED</span> لإرسال إشارات ضوء متعددة.</li><li><i class="fas fa-check-circle text-orange-500"></i> القلب الزجاجي أوسع (50 أو 62.5 ميكرون).</li><li><i class="fas fa-check-circle text-orange-500"></i> مسافات أقصر داخل المباني (يصل إلى 550 متراً).</li></ul></div></div></div><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 info-box bg-emerald-50 border-emerald-200 !p-8"><h3 class="text-emerald-800 border-b border-emerald-200 pb-4 mb-6 mt-0"><i class="fas fa-star text-emerald-500 ml-2"></i> مميزات الألياف البصرية</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-tachometer-alt text-emerald-500 text-xl"></i> سريعة جداً في نقل البيانات.</div><div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-arrow-down text-emerald-500 text-xl"></i> انخفاض الإشارات منخفض بشكل كبير.</div><div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-shield-alt text-emerald-500 text-xl"></i> منيعة ضد التداخل الكهرومغناطيسي (EMI).</div><div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900"><i class="fas fa-layer-group text-emerald-500 text-xl"></i> تمديد عدة ألياف بكابل واحد.</div><div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 flex items-center gap-3 font-bold text-emerald-900 md:col-span-2 justify-center text-center"><i class="fas fa-water text-emerald-500 text-xl"></i> لا تتأثر بالماء (تستخدم لتوصيل الإنترنت بين المحيطات).</div></div></div><div class="info-box bg-red-50 border-red-200 !p-8 text-center flex flex-col justify-center"><div class="text-red-500 text-6xl mb-4 drop-shadow-sm"><i class="fas fa-exclamation-triangle"></i></div><h3 class="text-red-800 mt-0 mb-4 border-none">العيب الوحيد</h3><p class="font-bold text-red-900 bg-white p-4 rounded-xl border border-red-100 shadow-inner text-sm m-0 leading-relaxed">صعبة التركيب والصيانة لأنها تعتمد على الزجاج، وتحتاج معدات خاصة وفنيين متخصصين تكلفتهم عالية.</p></div></div></div>`
+                ]
+            },
+            'ip': {
+                title: 'بروتوكول الإنترنت IP Address', icon: 'fa-map-location-dot', color: 'orange', desc: 'نظام العنونة المنطقي، فئات IPv4، وحسابات الـ Subnet.',
+                tabs: ['فئات IPv4 وقاعدة Subnetting'],
+                content: [
+                    `<div class="rich-display glass-card border-t-[8px] border-orange-500"><h1 style="color: #ea580c;">ما هو الـ IP Address؟</h1><p style="text-align: justify; font-size: 1.1rem;">عنوان IP هو المعرف الرقمي لأي جهاز مرتبط بشبكة لكي يتم توجيه البيانات إليه. طول الإصدار الرابع (IPv4) هو 32 بت، مقسم إلى 4 خانات.</p><h2 style="text-align: center; border-top: 1px solid rgba(0,98,122,0.2); padding-top: 3rem; margin-top: 4rem; color: #004d60; font-size: 2.5rem;">فئات العناوين (Classful Networking)</h2><div class="cg-container"><div class="cg-card border-t-rose-500 bg-white/90"><h3 class="!text-rose-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class A</h3><div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">1.0.0.0 - 126.x.x.x</div><p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.0.0.0</span></p></div><div class="cg-card border-t-blue-500 bg-white/90 transform md:-translate-y-4"><h3 class="!text-blue-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class B</h3><div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">128.0.0.0 - 191.x.x.x</div><p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.255.0.0</span></p></div><div class="cg-card border-t-emerald-500 bg-white/90"><h3 class="!text-emerald-600 !mb-4 !text-5xl drop-shadow-sm text-center mt-0">Class C</h3><div class="bg-white/90 p-4 rounded-xl text-slate-900 font-mono text-base mb-4 border border-slate-200 mt-6 shadow-inner font-black text-center">192.0.0.0 - 223.x.x.x</div><p class="!text-sm font-bold text-slate-800 mt-4 text-center">Mask: <span style="font-weight: 900; font-family: monospace; color: #0f172a; background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">255.255.255.0</span></p></div></div><div style="background: rgba(255,255,255,0.8); padding: 3rem; border-radius: 2rem; border: 1px solid rgba(234,88,12,0.2); text-align: center; margin-top: 4rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);"><h2 class="!text-orange-800 !mb-8 !mt-0 text-4xl border-none">🔑 قاعدة الـ Subnetting الذهبية</h2><p class="!text-2xl font-black text-slate-900 leading-loose mb-0">الرقم <span style="background: white; border: 2px solid #fdba74; padding: 4px 16px; border-radius: 10px; color: #ea580c;">255</span> في قناع الشبكة يمثل الـ <span style="color: #ea580c;">Network</span> (ثابت للشبكة).<br><br>الرقم <span style="background: white; border: 2px solid #6ee7b7; padding: 4px 16px; border-radius: 10px; color: #059669;">0</span> في قناع الشبكة يمثل الـ <span style="color: #059669;">Host</span> (متغير للأجهزة).</p></div></div>`
+                ]
+            }
+        };
+
+        window.activeSection = '';
+        window.renderSidebar = () => { const nav = document.getElementById('sidebar-nav'); if(!nav) return; let html = ''; Object.keys(CORE_DATA).forEach(k => { html += `<div onclick="window.openSection('${k}', 0)" class="sidebar-item group" id="side-${k}"><div class="w-12 h-12 rounded-xl bg-white/70 flex items-center justify-center text-tvtcmain group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${CORE_DATA[k].icon} text-lg"></i></div> <span class="text-sm md:text-base">${CORE_DATA[k].title}</span></div><div id="subnav-${k}" class="hidden flex-col bg-white/40 mb-4 py-3 space-y-2 pl-4 border-r-4 border-white/50 mr-8 rounded-bl-2xl shadow-inner"></div>`; }); nav.innerHTML = html; };
+        window.initMainGrid = () => { const grid = document.getElementById('main-grid'); if(!grid) return; grid.innerHTML = Object.keys(CORE_DATA).map(k => { const s = CORE_DATA[k]; return `<div onclick="window.openSection('${k}', 0)" class="glass-card p-6 md:p-10 hover-scale border-t-[8px] border-tvtcmain cursor-pointer group text-center flex flex-col items-center gap-4 bg-white/70"><div class="w-20 h-20 bg-white/90 text-tvtcmain rounded-2xl flex items-center justify-center text-4xl shrink-0 group-hover:bg-tvtcmain group-hover:text-white transition shadow-sm border border-slate-200"><i class="fas ${s.icon}"></i></div><div><h2 class="text-xl md:text-2xl font-black text-tvtcdark mb-2">${s.title}</h2><p class="text-slate-600 text-xs md:text-sm font-bold leading-relaxed line-clamp-2">${s.desc}</p></div></div>`; }).join(''); };
+        window.clearActiveSidebar = () => { document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active')); document.querySelectorAll('[id^="subnav-"]').forEach(el => { el.innerHTML = ''; el.classList.add('hidden'); }); };
+        window.smoothScrollTop = () => { const scrollArea = document.getElementById('main-scroll-area'); if(scrollArea) scrollArea.scrollTo({top: 0, behavior: 'smooth'}); };
+
+        window.goHome = () => { localStorage.setItem('app_current_view', 'home'); const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.remove('hidden'); const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden'); window.clearActiveSidebar(); window.smoothScrollTop(); const sidebar = document.getElementById('main-sidebar'); if(sidebar && window.innerWidth < 1024) sidebar.classList.add('hidden'); };
+
+        window.openSection = (key, targetTab = 0) => {
+            if (typeof targetTab !== 'number') targetTab = 0; localStorage.setItem('app_current_view', 'section'); localStorage.setItem('app_current_section', key);
+            window.activeSection = key; const s = CORE_DATA[key];
+            const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.add('hidden');
+            const sectionContainer = document.getElementById('section-container'); if(sectionContainer) sectionContainer.classList.remove('hidden');
+            const titleEl = document.getElementById('section-title'); if(titleEl) titleEl.innerText = s.title; 
+            window.clearActiveSidebar(); const sideItem = document.getElementById(`side-${key}`); if(sideItem) sideItem.classList.add('active');
+            let allTabs = s.tabs.slice(); if(window.allArticlesMap) { Object.values(window.allArticlesMap).forEach(a => { if(a.sectionId === key && !a.id.startsWith('core_')) allTabs.push(a.tabName); }); }
+            const mobileTabs = document.getElementById('mobile-tabs'); if(mobileTabs) mobileTabs.innerHTML = allTabs.map((t, i) => `<button onclick="window.loadTabContent(${i})" id="mtab-${i}" class="px-5 py-2.5 whitespace-nowrap border-b-[6px] font-black text-xs md:text-sm transition bg-white/80 rounded-t-xl shadow-sm ${i===targetTab?'border-tvtcmain text-tvtcdark':'border-transparent text-slate-600 hover:text-tvtcmain'}">${t}</button>`).join('');
+            const subNav = document.getElementById(`subnav-${key}`); if(subNav) { subNav.innerHTML = allTabs.map((t, i) => `<div onclick="window.loadTabContent(${i})" id="stab-${i}" class="sub-tab ${i===targetTab?'active':''}"><i class="fas fa-chevron-left ml-2 text-[10px] opacity-40"></i> ${t}</div>`).join(''); subNav.classList.remove('hidden'); }
+            if(window.innerWidth < 1024) { const sidebar = document.getElementById('main-sidebar'); if(sidebar) sidebar.classList.add('hidden'); } window.loadTabContent(targetTab);
+        };
+
+        window.loadTabContent = (index) => {
+            localStorage.setItem('app_current_tab', index); const area = document.getElementById('content-area'); if(!area) return; const s = CORE_DATA[window.activeSection]; const titleEl = document.getElementById('section-title');
+            document.querySelectorAll('[id^="mtab-"]').forEach(t => { t.classList.remove('border-tvtcmain', 'text-tvtcdark'); t.classList.add('border-transparent', 'text-slate-600'); }); document.querySelectorAll('[id^="stab-"]').forEach(t => t.classList.remove('active'));
+            const activeMTab = document.getElementById(`mtab-${index}`); if(activeMTab) activeMTab.classList.add('border-tvtcmain', 'text-tvtcdark'); const activeSTab = document.getElementById(`stab-${index}`); if(activeSTab) activeSTab.classList.add('active');
+            area.classList.remove('page-enter'); void area.offsetWidth; area.classList.add('page-enter');
+            let currentContent = ''; let titleColor = '#004d60'; let titleSize = 'text-3xl md:text-5xl'; let finalTitle = s.title;
+            if (index < s.content.length) {
+                let coreId = `core_${window.activeSection}_${index}`;
+                if(window.allArticlesMap && window.allArticlesMap[coreId]) { currentContent = window.allArticlesMap[coreId].htmlContent; if(window.allArticlesMap[coreId].titleColor) titleColor = window.allArticlesMap[coreId].titleColor; if(window.allArticlesMap[coreId].titleSize) titleSize = window.allArticlesMap[coreId].titleSize; finalTitle = window.allArticlesMap[coreId].tabName; } else currentContent = s.content[index];
+                area.innerHTML = `<div class="glass-card rich-display h-auto border-t-[8px] border-tvtcmain bg-white/70">${currentContent}</div>`;
+            } else {
+                const cloudIdx = index - s.content.length; let cloudArticlesForThisSection = []; Object.values(window.allArticlesMap).forEach(a => { if(a.sectionId === window.activeSection && !a.id.startsWith('core_')) cloudArticlesForThisSection.push(a); }); cloudArticlesForThisSection.sort((a,b) => (a.order || 0) - (b.order || 0));
+                if(cloudArticlesForThisSection[cloudIdx]) { currentContent = cloudArticlesForThisSection[cloudIdx].htmlContent; if(cloudArticlesForThisSection[cloudIdx].titleColor) titleColor = cloudArticlesForThisSection[cloudIdx].titleColor; if(cloudArticlesForThisSection[cloudIdx].titleSize) titleSize = cloudArticlesForThisSection[cloudIdx].titleSize; finalTitle = cloudArticlesForThisSection[cloudIdx].tabName; area.innerHTML = `<div class="glass-card rich-display h-auto border-t-[8px] border-tvtcteal bg-white/70">${currentContent}</div>`; }
+            }
+            if(titleEl) { titleEl.innerText = finalTitle; titleEl.style.color = titleColor; titleEl.className = `font-black tracking-tight drop-shadow-sm transition-all duration-300 ${titleSize}`; }
+            window.smoothScrollTop();
+        };
+
+        window.toggleFS = () => { const icon = document.getElementById('fs-icon'); if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(e => console.log(e)); if(icon) icon.className = 'fas fa-compress'; } else { document.exitFullscreen(); if(icon) icon.className = 'fas fa-expand'; } };
+        window.toast = (m, t='success') => { const e = document.getElementById('tst'), i = document.getElementById('tsti'), tx = document.getElementById('tstt'); if(!e || !i || !tx) return; tx.innerText = m; e.className = `toast show ${t==='success'?'border-tvtcmain text-tvtcdark':'border-red-500 text-red-800'}`; i.className = `fas ${t==='success'?'fa-check-circle text-tvtcmain':'fa-exclamation-triangle text-red-600'}`; setTimeout(() => e.className='toast', 3500); };
+        window.onload = () => { setTimeout(() => { document.execCommand('styleWithCSS', false, true); window.renderSidebar(); window.initMainGrid(); }, 100); };
+        
+        window.restoreAppState = () => {
+            const currentView = localStorage.getItem('app_current_view') || 'home';
+            if(currentView === 'home') { window.goHome(); } 
+            else if(currentView === 'section') {
+                const sec = localStorage.getItem('app_current_section'); let tab = parseInt(localStorage.getItem('app_current_tab') || '0');
+                if (CORE_DATA[sec]) { const maxTabs = CORE_DATA[sec].tabs.length + (window.allArticlesMap ? Object.values(window.allArticlesMap).filter(a => a.sectionId === sec && !a.id.startsWith('core_')).length : 0); if(tab >= maxTabs) tab = 0; window.openSection(sec, tab); } 
+                else { window.goHome(); }
+            } else if(currentView.startsWith('lms_')) { const type = currentView.replace('lms_', ''); window.directLMS(type); }
+        };
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        let app, db, auth, PATH;
+        try {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyCz9Wedr_X3VzoaH0gJj8QFrNIK5vT4vww", authDomain: "networkacademy-795c8.firebaseapp.com", projectId: "networkacademy-795c8", storageBucket: "networkacademy-795c8.firebasestorage.app", messagingSenderId: "458132238000", appId: "1:458132238000:web:bffd7321407b094bb21575" };
+            app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'networkacademy-795c8'; PATH = `artifacts/${appId}/public/data`;
+        } catch(e) { console.error("Firebase init error:", e); }
+        
+        window.quizzesCache = []; window.activeQuiz = null; window.allArticlesMap = {}; window.loadedResults = [];
+
+        const initSystem = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                else { await signInAnonymously(auth); }
+                await fetchCloudArticles();
+            } catch (error) { console.error("Auth Error:", error); window.toast("النظام السحابي غير متصل", "error"); if (typeof window.restoreAppState === 'function') window.restoreAppState(); }
+        };
+
+        async function fetchCloudArticles() {
+            try {
+                const s = await getDocs(collection(db, PATH, 'articles')); window.allArticlesMap = {};
+                s.forEach(d => { window.allArticlesMap[d.id] = Object.assign({ id: d.id }, d.data()); });
+                const hr = document.getElementById('home-rich-content');
+                if(window.allArticlesMap['homepage_settings']) { const data = window.allArticlesMap['homepage_settings']; if(hr && data.htmlContent) hr.innerHTML = data.htmlContent; } 
+                else { if(hr) hr.innerHTML = `<img src="tvtc.png" alt="TVTC Logo" style="height: 100px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); object-fit: contain;"><h1 class="text-3xl md:text-7xl font-black mb-4 md:mb-8 text-tvtcdark tracking-tight drop-shadow-md">شبكات <span class="text-tvtcteal">الحاسب الآلي</span></h1><p class="text-sm md:text-2xl text-tvtcmain max-w-4xl mx-auto font-bold leading-relaxed drop-shadow-sm">المرجع الأكاديمي الشامل لمهندسي الشبكات، يغطي المبادئ، الأمان، بروتوكولات التوجيه، والمعايير الفيزيائية.</p>`; }
+                if (typeof window.restoreAppState === 'function') window.restoreAppState();
+            } catch(e) { console.error("Fetch error:", e); if (typeof window.restoreAppState === 'function') window.restoreAppState(); }
+        }
+        initSystem();
+        
+        window.directLMS = (type) => {
+            localStorage.setItem('app_current_view', 'lms_' + type); const portal = document.getElementById('portal-dashboard'); if(portal) portal.classList.add('hidden'); const secContainer = document.getElementById('section-container'); if(secContainer) secContainer.classList.add('hidden'); const examContainer = document.getElementById('section-exams'); if(examContainer) examContainer.classList.remove('hidden');
+            window.clearActiveSidebar(); if(window.innerWidth < 1024) { const sidebar = document.getElementById('main-sidebar'); if(sidebar) sidebar.classList.add('hidden'); }
+            if(type === 'student') window.renderStudentPortal(); else if(type === 'admin') window.renderAdminLogin(); window.smoothScrollTop();
+        };
+
+        window.renderAdminLogin = () => { const area = document.getElementById('lms-area'); if(!area) return; area.innerHTML = `<div class="max-w-xl mx-auto glass-card p-12 md:p-16 text-center bg-white/80 border-t-[8px] border-tvtcmain"><h3 class="text-3xl font-black mb-8 text-slate-900 border-b border-white/50 pb-4">رمز المرور السري للمعلم</h3><input type="password" id="lpass" class="w-full p-5 rounded-2xl bg-white border border-slate-300 mb-8 text-center text-3xl font-bold tracking-widest text-slate-800 focus:border-tvtcteal outline-none shadow-inner" placeholder="****"><button onclick="window.checkAdmin()" class="btn-primary shadow-md text-xl">دخول للوحة التحكم</button><button onclick="window.goHome()" class="mt-8 text-slate-600 font-bold hover:text-slate-900 transition text-lg bg-white/50 px-6 py-2 rounded-xl border border-white/60">العودة للرئيسية</button></div>`; };
+        window.checkAdmin = () => { const p = document.getElementById('lpass'); if(p && p.value==='1234') window.renderDash(); else window.toast("الرمز غير صحيح", "error"); };
+
+        // بناء شريط الأدوات الذكي (يمنع فقدان التحديد Focus)
+        window.getToolbarHTML = (editorId) => {
+            return `<div class="editor-toolbar toolbar-action"><div class="flex flex-wrap gap-1.5 items-center w-full"><button onclick="window.execCmd('${editorId}', 'undo')" title="تراجع"><i class="fas fa-undo"></i></button><button onclick="window.execCmd('${editorId}', 'redo')" title="إعادة"><i class="fas fa-redo"></i></button><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><select onchange="window.execCmd('${editorId}', 'fontName', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="نوع الخط"><option value="">الخط الافتراضي</option><option value="Cairo">Cairo</option><option value="Tajawal">Tajawal</option><option value="Almarai">Almarai</option><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option></select><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.execCmd('${editorId}', 'bold')" title="عريض"><i class="fas fa-bold"></i></button><button onclick="window.execCmd('${editorId}', 'italic')" title="مائل"><i class="fas fa-italic"></i></button><button onclick="window.execCmd('${editorId}', 'underline')" title="تسطير"><i class="fas fa-underline"></i></button><button onclick="window.execCmd('${editorId}', 'strikeThrough')" title="شطب"><i class="fas fa-strikethrough"></i></button><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><select onchange="window.execCmd('${editorId}', 'fontSize', this.value); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-slate-800 border border-slate-300 rounded-lg shadow-sm" title="حجم النص"><option value="">الحجم</option><option value="1">10pt</option><option value="2">13pt</option><option value="3">16pt</option><option value="4">18pt</option><option value="5">24pt</option><option value="6">32pt</option><option value="7">48pt</option></select><div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">نص:</span><input type="color" onchange="window.execCmd('${editorId}', 'foreColor', this.value)" class="cursor-pointer" title="لون النص"></div><div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">تظليل:</span><input type="color" onchange="window.execCmd('${editorId}', 'hiliteColor', this.value)" class="cursor-pointer" value="#ffffff" title="لون خلفية النص"></div><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.execCmd('${editorId}', 'justifyRight')" title="يمين"><i class="fas fa-align-right"></i></button><button onclick="window.execCmd('${editorId}', 'justifyCenter')" title="وسط"><i class="fas fa-align-center"></i></button><button onclick="window.execCmd('${editorId}', 'justifyLeft')" title="يسار"><i class="fas fa-align-left"></i></button><button onclick="window.execCmd('${editorId}', 'justifyFull')" title="ضبط الجانبين"><i class="fas fa-align-justify"></i></button><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.execCmd('${editorId}', 'insertUnorderedList')" title="قائمة نقطية"><i class="fas fa-list-ul"></i></button><button onclick="window.execCmd('${editorId}', 'insertOrderedList')" title="قائمة رقمية"><i class="fas fa-list-ol"></i></button><button onclick="window.execCmd('${editorId}', 'removeFormat')" title="مسح التنسيقات"><i class="fas fa-eraser text-red-500"></i></button></div><div class="flex flex-wrap gap-2 items-center w-full bg-slate-50 p-2 rounded-xl border border-slate-200"><div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600">لون العنصر:</span><input type="color" onchange="window.tableAction('color', this.value)" class="cursor-pointer" title="تغيير لون المربع أو الجدول المحدد"></div><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.insertResizableImage('${editorId}')" title="إدراج صورة برابط" class="text-tvtcmain font-bold text-[10px] md:text-xs flex items-center gap-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg shadow-sm hover:bg-slate-100"><i class="fas fa-image"></i> صورة</button><div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 shadow-sm"><span class="text-[9px] font-bold text-slate-600 px-1">الحجم:</span><button onclick="window.resizeSelected(10)" title="تكبير العنصر المحدد (صورة، جدول، كرت)"><i class="fas fa-search-plus text-emerald-600"></i></button><div class="w-px h-4 bg-slate-200 mx-1"></div><button onclick="window.resizeSelected(-10)" title="تصغير العنصر المحدد"><i class="fas fa-search-minus text-emerald-600"></i></button></div><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.showEmojiPicker('${editorId}')" title="مكتبة الأيقونات" class="text-orange-600 font-bold text-[10px] md:text-xs flex items-center gap-1 bg-white border border-slate-300 px-3 py-1.5 rounded-lg shadow-sm hover:bg-slate-100"><i class="fas fa-icons"></i> أيقونات</button><select onchange="window.insertCards(this.value, '${editorId}'); this.value='';" class="text-[10px] md:text-xs p-1.5 font-bold text-tvtcmain border border-tvtcmain bg-white rounded-lg shadow-sm hover:bg-slate-50"><option value="">إدراج كروت</option><option value="1">كرت 1</option><option value="2">كارتين</option><option value="3">3 كروت</option><option value="4">4 كروت</option><option value="5">5 كروت</option></select><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><div class="flex items-center gap-1 bg-orange-50 border border-orange-200 rounded-lg p-1 shadow-sm"><button onclick="window.insertCustomTable('${editorId}')" title="إدراج جدول" class="text-orange-700 font-bold text-[10px] md:text-xs px-2 hover:bg-orange-200 rounded"><i class="fas fa-table"></i> جدول</button><div class="w-px h-4 bg-orange-300"></div><button onclick="window.tableAction('addRow')" title="إضافة صف للجدول المحدد" class="text-blue-600 px-1 hover:bg-orange-200 rounded"><i class="fas fa-plus"></i><i class="fas fa-grip-lines"></i></button><button onclick="window.tableAction('addCol')" title="إضافة عمود للجدول المحدد" class="text-blue-600 px-1 hover:bg-orange-200 rounded"><i class="fas fa-plus"></i><i class="fas fa-grip-lines-vertical"></i></button><div class="w-px h-4 bg-orange-300"></div><button onclick="window.tableAction('deleteRow')" title="حذف صف من الجدول المحدد" class="text-red-500 px-1 hover:bg-orange-200 rounded"><i class="fas fa-minus"></i><i class="fas fa-grip-lines"></i></button><button onclick="window.tableAction('deleteCol')" title="حذف عمود من الجدول المحدد" class="text-red-500 px-1 hover:bg-orange-200 rounded"><i class="fas fa-minus"></i><i class="fas fa-grip-lines-vertical"></i></button></div><div class="w-px h-6 bg-slate-300 mx-1 hidden md:block"></div><button onclick="window.deleteSelectedElement()" title="حذف العنصر المحدد بالكامل (صورة، جدول، كرت)" class="text-red-600 font-bold text-[10px] md:text-xs flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg shadow-sm hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash-alt"></i> حذف</button></div></div>`;
+        };
+
+        window.selectedElement = null;
+        
+        document.addEventListener('click', (e) => {
+            const editor = e.target.closest('.rich-editor');
+            if (editor) {
+                let target = e.target;
+                if (target.tagName === 'IMG' || target.closest('.table-wrapper') || target.closest('.card-element')) {
+                    let elToSelect = target.tagName === 'IMG' ? target : (target.closest('.table-wrapper') || target.closest('.card-element'));
+                    window.selectElement(elToSelect);
+                } else {
+                    window.deselectElement();
+                }
+            } else if (!e.target.closest('.toolbar-action') && !e.target.closest('#emoji-picker-modal')) {
+                window.deselectElement();
+            }
+        });
+
+        // حذف العنصر الذكي (الكيبورد)
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && window.selectedElement) {
+                // إذا كان المستخدم يكتب نصوصاً داخل العنصر، لا تقم بحذفه بالكامل (إلا إذا كان صورة)
+                if (e.target.isContentEditable) {
+                    const sel = window.getSelection();
+                    if (sel.rangeCount > 0) {
+                        const focusNode = sel.focusNode;
+                        if (focusNode.nodeType === 3 && window.selectedElement.contains(focusNode)) {
+                            if (window.selectedElement.tagName !== 'IMG') return;
+                        }
+                    }
+                }
+                e.preventDefault(); window.deleteSelectedElement();
+            }
+        });
+
+        document.addEventListener('mousedown', e => {
+            if(e.target.closest('.toolbar-action') && !['SELECT', 'INPUT', 'OPTION'].includes(e.target.tagName)) { e.preventDefault(); }
+        });
+
+        window.selectElement = (el) => {
+            if (window.selectedElement && window.selectedElement !== el) { window.deselectElement(); }
+            window.selectedElement = el;
+            window.selectedElement.dataset.oldOutline = window.selectedElement.style.outline || '';
+            window.selectedElement.style.outline = '4px dashed #29b5a8';
+            window.selectedElement.style.outlineOffset = '4px';
+        };
+
+        window.deselectElement = () => {
+            if (window.selectedElement) {
+                window.selectedElement.style.outline = window.selectedElement.dataset.oldOutline || '';
+                window.selectedElement = null;
+            }
+        };
+
+        window.deleteSelectedElement = () => {
+            if(window.selectedElement) {
+                window.selectedElement.remove(); window.selectedElement = null; window.toast("تم الحذف بنجاح");
+            } else { window.toast("الرجاء تحديد عنصر أولاً لحذفه", "error"); }
+        };
+
+        window.resizeSelected = (change) => {
+            if (window.selectedElement) {
+                let currentWidthStr = window.selectedElement.style.width; let currentWidth = 50;
+                if (currentWidthStr && currentWidthStr.includes('%')) { currentWidth = parseFloat(currentWidthStr); } 
+                else if (currentWidthStr && currentWidthStr.includes('px')) { let parentWidth = window.selectedElement.parentElement.clientWidth || 800; currentWidth = (parseFloat(currentWidthStr) / parentWidth) * 100; } 
+                else if (window.selectedElement.tagName === 'TABLE' || window.selectedElement.classList.contains('table-wrapper')) { currentWidth = window.selectedElement.style.width ? parseFloat(window.selectedElement.style.width) : 100; }
+                let newWidth = currentWidth + change;
+                if (newWidth >= 10 && newWidth <= 100) { window.selectedElement.style.width = newWidth + '%'; }
+            } else { window.toast("الرجاء تحديد صورة، جدول، أو كرت أولاً بالضغط عليه", "error"); }
+        };
+
+        window.renderDash = () => {
+            const area = document.getElementById('lms-area'); if(!area) return;
+            area.innerHTML = `<div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-10 w-full glass-card p-6 md:p-8 border-b-[8px] border-tvtcmain bg-white/80"><h2 class="text-2xl md:text-4xl font-black text-slate-900"><i class="fas fa-cog text-tvtcmain ml-3"></i> لوحة الإدارة السحابية</h2><button onclick="window.goHome()" class="text-red-600 font-black text-sm md:text-base bg-white hover:bg-red-50 px-6 py-3 rounded-xl transition border border-red-200 shadow-sm"><i class="fas fa-sign-out-alt"></i> خروج من الإدارة</button></div><div class="w-full mb-10 flex gap-4 border-b border-white/50 pb-6 overflow-x-auto custom-scrollbar"><button onclick="window.switchTab('home')" id="tab-home" class="admin-tab active flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-tvtcmain text-white shadow-md border border-transparent"><i class="fas fa-laptop-house"></i> واجهة الموقع</button><button onclick="window.switchTab('add')" id="tab-add" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-layer-group"></i> إضافة درس جديد</button><button onclick="window.switchTab('edit')" id="tab-edit" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-edit"></i> تعديل الدروس</button><button onclick="window.switchTab('lms')" id="tab-lms" class="admin-tab flex-1 min-w-[150px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm"><i class="fas fa-user-graduate"></i> إدارة الاختبارات</button></div>
+            <div id="view-home" class="w-full page-enter"><div class="glass-card !overflow-visible border-t-[8px] border-tvtcteal relative bg-white/90 w-full"><div id="toolbar-home-container"></div><div id="cms-home-content" contenteditable="true" class="rich-editor">اكتب الترحيب ووصف الموقع هنا...</div></div><div class="mt-8"><button onclick="window.saveHomepageSettings()" class="bg-tvtcmain hover:bg-tvtcdark text-white px-8 py-4 rounded-xl font-bold text-lg shadow-md transition w-full md:w-auto"><i class="fas fa-check-circle ml-2"></i> حفظ واجهة الرئيسية</button></div></div>
+            <div id="view-add" class="w-full page-enter hidden"><div class="grid lg:grid-cols-1 gap-10 items-start w-full"><div class="glass-card !overflow-visible border-t-[8px] border-tvtcteal relative bg-white/90 w-full"><div class="p-8 pb-0"><h3 class="text-3xl font-black mb-8 text-tvtcdark border-b border-slate-300 pb-4" id="cms-editor-title"><i class="fas fa-plus-circle text-tvtcmain"></i> إضافة درس جديد</h3><input type="hidden" id="edit-doc-id" value=""><div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6"><div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">القسم التابع له:</label><select id="cms-section" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold outline-none focus:border-tvtcmain focus:ring-2 focus:ring-tvtcmain/20 text-sm md:text-base shadow-sm"><option value="new">-- قسم جديد مستقل --</option><option value="networks">تابع لـ: مبادئ الشبكات</option><option value="security">تابع لـ: الأمان في الشبكات</option><option value="osi">تابع لـ: نموذج OSI</option><option value="cables">تابع لـ: كيابل الشبكات</option><option value="ip">تابع لـ: بروتوكول IP</option></select></div><div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">الترتيب (رقم):</label><input type="number" id="cms-order" value="1" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold outline-none focus:border-tvtcmain focus:ring-2 focus:ring-tvtcmain/20 text-center text-sm md:text-base shadow-sm"></div></div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block border-t border-slate-300 pt-6 mt-4">عنوان الدرس (يظهر في القائمة وفي أعلى الدرس):</label><div class="flex flex-col md:flex-row gap-4 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-inner"><input type="text" id="cms-tab-name" class="flex-grow p-4 rounded-xl bg-white border border-slate-300 font-black text-slate-900 focus:border-tvtcmain outline-none text-xl shadow-sm" placeholder="اكتب عنوان الدرس هنا.."><div class="flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-300 shadow-sm shrink-0"><label class="text-xs font-bold text-slate-600">اللون:</label><input type="color" id="cms-title-color" value="#004d60" class="w-10 h-10 rounded cursor-pointer border-none" title="لون العنوان"><div class="w-px h-6 bg-slate-200"></div><label class="text-xs font-bold text-slate-600">الحجم:</label><select id="cms-title-size" class="p-2 rounded bg-slate-50 border border-slate-200 text-sm font-bold outline-none"><option value="text-3xl md:text-4xl">صغير</option><option value="text-4xl md:text-5xl" selected>متوسط</option><option value="text-5xl md:text-7xl">كبير</option></select></div></div><label class="text-xs md:text-sm text-slate-700 font-bold mb-2 block">المحتوى (تظليل أي عنوان أو نص ثم اختيار اللون/الحجم يطبقه عليه فوراً):</label></div><div id="toolbar-add-container"></div><div id="cms-content" contenteditable="true" class="rich-editor">اكتب المحتوى هنا...</div></div><div class="mt-8 flex flex-col md:flex-row gap-4"><button onclick="window.saveArticle()" class="flex-grow btn-primary text-xl"><i class="fas fa-save ml-2"></i> حفظ الدرس وتحديث الموقع</button><button onclick="window.resetCMSForm()" class="bg-white hover:bg-slate-100 text-slate-800 p-5 rounded-2xl font-black transition text-lg border border-slate-300 shadow-sm">مسح الحقول / تفريغ</button></div></div></div>
+            <div id="view-edit" class="w-full page-enter hidden"><div class="glass-card p-8 md:p-12 border-t-[8px] border-blue-500 bg-white/90 w-full"><div class="flex justify-between items-center mb-8 border-b border-slate-300 pb-5"><h3 class="font-black text-2xl md:text-3xl text-blue-900">سجل الدروس (المضافة والمعدلة)</h3><button onclick="window.loadCmsList()" class="text-blue-600 hover:rotate-180 transition bg-white border border-slate-300 w-12 h-12 rounded-xl shadow-sm text-2xl"><i class="fas fa-sync"></i></button></div><div id="cms-list" class="space-y-4 overflow-y-auto h-[600px] pr-4 custom-scrollbar">جاري التحميل...</div></div></div>
+            <div id="view-lms" class="hidden grid lg:grid-cols-2 gap-8 md:gap-10 w-full mx-auto items-start page-enter"><div class="glass-card p-6 md:p-10 border-t-[8px] border-emerald-500 bg-white/90"><h3 class="text-2xl md:text-3xl font-black mb-6 md:mb-8 flex items-center gap-2 text-emerald-900 border-b border-slate-300 pb-4 md:pb-5"><i class="fas fa-file-circle-plus"></i> تصميم اختبار جديد</h3><input type="text" id="quiz-t" class="w-full p-4 md:p-5 rounded-xl md:rounded-2xl bg-white border border-slate-300 mb-6 md:mb-8 font-black text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none shadow-inner text-lg md:text-xl" placeholder="عنوان الاختبار النهائي.."><div id="quiz-c" class="space-y-6 md:space-y-8 mb-6 md:mb-8"></div><button onclick="window.addQForm()" class="w-full bg-white text-slate-800 p-4 md:p-5 rounded-xl md:rounded-2xl font-black mb-4 border border-slate-300 hover:bg-slate-50 transition text-base md:text-lg shadow-sm"><i class="fas fa-plus ml-2 text-emerald-600"></i> إضافة سؤال يدوياً (محرر)</button><input type="file" id="json-file" accept=".json" class="hidden" onchange="window.impJ(event)"><button onclick="document.getElementById('json-file').click()" class="w-full bg-blue-50 text-blue-800 font-black py-4 md:py-5 rounded-xl md:rounded-2xl mb-8 md:mb-10 border border-blue-200 hover:bg-blue-100 transition text-base md:text-lg shadow-sm"><i class="fas fa-file-import ml-2"></i> استيراد أسئلة جاهزة (JSON)</button><button onclick="window.saveQuiz()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] font-black text-xl md:text-2xl transition shadow-lg shadow-emerald-600/30"><i class="fas fa-cloud-upload-alt ml-2"></i> حفظ الاختبار سحابياً</button></div><div class="glass-card p-6 md:p-10 border-t-[8px] border-tvtcmain bg-white/90"><div class="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 border-b border-slate-300 pb-4 md:pb-5 gap-4"><h3 class="text-2xl md:text-3xl font-black text-tvtcdark">سجل الدرجات</h3><div class="flex gap-2 w-full md:w-auto"><button onclick="window.exportToExcel()" class="flex-grow md:flex-grow-0 bg-white hover:bg-emerald-50 border border-slate-300 text-emerald-700 font-bold text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl shadow-sm transition"><i class="fas fa-file-excel ml-1"></i> تحميل (Excel)</button><button onclick="window.loadRes()" class="text-tvtcmain hover:rotate-180 transition bg-white border border-slate-300 shadow-sm w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl text-lg md:text-xl shrink-0"><i class="fas fa-sync-alt"></i></button></div></div><div id="res-list" class="overflow-x-auto custom-scrollbar"><p class="text-center font-bold text-slate-500">جاري التحميل..</p></div></div></div>`;
+            
+            document.getElementById('toolbar-home-container').innerHTML = window.getToolbarHTML('cms-home-content');
+            document.getElementById('toolbar-add-container').innerHTML = window.getToolbarHTML('cms-content');
+            
+            if(window.allArticlesMap && window.allArticlesMap['homepage_settings']) {
+                const hc = document.getElementById('cms-home-content');
+                if(hc) hc.innerHTML = window.allArticlesMap['homepage_settings'].htmlContent;
+            }
+
+            window.switchTab('home'); window.loadCmsList();
+        };
+
+        window.switchTab = tab => {
+            const tabs = ['home', 'add', 'edit', 'lms'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`); const view = document.getElementById(`view-${t}`);
+                if(btn && view) {
+                    if(t === tab) { btn.className = 'admin-tab active flex-1 min-w-[160px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-tvtcmain text-white shadow-md border border-transparent'; view.classList.remove('hidden'); } 
+                    else { btn.className = 'admin-tab flex-1 min-w-[160px] py-3 md:py-4 px-4 rounded-xl font-black transition text-sm md:text-lg flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 shadow-sm'; view.classList.add('hidden'); }
+                }
+            });
+        };
+
+        window.saveHomepageSettings = async () => {
+            const htmlContent = document.getElementById('cms-home-content').innerHTML;
+            if(!htmlContent || htmlContent.trim() === '') return window.toast("محتوى الرئيسية فارغ", "error");
+            try { await setDoc(doc(db, PATH, 'articles', 'homepage_settings'), { htmlContent, sectionId: 'system', isSettings: true, timestamp: new Date().toISOString() }); window.toast("تم تحديث واجهة الموقع الرئيسية بنجاح!"); const hr = document.getElementById('home-rich-content'); if(hr) hr.innerHTML = htmlContent; fetchCloudArticles(); } catch(e) { window.toast("حدث خطأ أثناء حفظ إعدادات الرئيسية", "error"); }
+        };
+
+        window.savedSelection = null;
+        window.saveSelection = () => { let sel = window.getSelection(); if (sel.getRangeAt && sel.rangeCount) { window.savedSelection = sel.getRangeAt(0); } };
+        window.restoreSelection = () => { if (window.savedSelection) { let sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(window.savedSelection); } };
+
+        window.execCmd = (editorId, cmd, val=null) => { document.execCommand(cmd, false, val); document.getElementById(editorId).focus(); };
+        
+        window.insertResizableImage = (editorId) => { 
+            window.saveSelection();
+            setTimeout(() => {
+                let url = prompt("أدخل رابط الصورة (URL):"); 
+                if(url) {
+                    window.restoreSelection();
+                    if (url.includes('drive.google.com/file/d/')) { const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/); if (match && match[1]) url = 'https://lh3.googleusercontent.com/d/' + match[1]; } 
+                    else if (url.includes('drive.google.com/open?id=')) { const match = url.match(/id=([a-zA-Z0-9_-]+)/); if (match && match[1]) url = 'https://lh3.googleusercontent.com/d/' + match[1]; }
+                    const html = `<img src="${url}" style="width:50%; max-width:100%; height:auto; border-radius:1rem; box-shadow:0 8px 25px rgba(0,0,0,0.1); cursor:pointer; margin:1rem auto; display:block; transition: width 0.1s;" alt="صورة" class="editable-img" tabindex="0" />&nbsp;`;
+                    window.execCmd(editorId, 'insertHTML', html);
+                }
+            }, 10);
+        };
+
+        window.tableAction = (action, val) => {
+            if(action === 'color') {
+                if(window.selectedElement) { window.selectedElement.style.backgroundColor = val; return; }
+                let sel = window.getSelection(); if(sel.rangeCount === 0) return window.toast('ضع المؤشر داخل جدول أو كرت أولاً', 'error');
+                let node = sel.focusNode; if(node.nodeType === 3) node = node.parentNode;
+                let box = node.closest('div.card-element, td, th'); if(!box) box = node.closest('div'); 
+                if(box && !box.classList.contains('rich-editor')) { box.style.backgroundColor = val; return; }
+                let table = node.closest('table'); if(table) { table.style.backgroundColor = val; return; }
+                return window.toast("الرجاء تحديد عنصر أولاً", "error");
+            }
+            
+            let sel = window.getSelection(); if(sel.rangeCount === 0) return window.toast('ضع المؤشر داخل جدول أولاً', 'error');
+            let node = sel.focusNode; if(node.nodeType === 3) node = node.parentNode;
+            let td = node.closest('td, th'); let tr = node.closest('tr'); let table = node.closest('table');
+            
+            if(!table) return window.toast('ضع المؤشر داخل جدول أولاً', 'error');
+            if(action === 'addRow' && tr) { let newRow = tr.cloneNode(true); newRow.querySelectorAll('td, th').forEach(cell => cell.innerHTML = 'بيانات'); tr.parentNode.insertBefore(newRow, tr.nextSibling); } 
+            else if(action === 'addCol' && td && tr) { let index = Array.from(tr.children).indexOf(td); table.querySelectorAll('tr').forEach(row => { if(row.children.length > index) { let isTh = row.children[index].tagName === 'TH'; let newCell = document.createElement(isTh ? 'th' : 'td'); newCell.innerHTML = isTh ? 'عنوان' : 'بيانات'; row.insertBefore(newCell, row.children[index].nextSibling); } }); } 
+            else if(action === 'deleteRow' && tr) { tr.remove(); } 
+            else if(action === 'deleteCol' && td && tr) { let index = Array.from(tr.children).indexOf(td); table.querySelectorAll('tr').forEach(row => { if(row.children[index]) row.children[index].remove(); }); }
+        };
+
+        window.insertCustomTable = (editorId) => {
+            window.saveSelection();
+            setTimeout(() => {
+                let r = prompt("عدد الصفوف:", "3"); let c = prompt("عدد الأعمدة:", "3");
+                if(!r || !c) return; r = parseInt(r); c = parseInt(c);
+                if(isNaN(r) || isNaN(c) || r<=0 || c<=0) return window.toast("قيمة غير صحيحة", "error");
+                window.restoreSelection();
+                // إزالة contenteditable="false" ليصبح متاحاً للتعديل من كل مكان
+                let html = `<div style="overflow: auto; display: block; width: 100%; border: 2px dashed #cbd5e1; padding: 5px; margin: 10px auto; transition: width 0.2s;" class="table-wrapper"><table class="modern-table" style="width: 100%; height: 100%; margin: 0;"><thead><tr>`;
+                for(let i=0; i<c; i++) html += `<th>عنوان ${i+1}</th>`;
+                html += `</tr></thead><tbody>`;
+                for(let i=0; i<r; i++) { html += `<tr>`; for(let j=0; j<c; j++) html += `<td>بيانات</td>`; html += `</tr>`; }
+                html += `</tbody></table></div><p><br></p><p>&#8203;</p>`;
+                window.execCmd(editorId, 'insertHTML', html);
+            }, 10);
+        };
+
+        window.insertCards = (num, editorId) => {
+            window.saveSelection();
+            setTimeout(() => {
+                if(!num) return; num = parseInt(num);
+                window.restoreSelection();
+                let html = `<div style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin: 2rem 0; width: 100%; transition: width 0.2s;" class="cards-wrapper">`;
+                for(let i=0; i<num; i++) { html += `<div style="flex: 1; min-width: 200px; border: 1px solid rgba(0,98,122,0.2); padding: 1.5rem; border-radius: 1.5rem; background-color: rgba(255,255,255,0.9); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; display: flex; flex-direction: column; vertical-align: top; transition: width 0.2s;" class="card-element"><div style="font-size: 3rem; margin-bottom: 1rem;">🏷️</div><h3 style="color: #004d60; font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; margin-top: 0;">عنوان الكرت</h3><p style="color: #475569; font-size: 1rem; font-weight: bold;">اكتب الوصف هنا...</p></div>`; }
+                html += `</div><p><br></p><p>&#8203;</p>`; window.execCmd(editorId, 'insertHTML', html);
+            }, 10);
+        };
+
+        window.resetCMSForm = () => {
+            const docIdEl = document.getElementById('edit-doc-id'); if(docIdEl) docIdEl.value = '';
+            const titleEl = document.getElementById('cms-editor-title'); if(titleEl) titleEl.innerHTML = '<i class="fas fa-plus-circle text-tvtcmain"></i> إضافة مقال أو تعديل درس';
+            const secEl = document.getElementById('cms-section'); if(secEl) { secEl.value = 'networks'; secEl.disabled = false; }
+            const ordEl = document.getElementById('cms-order'); if(ordEl) { ordEl.value = '1'; ordEl.disabled = false; }
+            const nameEl = document.getElementById('cms-tab-name'); if(nameEl) nameEl.value = '';
+            const titleColor = document.getElementById('cms-title-color'); if(titleColor) titleColor.value = '#004d60';
+            const titleSize = document.getElementById('cms-title-size'); if(titleSize) titleSize.value = 'text-4xl md:text-5xl';
+            const contEl = document.getElementById('cms-content'); if(contEl) contEl.innerHTML = 'اكتب المحتوى هنا...';
+            window.switchTab('add');
+        };
+
+        window.saveArticle = async () => {
+            const docId = document.getElementById('edit-doc-id').value; const sectionId = document.getElementById('cms-section').value;
+            const order = parseInt(document.getElementById('cms-order').value) || 1; const tabName = document.getElementById('cms-tab-name').value.trim();
+            const htmlContent = document.getElementById('cms-content').innerHTML; const titleColor = document.getElementById('cms-title-color').value; const titleSize = document.getElementById('cms-title-size').value;
+            if(!tabName || !htmlContent || htmlContent.trim() === '') return window.toast("أدخل العنوان والمحتوى", "error");
+            const payload = { sectionId, tabName, htmlContent, order, titleColor, titleSize, timestamp: new Date().toISOString() };
+            try {
+                if(docId && docId.startsWith('core_')) { await setDoc(doc(db, PATH, 'articles', docId), payload); window.toast("تم تعديل الدرس الأساسي بنجاح!"); } 
+                else if(docId) { await updateDoc(doc(db, PATH, 'articles', docId), payload); window.toast("تم تعديل الدرس بنجاح!"); } 
+                else { await addDoc(collection(db, PATH, 'articles'), payload); window.toast("تم نشر الدرس بنجاح!"); }
+                window.resetCMSForm(); window.loadCmsList(); fetchCloudArticles(); window.switchTab('edit');
+            } catch(e) { window.toast("خطأ في الحفظ", "error"); }
+        };
+
+        window.loadCmsList = async () => {
+            const list = document.getElementById('cms-list'); list.innerHTML = '<p class="text-lg text-slate-600 font-bold text-center mt-10"><i class="fas fa-spinner fa-spin text-4xl mb-4 text-tvtcteal"></i><br>جاري التحميل...</p>';
+            try {
+                const s = await getDocs(collection(db, PATH, 'articles')); let arr = []; s.forEach(d => arr.push(Object.assign({id: d.id}, d.data())));
+                let html = '<div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-6 shadow-sm"><p class="text-sm font-bold text-blue-900"><i class="fas fa-info-circle text-blue-600"></i> <b>ملاحظة هامة:</b> يمكنك تعديل أي درس من الدروس الأساسية للمنهج من القائمة أدناه، وسيقوم النظام باستبدال الدرس القديم بتعديلك الجديد في الموقع فوراً.</p></div>';
+                Object.keys(CORE_DATA).forEach(secKey => {
+                    html += `<div class="bg-white/80 p-4 rounded-xl text-slate-900 font-black text-lg mt-6 mb-4 border border-slate-200 shadow-sm flex items-center gap-3"><i class="fas ${CORE_DATA[secKey].icon} text-tvtcmain"></i> ${CORE_DATA[secKey].title}</div>`;
+                    CORE_DATA[secKey].tabs.forEach((tab, idx) => {
+                        let coreId = `core_${secKey}_${idx}`; let modified = arr.find(a => a.id === coreId); let dTitle = modified ? modified.tabName : tab;
+                        let modBadge = modified ? '<span class="text-[11px] bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg ml-2 shadow-sm font-black border border-emerald-300">معدل</span>' : '';
+                        html += `<div class="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-center transition hover:shadow-md mb-3 shadow-sm hover:border-tvtcmain"><div><p class="font-bold text-slate-900 text-sm md:text-base">${dTitle} ${modBadge}</p></div><div class="flex gap-2"><button onclick="window.editCoreArticle('${secKey}', ${idx})" class="w-10 h-10 bg-white text-tvtcmain rounded-xl hover:bg-tvtcmain hover:text-white transition shadow-sm border border-slate-200" title="تعديل الدرس"><i class="fas fa-edit"></i></button>${modified ? `<button onclick="window.delArticle('${coreId}')" class="w-10 h-10 bg-white text-red-700 rounded-xl hover:bg-red-600 hover:text-white transition shadow-sm border border-slate-200" title="استعادة المحتوى الأصلي"><i class="fas fa-undo"></i></button>` : ''}</div></div>`;
+                    });
+                    let dynamicArr = arr.filter(a => a.sectionId === secKey && !a.id.startsWith('core_')); dynamicArr.sort((a,b) => (a.order || 0) - (b.order || 0));
+                    dynamicArr.forEach(a => { html += `<div class="bg-tvtcteal/10 p-5 rounded-2xl border border-tvtcteal/30 flex justify-between items-center transition hover:shadow-md mb-3 shadow-sm border-r-[8px] border-r-tvtcteal"><div><p class="font-bold text-tvtcdark text-sm md:text-base"><i class="fas fa-plus text-tvtcteal ml-1 text-sm"></i> ${a.tabName}</p></div><div class="flex gap-2"><button onclick="window.editArticleId('${a.id}')" class="w-10 h-10 bg-white text-tvtcteal rounded-xl hover:bg-tvtcteal hover:text-white transition shadow-sm border border-slate-200" title="تعديل"><i class="fas fa-edit"></i></button><button onclick="window.delArticle('${a.id}')" class="w-10 h-10 bg-white text-red-800 rounded-xl hover:bg-red-600 hover:text-white transition shadow-sm border border-slate-200" title="حذف"><i class="fas fa-trash"></i></button></div></div>`; });
+                });
+                list.innerHTML = html;
+            } catch(e) { list.innerHTML = '<p class="text-red-600 text-base font-bold text-center mt-10">حدث خطأ في الجلب</p>'; }
+        };
+
+        window.editCoreArticle = (secKey, idx) => {
+            let coreId = `core_${secKey}_${idx}`; let article = window.allArticlesMap[coreId];
+            document.getElementById('edit-doc-id').value = coreId; document.getElementById('cms-editor-title').innerHTML = '<i class="fas fa-edit text-blue-600"></i> تعديل درس أساسي: <span class="text-slate-800">' + (article ? article.tabName : CORE_DATA[secKey].tabs[idx]) + '</span>';
+            const secSelect = document.getElementById('cms-section'); if(secSelect){ secSelect.value = secKey; secSelect.disabled = true; }
+            const orderInput = document.getElementById('cms-order'); if(orderInput){ orderInput.value = idx + 1; orderInput.disabled = true; }
+            const titleColor = document.getElementById('cms-title-color'); if(titleColor) titleColor.value = article && article.titleColor ? article.titleColor : '#004d60';
+            const titleSize = document.getElementById('cms-title-size'); if(titleSize) titleSize.value = article && article.titleSize ? article.titleSize : 'text-4xl md:text-5xl';
+            document.getElementById('cms-tab-name').value = article ? article.tabName : CORE_DATA[secKey].tabs[idx]; document.getElementById('cms-content').innerHTML = article ? article.htmlContent : CORE_DATA[secKey].content[idx];
+            window.switchTab('add'); document.getElementById('main-scroll-area').scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.editArticleId = (id) => {
+            const obj = window.allArticlesMap[id]; if(!obj) return window.toast("خطأ في جلب الدرس", "error");
+            document.getElementById('edit-doc-id').value = obj.id; document.getElementById('cms-editor-title').innerHTML = '<i class="fas fa-edit text-cyan-600"></i> تعديل مقال إضافي: <span class="text-slate-800">' + obj.tabName + '</span>';
+            const secSelect = document.getElementById('cms-section'); if(secSelect){ secSelect.value = obj.sectionId; secSelect.disabled = false; }
+            const orderInput = document.getElementById('cms-order'); if(orderInput){ orderInput.value = obj.order || 1; orderInput.disabled = false; }
+            const titleColor = document.getElementById('cms-title-color'); if(titleColor) titleColor.value = obj.titleColor || '#004d60';
+            const titleSize = document.getElementById('cms-title-size'); if(titleSize) titleSize.value = obj.titleSize || 'text-4xl md:text-5xl';
+            document.getElementById('cms-tab-name').value = obj.tabName; document.getElementById('cms-content').innerHTML = obj.htmlContent;
+            window.switchTab('add'); document.getElementById('main-scroll-area').scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.delArticle = async (id) => { if(!confirm("هل أنت متأكد من الحذف؟")) return; try { await deleteDoc(doc(db, PATH, 'articles', id)); window.toast("تم الحذف بنجاح"); window.loadCmsList(); fetchCloudArticles(); } catch(e) { window.toast("خطأ في الحذف", "error"); } };
+
+        window.addCustomEmoji = () => {
+            window.saveSelection();
+            setTimeout(() => {
+                let url = prompt("أدخل رمز تعبيري (Emoji) أو رابط صورة أيقونة:");
+                if (url && url.trim() !== '') {
+                    window.restoreSelection();
+                    let customIcons = JSON.parse(localStorage.getItem('custom_icons') || '[]');
+                    customIcons.push(url.trim());
+                    localStorage.setItem('custom_icons', JSON.stringify(customIcons));
+                    window.showEmojiPicker(window.currentEmojiEditor);
+                }
+            }, 10);
+        };
+
+        window.EMOJI_BANK = {
+            "أرقام ملونة": ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "0️⃣", "❶", "❷", "❸", "❹", "❺", "❻", "❼", "❽", "❾", "❿", "💯"],
+            "تقنية وشبكات": ["💻", "🖥️", "🖨️", "🖱️", "🖲️", "💾", "💽", "💿", "📀", "📱", "📞", "📟", "📠", "📡", "📺", "📻", "🎙️", "🎚️", "🎛️", "🔌", "🔋", "🪫", "🌐"],
+            "أمان وحماية": ["🛡️", "🔒", "🔓", "🔏", "🔐", "🔑", "🗝️", "🕵️", "👁️", "🚨", "⚠️", "🛑", "⛔", "🧱", "🦠", "👾", "🏴‍☠️", "🪪", "💣", "🧨", "🕸️", "🕷️", "🎭"],
+            "مجلدات وبيانات": ["📁", "📂", "🗂️", "🗄️", "📊", "📈", "📉", "📄", "📝", "🧮", "🤖", "🧠", "⚙️", "🛠️", "🔧", "🔥", "💧", "📦", "🧾", "📋", "📌", "🗑️", "🗃️"],
+            "تعليم وتقييم": ["✅", "❌", "❓", "❕", "🎓", "🏫", "🏢", "💡", "🎯", "📌", "⭐", "🏆", "🥇", "🚀", "⏳", "⏱️", "➡️", "⬅️", "⬆️", "⬇️", "↔️", "↕️", "📝", "📚", "📖", "🧠"],
+            "أشكال وإشارات": ["🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "⚫", "⚪", "🟤", "🟥", "🟧", "🟨", "🟩", "🟦", "🟪", "⬛", "⬜", "🟫", "🔺", "🔻", "🔸", "🔹", "🔶", "🔷", "✔️", "☑️", "✖️", "➕", "➖", "➗", "➰", "➿"]
+        };
+
+        window.currentEmojiEditor = '';
+
+        window.showEmojiPicker = (editorId) => {
+            window.currentEmojiEditor = editorId; window.saveSelection();
+            const modal = document.getElementById('emoji-picker-modal'); const container = document.getElementById('emoji-grid-container');
+            let html = '';
+            let customIcons = JSON.parse(localStorage.getItem('custom_icons') || '[]');
+            if (customIcons.length > 0) {
+                html += `<h4 class="font-black text-tvtcmain mt-6 mb-3 text-lg border-b border-slate-200 pb-2">أيقوناتك المخصصة</h4><div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-3">`;
+                customIcons.forEach(em => { 
+                    let isImg = em.startsWith('http') || em.startsWith('data:image');
+                    let content = isImg ? `<img src="${em}" style="width:28px;height:28px;margin:auto;object-fit:contain;" />` : em;
+                    let insertCode = isImg ? `<img src=\\'${em}\\' style=\\'width:28px;height:28px;display:inline-block;vertical-align:middle;margin:0 2px;\\' />` : em;
+                    html += `<button onclick="window.insertEmoji('${insertCode}')" class="text-3xl md:text-4xl hover:bg-blue-50 hover:scale-125 transition-transform p-2 rounded-xl border border-transparent hover:border-blue-200" title="${em}">${content}</button>`; 
+                }); 
+                html += `</div>`;
+            }
+            for(let cat in window.EMOJI_BANK) { html += `<h4 class="font-black text-tvtcmain mt-6 mb-3 text-lg border-b border-slate-200 pb-2">${cat}</h4><div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-3">`; window.EMOJI_BANK[cat].forEach(em => { html += `<button onclick="window.insertEmoji('${em}')" class="text-3xl md:text-4xl hover:bg-blue-50 hover:scale-125 transition-transform p-2 rounded-xl border border-transparent hover:border-blue-200">${em}</button>`; }); html += `</div>`; }
+            container.innerHTML = html; modal.classList.remove('hidden');
+        };
+
+        window.insertEmoji = (em) => { document.getElementById('emoji-picker-modal').classList.add('hidden'); window.restoreSelection(); window.execCmd(window.currentEmojiEditor, 'insertHTML', em); };
+
+        let qCount = 0;
+        window.addQForm = () => {
+            qCount++; const editorId = 'q-editor-' + qCount; const d = document.createElement('div'); d.className = 'p-6 md:p-8 bg-white/90 backdrop-blur border border-slate-300 rounded-[2rem] q-form-block relative shadow-lg mb-8';
+            d.innerHTML = `<select class="q-ty w-full p-3 md:p-4 bg-white border border-slate-300 rounded-xl mb-4 font-bold text-slate-800 outline-none text-sm md:text-base shadow-sm" onchange="window.updTy(this)"><option value="multiple-choice">اختيار من متعدد (إجابة واحدة)</option><option value="multiple-answers">إجابات متعددة (Checkboxes)</option><option value="true-false">صح أم خطأ</option><option value="short-answer">إجابة قصيرة (نصية)</option></select><div id="toolbar-${editorId}-container"></div><div id="${editorId}" contenteditable="true" class="q-t w-full p-4 bg-white border border-slate-300 rounded-b-xl mb-6 text-slate-900 font-bold text-base outline-none overflow-y-auto shadow-sm min-h-[120px] resize-y" placeholder="اكتب السؤال هنا.. ظلل النص لتنسيقه"></div><div class="q-opts grid grid-cols-2 gap-3 md:gap-4 mb-6"><input class="o1 p-3 md:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base font-bold text-slate-800 outline-none focus:border-tvtcmain shadow-sm" placeholder="الخيار 1"><input class="o2 p-3 md:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base font-bold text-slate-800 outline-none focus:border-tvtcmain shadow-sm" placeholder="الخيار 2"><input class="o3 p-3 md:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base font-bold text-slate-800 outline-none focus:border-tvtcmain shadow-sm" placeholder="الخيار 3"><input class="o4 p-3 md:p-4 bg-slate-50 border border-slate-300 rounded-xl text-sm md:text-base font-bold text-slate-800 outline-none focus:border-tvtcmain shadow-sm" placeholder="الخيار 4"></div><input type="text" class="q-c w-full p-3 md:p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-center text-emerald-900 font-black text-sm md:text-lg outline-none placeholder:text-emerald-600 shadow-sm" placeholder="رقم الإجابة الصحيحة (مثال: 2)"><button onclick="this.parentElement.remove()" class="absolute top-4 left-4 text-red-600 hover:text-white bg-white hover:bg-red-600 border border-slate-200 p-2.5 rounded-lg transition shadow-sm"><i class="fas fa-trash"></i></button>`;
+            document.getElementById('quiz-c').appendChild(d);
+            document.getElementById(`toolbar-${editorId}-container`).innerHTML = window.getToolbarHTML(editorId);
+        };
+
+        window.updTy = s => {
+            const b = s.closest('.q-form-block'), t = s.value, oc = b.querySelector('.q-opts'), c = b.querySelector('.q-c');
+            if(t==='short-answer'){ oc.style.display='none'; c.placeholder="اكتب النص الصحيح"; }
+            else if(t==='true-false'){ oc.style.display='grid'; b.querySelector('.o1').value="صح"; b.querySelector('.o2').value="خطأ"; b.querySelector('.o3').style.display=b.querySelector('.o4').style.display='none'; c.placeholder="1 لصح، 2 لخطأ"; }
+            else { oc.style.display='grid'; b.querySelector('.o3').style.display=b.querySelector('.o4').style.display='block'; c.placeholder=t==='multiple-answers'?"أرقام مفصولة (1,3)":"رقم الإجابة"; }
+        };
+
+        window.saveQuiz = async () => {
+            const title = document.getElementById('quiz-t').value.trim(); if(!title) return window.toast("أدخل عنوان الاختبار", "error");
+            let qs = [], ok = true; document.querySelectorAll('.q-form-block').forEach(b => { 
+                const ty = b.querySelector('.q-ty').value, tx = b.querySelector('.q-t').innerHTML.trim(), crRaw = b.querySelector('.q-c').value.trim();
+                if(!tx || !crRaw) { ok = false; return; }
+                let opts = [], cr = crRaw;
+                if(ty !== 'short-answer') { opts = [b.querySelector('.o1').value, b.querySelector('.o2').value, b.querySelector('.o3').value, b.querySelector('.o4').value].filter(x=>x); if(ty==='true-false') opts.length=2; }
+                if(ty === 'multiple-answers') cr = crRaw.split(',').map(n=>parseInt(n.trim())-1); else if(ty!=='short-answer') cr = parseInt(crRaw)-1;
+                qs.push({ type: ty, text: tx, options: opts, correctAnswer: cr }); 
+            });
+            if(!qs.length || !ok) return window.toast("تأكد من تعبئة جميع الحقول", "error");
+            try { await addDoc(collection(db, PATH, 'quizzes'), { title, questions: qs, createdAt: new Date().toISOString() }); window.toast("تم الحفظ سحابياً بنجاح"); window.renderDash(); } catch(e){window.toast("خطأ","error");}
+        };
+
+        window.renderStudentPortal = async () => {
+            const area = document.getElementById('lms-area'); if(!area) return;
+            area.innerHTML = `<div class="max-w-5xl mx-auto"><div class="glass-card p-8 md:p-12 flex flex-col md:flex-row items-center gap-6 mb-12 shadow-xl border-t-[8px] border-tvtcmain bg-white/90"><div class="w-24 h-24 bg-tvtclight/20 text-tvtcdark rounded-[2rem] flex items-center justify-center text-4xl shadow-md border border-tvtcteal/50 shrink-0"><i class="fas fa-user-edit"></i></div><div class="flex-grow w-full space-y-4"><input type="text" id="student-n" class="w-full bg-white border border-slate-300 rounded-xl p-4 md:p-5 text-xl font-black text-slate-900 focus:border-tvtcteal outline-none placeholder:text-slate-500 shadow-sm" placeholder="الاسم الثلاثي.."><input type="text" id="student-id" class="w-full bg-white border border-slate-300 rounded-xl p-4 md:p-5 text-xl font-black text-slate-900 focus:border-tvtcteal outline-none placeholder:text-slate-500 shadow-sm" placeholder="الرقم التدريبي.."></div><button onclick="window.showExamsList()" class="bg-tvtcmain hover:bg-tvtcdark text-white px-6 py-4 rounded-xl font-black text-lg transition shadow-lg w-full md:w-auto h-full mt-2 md:mt-0 whitespace-nowrap">عرض الاختبارات</button></div><div id="quizzes-container" class="hidden"><h3 class="text-2xl md:text-3xl font-black mb-6 text-slate-900 border-b-2 border-slate-300 pb-3 bg-white/60 p-4 md:p-6 rounded-2xl shadow-sm inline-block w-full">الواجبات والاختبارات المتاحة:</h3><div id="quizzes-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 text-center text-slate-600 font-bold"><div class="col-span-full py-10"><i class="fas fa-spinner fa-spin text-5xl mb-4 text-tvtcteal"></i><br>جاري جلب البيانات..</div></div></div></div>`;
+        };
+
+        window.showExamsList = async () => {
+            const n = document.getElementById('student-n').value.trim(); const sId = document.getElementById('student-id').value.trim();
+            if(!n || !sId) return window.toast("يرجى تعبئة الاسم والرقم التدريبي أولاً", "error");
+            window.currentStudent = { name: n, id: sId }; document.getElementById('quizzes-container').classList.remove('hidden');
+            try {
+                const s = await getDocs(collection(db, PATH, 'quizzes')); window.quizzesCache = []; s.forEach(d => window.quizzesCache.push(Object.assign({id:d.id}, d.data())));
+                const qg = document.getElementById('quizzes-grid');
+                if(!window.quizzesCache.length) qg.innerHTML = '<p class="col-span-full bg-white/80 p-8 rounded-[2rem] border border-slate-300 text-lg shadow-sm">لا توجد اختبارات متاحة حالياً.</p>';
+                else qg.innerHTML = window.quizzesCache.map(q => `<div onclick="window.startQuiz('${q.id}')" class="glass-card p-6 md:p-8 border-t-[6px] border-tvtcteal cursor-pointer hover-scale text-center flex flex-col items-center bg-white/95"><h4 class="font-black text-xl mb-4 text-tvtcdark">${q.title}</h4><p class="text-sm font-bold text-slate-800 bg-tvtclight/10 px-4 py-2 rounded-lg border border-tvtcteal/30 mt-auto w-full"><i class="fas fa-list-ol text-tvtcteal ml-1"></i> ${q.questions.length} أسئلة تقييمية</p></div>`).join('');
+            } catch(e) { document.getElementById('quizzes-grid').innerHTML = '<p class="col-span-full text-red-600 text-lg font-bold">خطأ في جلب البيانات.</p>'; }
+        };
+
+        window.startQuiz = id => {
+            if(!window.currentStudent || !window.currentStudent.name) return window.toast("يرجى إدخال بياناتك أولاً", "error");
+            const q = window.quizzesCache.find(x => x.id === id); window.activeQuiz = q;
+            document.getElementById('lms-area').innerHTML = `<div class="glass-card max-w-4xl mx-auto p-8 md:p-14 border-t-[10px] md:border-t-[15px] border-tvtcmain shadow-2xl bg-white/95"><div class="flex justify-between items-center mb-8 md:mb-12 border-b-2 border-slate-200 pb-4 md:pb-6"><h2 class="text-2xl md:text-4xl font-black text-tvtcdark">${q.title}</h2><button onclick="window.renderStudentPortal()" class="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white p-2 md:p-3 rounded-xl transition shadow-sm border border-red-200"><i class="fas fa-times text-xl"></i></button></div><div id="q-render-area" class="space-y-8 md:space-y-12"></div><button onclick="window.processSubmit()" class="w-full bg-tvtcteal hover:bg-tvtcmain text-white py-5 rounded-2xl font-black text-2xl shadow-xl mt-10 transition">تسليم الإجابات <i class="fas fa-paper-plane ml-2"></i></button></div>`;
+            document.getElementById('q-render-area').innerHTML = q.questions.map((qu, i) => {
+                let optsHtml = '';
+                if(qu.type === 'short-answer') optsHtml = `<input type="text" class="w-full p-4 md:p-6 bg-white border border-slate-300 rounded-xl text-slate-900 font-black focus:border-tvtcmain outline-none tin text-lg shadow-inner" placeholder="اكتب إجابتك هنا..">`;
+                else if(qu.type === 'multiple-answers') optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${qu.options.map((o, j) => `<label class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-tvtcteal hover:bg-tvtclight/10 transition shadow-sm"><input type="checkbox" class="w-5 h-5 md:w-6 md:h-6 rounded border-slate-400 text-tvtcmain focus:ring-tvtcmain" value="${j}"> <span class="font-bold text-sm md:text-lg text-slate-800">${o}</span></label>`).join('')}</div>`;
+                else optsHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${qu.options.map((o, j) => `<div onclick="window.selectOpt(this)" class="p-4 md:p-5 border border-slate-200 bg-slate-50 rounded-2xl cursor-pointer opt-box hover:border-tvtcteal hover:bg-tvtclight/10 font-bold text-sm md:text-lg text-slate-800 transition shadow-sm" data-v="${j}">${o}</div>`).join('')}</div>`;
+                return `<div class="p-6 md:p-10 bg-white border border-slate-300 rounded-2xl md:rounded-[3rem] q-entry shadow-md" data-i="${i}" data-ty="${qu.type}" data-cr="${typeof qu.correctAnswer==='object'?qu.correctAnswer.join(','):qu.correctAnswer}"><div class="text-lg md:text-2xl font-black mb-6 leading-relaxed text-tvtcdark rich-display p-0 border-none bg-transparent min-h-0 h-auto inline shadow-none">${i+1}. ${qu.text}</div> ${qu.type==='multiple-answers'?'<span class="text-[10px] md:text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded ml-2 font-black align-top shadow-sm border border-blue-200">(اختيار متعدد)</span>':''}<div class="mt-6">${optsHtml}</div></div>`;
+            }).join('');
+            window.smoothScrollTop();
+        };
+
+        window.selectOpt = el => { el.parentElement.querySelectorAll('.opt-box').forEach(x => x.classList.remove('bg-tvtcmain', 'border-tvtcmain', 'text-white', 'active-opt')); el.classList.add('bg-tvtcmain', 'border-tvtcmain', 'text-white', 'active-opt'); el.classList.remove('text-slate-800', 'bg-slate-50'); };
+
+        window.processSubmit = async () => {
+            let score = 0, unanswered = [];
+            document.querySelectorAll('.q-entry').forEach((e, index) => { 
+                const ty = e.dataset.ty, cr = e.dataset.cr; let answered = false;
+                if(ty === 'short-answer') { const v = e.querySelector('.tin').value.trim(); if(v) { answered = true; if(v.toLowerCase()===String(cr).toLowerCase()) score++; } }
+                else if(ty === 'multiple-answers') { const chks = Array.from(e.querySelectorAll('input:checked')).map(c=>c.value); if(chks.length > 0) { answered = true; const cra = String(cr).split(','); if(chks.length===cra.length && chks.every(v=>cra.includes(v))) score++; } }
+                else { const s = e.querySelector('.active-opt'); if(s) { answered = true; if(s.dataset.v===String(cr)) score++; } }
+                if(!answered) unanswered.push(index + 1);
+            });
+            if(unanswered.length > 0) return window.toast("الرجاء الإجابة على السؤال رقم: " + unanswered.join(' و '), "error");
+            try {
+                if(!window.activeQuiz || !window.activeQuiz.questions) return window.toast("عذراً، حدث خطأ في تحميل بيانات الاختبار.", "error");
+                await addDoc(collection(db, PATH, 'results'), { studentName: window.currentStudent.name || "غير مدون", studentId: window.currentStudent.id || "غير مدون", quizTitle: window.activeQuiz.title || "اختبار", score: score || 0, total: window.activeQuiz.questions.length || 0, timestamp: new Date().toISOString() });
+                document.getElementById('lms-area').innerHTML = `<div class="glass-card max-w-lg mx-auto text-center p-12 md:p-16 border-t-[12px] md:border-t-[16px] ${score===window.activeQuiz.questions.length?'border-yellow-500':'border-emerald-500'} shadow-2xl bg-white/95"><i class="fas ${score===window.activeQuiz.questions.length?'fa-trophy text-yellow-500':'fa-star text-emerald-500'} text-7xl md:text-9xl mb-6 md:mb-8 drop-shadow-lg"></i><h2 class="text-3xl md:text-4xl font-black mb-4 text-slate-900">النتيجة النهائية</h2><p class="font-bold text-slate-700 text-lg md:text-xl mb-6 md:mb-8">أحسنت يا ${window.currentStudent.name}</p><div class="text-[70px] md:text-[100px] font-black text-tvtcmain mb-8 md:mb-10 bg-tvtclight/10 py-4 md:py-6 rounded-[2rem] md:rounded-[3rem] border border-tvtcteal/30 shadow-inner">${score}<span class="text-4xl md:text-5xl text-slate-400 mx-2 md:mx-3">/</span><span class="text-5xl md:text-6xl text-slate-700">${window.activeQuiz.questions.length}</span></div><button onclick="window.renderStudentPortal()" class="bg-slate-800 text-white w-full py-4 md:py-5 rounded-xl md:rounded-2xl font-black text-xl transition hover:bg-slate-700 shadow-xl">العودة لقائمة الاختبارات</button></div>`;
+                window.smoothScrollTop();
+            } catch(e) { console.error(e); window.toast("حدث تقني أثناء حفظ النتيجة، تأكد من الاتصال.", "error"); }
+        };
+
+        window.loadRes = async () => {
+            const list = document.getElementById('res-list'); list.innerHTML = '<p class="text-center font-bold text-slate-600 text-lg"><i class="fas fa-spinner fa-spin text-3xl mb-2 text-tvtcmain"></i><br>جاري التحديث..</p>';
+            try {
+                const s = await getDocs(collection(db, PATH, 'results')); window.loadedResults = []; s.forEach(d => window.loadedResults.push(d.data()));
+                window.loadedResults.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                if(!window.loadedResults.length) return list.innerHTML = '<p class="text-center text-slate-700 font-bold text-sm bg-white p-6 rounded-xl border border-slate-300 shadow-sm">لا توجد نتائج مسجلة حتى الآن.</p>';
+                list.innerHTML = `<table class="modern-table w-full text-right"><tr class="border-b border-slate-300 text-sm font-black text-slate-800 bg-slate-100"><th class="p-4 rounded-tr-lg border-r border-slate-300">اسم المتدرب (والرقم)</th><th class="p-4 border-r border-slate-300">الاختبار</th><th class="p-4 rounded-tl-lg">الدرجة</th></tr>` + window.loadedResults.map(r => `<tr class="border-b border-slate-200 hover:bg-slate-50 transition"><td class="py-4 px-4 font-black text-sm md:text-base text-slate-900 border-r border-slate-200">${r.studentName} <br><span class="text-xs text-slate-500 font-bold">${r.studentId||''}</span></td><td class="py-4 px-4 text-slate-700 font-bold text-xs md:text-sm border-r border-slate-200">${r.quizTitle}</td><td class="py-4 px-4 font-mono text-tvtcmain text-lg font-black"><span class="bg-tvtclight/10 px-3 py-1 rounded-lg border border-tvtcteal/30 shadow-sm">${r.score}/${r.total}</span></td></tr>`).join('') + `</table>`;
+            } catch(e) { list.innerHTML = '<p class="text-red-600 font-bold text-center text-sm">خطأ في الجلب.</p>'; }
+        };
+
+        window.exportToExcel = () => {
+            if(!window.loadedResults || window.loadedResults.length === 0) return window.toast("لا توجد نتائج للتحميل", "error");
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; csvContent += "الاسم,الرقم التدريبي,الاختبار,الدرجة,الدرجة الكلية,التاريخ\n";
+            window.loadedResults.forEach(r => {
+                let date = new Date(r.timestamp).toLocaleDateString('ar-SA'); let name = (r.studentName || '').replace(/,/g, ''); let id = (r.studentId || '').replace(/,/g, ''); let quiz = (r.quizTitle || '').replace(/,/g, '');
+                csvContent += `${name},${id},${quiz},${r.score},${r.total},${date}\n`;
+            });
+            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "نتائج_المتدربين.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        };
+
+        window.impJ = e => { const r = new FileReader(); r.onload = ev => { try { JSON.parse(ev.target.result).forEach(q => { window.addQForm(); const l = document.getElementById('quiz-c').lastChild; l.querySelector('.q-ty').value=q.type||'multiple-choice'; window.updTy(l.querySelector('.q-ty')); l.querySelector('.q-t').innerHTML = q.text; if(q.options) { l.querySelector('.o1').value = q.options[0]||''; l.querySelector('.o2').value = q.options[1]||''; l.querySelector('.o3').value = q.options[2]||''; l.querySelector('.o4').value = q.options[3]||''; } let cc = q.correctAnswer; if(typeof cc==='object') cc=cc.map(n=>n+1).join(','); else if(q.type!=='short-answer') cc++; l.querySelector('.q-c').value = cc; }); window.toast("تم الاستيراد بنجاح"); } catch(e){window.toast("خطأ في ملف JSON","error");} }; r.readAsText(e.target.files[0]); };
+    </script>
+</body>
+</html>
