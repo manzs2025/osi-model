@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة التحكم — أكاديمية الشبكات</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<!-- Quill Rich Text Editor -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════
    RESET & VARIABLES
@@ -553,9 +556,121 @@ html, body {
 }
 
 /* ════════════════════════════════════════════════
+   ARTICLES MANAGEMENT STYLES
+   جميع classes تبدأ بـ art- لعدم التعارض
+════════════════════════════════════════════════ */
+
+.art-form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.75rem;
+  overflow: hidden;
+}
+
+.art-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(0,201,177,0.05);
+}
+
+.art-form-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.art-form-body {
+  padding: 1.5rem;
+}
+.art-form-body.collapsed { display: none; }
+
+/* ── Quill editor wrapper ── */
+.art-editor-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+}
+
+/* Quill toolbar — dark theme override */
+.art-editor-wrap .ql-toolbar.ql-snow {
+  background: var(--bg3);
+  border: none;
+  border-bottom: 1px solid var(--border2);
+  padding: 0.55rem 0.75rem;
+  direction: ltr;               /* toolbar always LTR */
+}
+
+.art-editor-wrap .ql-toolbar .ql-stroke  { stroke: var(--text-muted); }
+.art-editor-wrap .ql-toolbar .ql-fill    { fill:   var(--text-muted); }
+.art-editor-wrap .ql-toolbar button:hover .ql-stroke,
+.art-editor-wrap .ql-toolbar .ql-picker-label:hover .ql-stroke { stroke: var(--accent); }
+.art-editor-wrap .ql-toolbar button:hover .ql-fill,
+.art-editor-wrap .ql-toolbar .ql-picker-label:hover .ql-fill   { fill: var(--accent); }
+.art-editor-wrap .ql-toolbar button.ql-active .ql-stroke { stroke: var(--accent); }
+.art-editor-wrap .ql-toolbar button.ql-active .ql-fill   { fill: var(--accent); }
+
+.art-editor-wrap .ql-toolbar .ql-picker-label {
+  color: var(--text-muted);
+}
+.art-editor-wrap .ql-toolbar .ql-picker-options {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.art-editor-wrap .ql-toolbar .ql-picker-item:hover { color: var(--accent); }
+
+/* Quill content area */
+.art-editor-wrap .ql-container.ql-snow {
+  border: none;
+  min-height: 220px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.93rem;
+  direction: rtl;
+}
+
+.art-editor-wrap .ql-editor {
+  min-height: 220px;
+  color: var(--text);
+  direction: rtl;
+  text-align: right;
+  line-height: 1.85;
+  padding: 1rem 1.1rem;
+}
+
+.art-editor-wrap .ql-editor.ql-blank::before {
+  color: var(--text-faint);
+  font-style: normal;
+  right: 1.1rem;
+  left: auto;
+}
+
+.art-editor-wrap .ql-editor h1,
+.art-editor-wrap .ql-editor h2,
+.art-editor-wrap .ql-editor h3 { color: var(--text); }
+
+.art-editor-wrap .ql-editor blockquote {
+  border-right: 4px solid var(--primary);
+  border-left: none;
+  padding-right: 1rem;
+  color: var(--text-muted);
+}
+
+.art-editor-wrap .ql-editor a { color: var(--accent); }
+
+.art-editor-wrap .ql-editor ol,
+.art-editor-wrap .ql-editor ul { padding-right: 1.5rem; padding-left: 0; }
+
+/* ════════════════════════════════════════════════
    QUIZ MANAGEMENT STYLES
-   لا تتعارض مع أي class موجودة مسبقاً —
-   جميع classes تبدأ بـ qz-
+   جميع classes تبدأ بـ qz- لعدم التعارض
 ════════════════════════════════════════════════ */
 
 /* ── بطاقة النموذج ── */
@@ -1263,22 +1378,104 @@ html, body {
 
       <!-- ════════════ PANEL: ARTICLES ════════════ -->
       <section class="panel" id="panel-articles">
+
         <div class="panel-header">
           <div class="panel-title-group">
             <div class="panel-tag">📝 إدارة المقالات</div>
             <div class="panel-title">محرر <span>المحتوى</span></div>
-            <div class="panel-subtitle">تعديل وتحديث محتوى صفحات الموقع الخمس</div>
+            <div class="panel-subtitle">إنشاء مقالات جديدة وتحريرها وحفظها في قاعدة البيانات</div>
           </div>
         </div>
-        <div class="info-card">
-          <h3>📝 محرر النصوص المتطور (Rich Text Editor)</h3>
-          <p>
-            سيتمكن المشرف هنا من تحديد الصفحة المطلوبة وتعديل محتواها عبر محرر نصوص متطور (WYSIWYG)
-            يدعم العناوين والقوائم والجداول والصور. يتم حفظ التعديلات مباشرة في Firestore وتظهر
-            فوراً في الصفحات المقابلة على الموقع.
-          </p>
-          <div class="coming-soon">⏳ سيتوفر هذا القسم في الخطوة 3</div>
+
+        <!-- ── نموذج المقال ── -->
+        <div class="art-form-card">
+          <div class="art-form-header">
+            <h3 class="art-form-title">
+              <span>✏️</span> إنشاء مقال جديد
+            </h3>
+            <button class="qz-collapse-btn" onclick="toggleArticleForm()">تصغير ↑</button>
+          </div>
+
+          <div class="art-form-body" id="articleFormBody">
+
+            <!-- الحقول الأساسية -->
+            <div class="qz-fields-row">
+              <div class="qz-field-group">
+                <label class="qz-label" for="articleTitle">عنوان المقال *</label>
+                <input
+                  type="text"
+                  id="articleTitle"
+                  class="qz-input"
+                  placeholder="مثال: مقدمة في شبكات الحاسب"
+                  maxlength="150"
+                >
+              </div>
+              <div class="qz-field-group">
+                <label class="qz-label" for="articlePage">القسم التابع له *</label>
+                <select id="articlePage" class="qz-input qz-select">
+                  <option value="">— اختر القسم —</option>
+                  <option value="networks">شبكات الحاسب الآلي</option>
+                  <option value="security">الأمان في الشبكات</option>
+                  <option value="osi">نموذج OSI</option>
+                  <option value="cables">كيابل الشبكات</option>
+                  <option value="ip">بروتوكول IP</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Quill Editor -->
+            <div class="qz-field-group" style="margin-bottom:1.25rem;">
+              <label class="qz-label">محتوى المقال *</label>
+              <div class="art-editor-wrap">
+                <div id="quillEditor"></div>
+              </div>
+            </div>
+
+            <!-- أزرار الحفظ -->
+            <div class="qz-form-actions">
+              <button class="qz-save-btn" id="btnSaveArticle" onclick="saveArticle()">
+                <span class="art-btn-text">💾 حفظ المقال</span>
+                <span class="art-btn-spinner" style="display:none">⏳</span>
+              </button>
+              <button class="qz-reset-btn" onclick="resetArticleForm()">🗑️ مسح النموذج</button>
+            </div>
+
+            <div class="qz-form-msg" id="articleFormMsg" style="display:none"></div>
+
+          </div><!-- /art-form-body -->
+        </div><!-- /art-form-card -->
+
+        <!-- ── جدول المقالات ── -->
+        <div class="qz-table-section">
+          <div class="qz-table-header">
+            <h3 class="qz-table-title">📚 المقالات المحفوظة</h3>
+            <button class="qz-refresh-btn" onclick="loadArticles()">↻ تحديث</button>
+          </div>
+
+          <div class="qz-table-loading" id="articlesLoading">
+            <div class="loading-ring" style="width:32px;height:32px;border-width:2px"></div>
+            <span>جارٍ تحميل المقالات…</span>
+          </div>
+
+          <div class="qz-table-empty" id="articlesEmpty" style="display:none">
+            لا توجد مقالات محفوظة بعد
+          </div>
+
+          <div class="qz-table-wrap" id="articlesTableWrap" style="display:none">
+            <table class="qz-table">
+              <thead>
+                <tr>
+                  <th>عنوان المقال</th>
+                  <th>القسم</th>
+                  <th>تاريخ الإضافة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="articlesTableBody"></tbody>
+            </table>
+          </div>
         </div>
+
       </section>
 
       <!-- ════════════ PANEL: QUIZZES ════════════ -->

@@ -625,9 +625,240 @@ function _escHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
-/* ─── تحميل الاختبارات عند فتح تبويب الاختبارات ────────── */
+/* ─── تحميل البيانات عند فتح التبويبات ──────────────────── */
 const _origSwitchPanel = window.switchPanel;
 window.switchPanel = function (btn, panelId) {
   _origSwitchPanel(btn, panelId);
-  if (panelId === "quizzes") loadQuizzes();
+  if (panelId === "quizzes")   loadQuizzes();
+  if (panelId === "articles")  { loadArticles(); _initQuill(); }
 };
+
+/* ════════════════════════════════════════════════════════
+   7. إدارة المقالات (Articles CRUD + Quill)
+════════════════════════════════════════════════════════ */
+
+/* ─── مثيل Quill — يُنشأ مرة واحدة فقط ─────────────────── */
+let _quillInstance = null;
+
+function _initQuill() {
+  if (_quillInstance) return;          /* لا تُعيد الإنشاء */
+  if (typeof Quill === "undefined") {  /* CDN لم يُحمَّل بعد */
+    console.warn("Quill not loaded yet");
+    return;
+  }
+
+  _quillInstance = new Quill("#quillEditor", {
+    theme: "snow",
+    direction: "rtl",
+    placeholder: "اكتب محتوى المقال هنا…",
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["blockquote", "code-block"],
+        [{ align: [] }],
+        ["link"],
+        ["clean"],
+      ],
+    },
+  });
+}
+
+/* ════════════
+   saveArticle — يجمع البيانات ويحفظ في Firestore (collection: articles)
+════════════ */
+window.saveArticle = async function () {
+  const titleEl = document.getElementById("articleTitle");
+  const pageEl  = document.getElementById("articlePage");
+  const msgEl   = document.getElementById("articleFormMsg");
+  const btn     = document.getElementById("btnSaveArticle");
+
+  const title  = titleEl?.value.trim() ?? "";
+  const pageId = pageEl?.value ?? "";
+
+  /* ── التحقق ── */
+  if (!title) {
+    titleEl?.classList.add("error");
+    titleEl?.focus();
+    _showArticleMsg(msgEl, "يرجى إدخال عنوان المقال", "error");
+    return;
+  }
+  titleEl?.classList.remove("error");
+
+  if (!pageId) {
+    pageEl?.classList.add("error");
+    _showArticleMsg(msgEl, "يرجى اختيار القسم التابع له", "error");
+    return;
+  }
+  pageEl?.classList.remove("error");
+
+  /* ── محتوى Quill ── */
+  const htmlContent = _quillInstance?.root.innerHTML ?? "";
+  const textContent = _quillInstance?.getText().trim() ?? "";
+
+  if (!textContent || textContent.length < 10) {
+    _showArticleMsg(msgEl, "يرجى كتابة محتوى المقال (10 أحرف على الأقل)", "error");
+    return;
+  }
+
+  /* ── تحميل ── */
+  if (btn) {
+    btn.disabled = true;
+    btn.querySelector(".art-btn-text").style.display = "none";
+    btn.querySelector(".art-btn-spinner").style.display = "inline";
+  }
+
+  try {
+    await addDoc(collection(db, "articles"), {
+      title,
+      pageId,
+      content:   htmlContent,        /* HTML من Quill */
+      excerpt:   textContent.slice(0, 200),
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser?.uid ?? "",
+    });
+
+    _showArticleMsg(msgEl, "✅ تم حفظ المقال بنجاح", "success");
+    resetArticleForm();
+    loadArticles();
+
+  } catch (err) {
+    console.error("saveArticle error:", err);
+    _showArticleMsg(msgEl, `❌ خطأ في الحفظ: ${err.message}`, "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.querySelector(".art-btn-text").style.display = "inline";
+      btn.querySelector(".art-btn-spinner").style.display = "none";
+    }
+  }
+};
+
+/* ════════════
+   loadArticles — يجلب المقالات ويعرضها في الجدول
+════════════ */
+window.loadArticles = async function () {
+  const loadingEl = document.getElementById("articlesLoading");
+  const emptyEl   = document.getElementById("articlesEmpty");
+  const tableWrap = document.getElementById("articlesTableWrap");
+  const tbody     = document.getElementById("articlesTableBody");
+
+  if (!tbody) return;
+
+  loadingEl.style.display  = "flex";
+  emptyEl.style.display    = "none";
+  tableWrap.style.display  = "none";
+
+  try {
+    const q    = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+
+    loadingEl.style.display = "none";
+
+    if (snap.empty) {
+      emptyEl.style.display = "block";
+      return;
+    }
+
+    tableWrap.style.display = "block";
+    tbody.innerHTML = "";
+
+    snap.forEach(docSnap => {
+      const d       = docSnap.data();
+      const artId   = docSnap.id;
+      const dateStr = d.createdAt?.toDate
+        ? d.createdAt.toDate().toLocaleDateString("ar-SA", {
+            year: "numeric", month: "short", day: "numeric"
+          })
+        : "—";
+      const pageLabel = PAGE_LABELS[d.pageId] ?? d.pageId ?? "—";
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${_escHtml(d.title ?? "—")}</td>
+        <td><span class="qz-page-badge">${pageLabel}</span></td>
+        <td><span class="qz-date">${dateStr}</span></td>
+        <td>
+          <button
+            class="qz-del-btn"
+            onclick="deleteArticle('${artId}', this)"
+          >🗑️ حذف</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error("loadArticles error:", err);
+    loadingEl.style.display = "none";
+    emptyEl.style.display   = "block";
+    emptyEl.textContent     = `خطأ في التحميل: ${err.message}`;
+  }
+};
+
+/* ════════════
+   deleteArticle — يحذف مقالاً من Firestore
+════════════ */
+window.deleteArticle = async function (artId, btnEl) {
+  if (!confirm("هل أنت متأكد من حذف هذا المقال نهائياً؟")) return;
+
+  btnEl.disabled    = true;
+  btnEl.textContent = "⏳";
+
+  try {
+    await deleteDoc(doc(db, "articles", artId));
+
+    const row = btnEl.closest("tr");
+    row.style.opacity    = "0";
+    row.style.transition = "opacity 0.25s";
+    setTimeout(() => {
+      row.remove();
+      if (!document.querySelector("#articlesTableBody tr")) {
+        document.getElementById("articlesTableWrap").style.display = "none";
+        document.getElementById("articlesEmpty").style.display     = "block";
+      }
+    }, 260);
+
+  } catch (err) {
+    console.error("deleteArticle error:", err);
+    alert(`فشل الحذف: ${err.message}`);
+    btnEl.disabled    = false;
+    btnEl.textContent = "🗑️ حذف";
+  }
+};
+
+/* ════════════
+   resetArticleForm — إعادة تعيين النموذج
+════════════ */
+window.resetArticleForm = function () {
+  const titleEl = document.getElementById("articleTitle");
+  const pageEl  = document.getElementById("articlePage");
+  if (titleEl) { titleEl.value = ""; titleEl.classList.remove("error"); }
+  if (pageEl)  { pageEl.value  = ""; pageEl.classList.remove("error"); }
+  if (_quillInstance) _quillInstance.setContents([]);
+
+  const msgEl = document.getElementById("articleFormMsg");
+  if (msgEl) msgEl.style.display = "none";
+};
+
+/* ════════════
+   toggleArticleForm — طي/فرد نموذج المقال
+════════════ */
+window.toggleArticleForm = function () {
+  const body = document.getElementById("articleFormBody");
+  const btn  = body?.previousElementSibling?.querySelector(".qz-collapse-btn");
+  if (!body) return;
+  const isOpen = !body.classList.contains("collapsed");
+  body.classList.toggle("collapsed", isOpen);
+  if (btn) btn.textContent = isOpen ? "توسيع ↓" : "تصغير ↑";
+};
+
+/* ─── مساعد: رسائل نموذج المقال ──────────────────────── */
+function _showArticleMsg(el, text, type) {
+  if (!el) return;
+  el.textContent   = text;
+  el.className     = `qz-form-msg ${type}`;
+  el.style.display = "block";
+  if (type === "success") setTimeout(() => { el.style.display = "none"; }, 5000);
+}
