@@ -14,7 +14,7 @@ import { initializeApp }                      from "https://www.gstatic.com/fire
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc,
          collection, getCountFromServer,
-         addDoc, getDocs, deleteDoc,
+         addDoc, getDocs, deleteDoc, updateDoc,
          query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* ─── إعدادات Firebase ────────────────────────────────── */
@@ -629,44 +629,123 @@ function _escHtml(str) {
 const _origSwitchPanel = window.switchPanel;
 window.switchPanel = function (btn, panelId) {
   _origSwitchPanel(btn, panelId);
-  if (panelId === "quizzes")   loadQuizzes();
-  if (panelId === "articles")  { loadArticles(); _initQuill(); }
+  if (panelId === "quizzes")  loadQuizzes();
+  if (panelId === "articles") { loadArticles(); _initQuill(); }
 };
 
 /* ════════════════════════════════════════════════════════
-   7. إدارة المقالات (Articles CRUD + Quill)
+   7. إدارة المقالات (Articles CRUD + Quill 2 Full Editor)
 ════════════════════════════════════════════════════════ */
 
-/* ─── مثيل Quill — يُنشأ مرة واحدة فقط ─────────────────── */
-let _quillInstance = null;
+/* ─── حالة وضع التعديل ────────────────────────────────── */
+let _quillInstance  = null;   /* مثيل Quill — يُنشأ مرة واحدة */
+let _editingArticleId = null; /* null = إنشاء جديد | string = تعديل */
 
+/* ════════════
+   _initQuill — بناء Quill 2 بـ toolbar كامل ومخصص للعربية
+════════════ */
 function _initQuill() {
-  if (_quillInstance) return;          /* لا تُعيد الإنشاء */
-  if (typeof Quill === "undefined") {  /* CDN لم يُحمَّل بعد */
-    console.warn("Quill not loaded yet");
+  if (_quillInstance) return;
+  if (typeof Quill === "undefined") {
+    console.warn("[Articles] Quill CDN not loaded yet");
     return;
   }
 
+  /* ── تسجيل الخطوط العربية كـ whitelist ── */
+  const FontAttribution = Quill.import("attributors/class/font");
+  FontAttribution.whitelist = ["cairo", "tajawal", "almarai"];
+  Quill.register(FontAttribution, true);
+
+  /* ── تسجيل أحجام الخط ── */
+  const SizeAttribution = Quill.import("attributors/style/size");
+  SizeAttribution.whitelist = ["10px","12px","14px","16px","18px","20px","24px","28px","32px","40px"];
+  Quill.register(SizeAttribution, true);
+
+  /* ── بناء toolbar HTML المخصص ── */
+  document.getElementById("quillToolbar").innerHTML = `
+    <span class="ql-formats">
+      <select class="ql-font" title="نوع الخط">
+        <option value="">افتراضي</option>
+        <option value="cairo">Cairo</option>
+        <option value="tajawal">Tajawal</option>
+        <option value="almarai">Almarai</option>
+      </select>
+      <select class="ql-size" title="حجم الخط">
+        <option value="12px">12</option>
+        <option value="14px" selected>14</option>
+        <option value="16px">16</option>
+        <option value="18px">18</option>
+        <option value="20px">20</option>
+        <option value="24px">24</option>
+        <option value="28px">28</option>
+        <option value="32px">32</option>
+        <option value="40px">40</option>
+      </select>
+    </span>
+    <span class="ql-formats">
+      <select class="ql-header" title="العنوان">
+        <option value="1">H1</option>
+        <option value="2">H2</option>
+        <option value="3">H3</option>
+        <option selected>عادي</option>
+      </select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-bold"        title="عريض"></button>
+      <button class="ql-italic"      title="مائل"></button>
+      <button class="ql-underline"   title="تسطير"></button>
+      <button class="ql-strike"      title="شطب"></button>
+    </span>
+    <span class="ql-formats">
+      <select class="ql-color"      title="لون النص"></select>
+      <select class="ql-background" title="تمييز النص"></select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-align" value=""       title="محاذاة يمين"></button>
+      <button class="ql-align" value="center" title="توسيط"></button>
+      <button class="ql-align" value="left"   title="محاذاة يسار"></button>
+      <button class="ql-align" value="justify" title="ضبط"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered"  title="قائمة مرقمة"></button>
+      <button class="ql-list" value="bullet"   title="قائمة نقطية"></button>
+      <button class="ql-indent" value="+1"     title="زيادة مسافة بادئة"></button>
+      <button class="ql-indent" value="-1"     title="نقص مسافة بادئة"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-blockquote"   title="اقتباس"></button>
+      <button class="ql-code-block"   title="كود"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-link"         title="رابط"></button>
+      <button class="ql-image"        title="صورة"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-script" value="sub"   title="رمز سفلي"></button>
+      <button class="ql-script" value="super" title="رمز علوي"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-clean" title="مسح التنسيق"></button>
+    </span>
+  `;
+
+  /* ── إنشاء مثيل Quill ── */
   _quillInstance = new Quill("#quillEditor", {
-    theme: "snow",
-    direction: "rtl",
-    placeholder: "اكتب محتوى المقال هنا…",
+    theme:       "snow",
+    placeholder: "اكتب محتوى المقال هنا… (يدعم النصوص العربية والخطوط المتعددة والجداول والصور)",
     modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["blockquote", "code-block"],
-        [{ align: [] }],
-        ["link"],
-        ["clean"],
-      ],
+      toolbar: "#quillToolbar",
+      history: { delay: 1000, maxStack: 100, userOnly: true },
     },
   });
+
+  /* اتجاه RTL افتراضي */
+  _quillInstance.format("direction", "rtl");
+  _quillInstance.format("align", "right");
 }
 
 /* ════════════
-   saveArticle — يجمع البيانات ويحفظ في Firestore (collection: articles)
+   saveArticle — ذكي: addDoc إذا جديد، updateDoc إذا تعديل
 ════════════ */
 window.saveArticle = async function () {
   const titleEl = document.getElementById("articleTitle");
@@ -674,10 +753,10 @@ window.saveArticle = async function () {
   const msgEl   = document.getElementById("articleFormMsg");
   const btn     = document.getElementById("btnSaveArticle");
 
+  /* ── تحقق من الحقول ── */
   const title  = titleEl?.value.trim() ?? "";
   const pageId = pageEl?.value ?? "";
 
-  /* ── التحقق ── */
   if (!title) {
     titleEl?.classList.add("error");
     titleEl?.focus();
@@ -694,32 +773,51 @@ window.saveArticle = async function () {
   pageEl?.classList.remove("error");
 
   /* ── محتوى Quill ── */
-  const htmlContent = _quillInstance?.root.innerHTML ?? "";
+  const htmlContent = _quillInstance?.getSemanticHTML()
+                   ?? _quillInstance?.root.innerHTML
+                   ?? "";
   const textContent = _quillInstance?.getText().trim() ?? "";
 
-  if (!textContent || textContent.length < 10) {
-    _showArticleMsg(msgEl, "يرجى كتابة محتوى المقال (10 أحرف على الأقل)", "error");
+  if (!textContent || textContent.length < 5) {
+    _showArticleMsg(msgEl, "يرجى كتابة محتوى المقال", "error");
     return;
   }
 
-  /* ── تحميل ── */
+  /* ── بدء التحميل ── */
   if (btn) {
     btn.disabled = true;
-    btn.querySelector(".art-btn-text").style.display = "none";
+    btn.querySelector(".art-btn-text").style.display  = "none";
     btn.querySelector(".art-btn-spinner").style.display = "inline";
   }
 
   try {
-    await addDoc(collection(db, "articles"), {
-      title,
-      pageId,
-      content:   htmlContent,        /* HTML من Quill */
-      excerpt:   textContent.slice(0, 200),
-      createdAt: serverTimestamp(),
-      createdBy: auth.currentUser?.uid ?? "",
-    });
+    const isEditing = Boolean(_editingArticleId);
 
-    _showArticleMsg(msgEl, "✅ تم حفظ المقال بنجاح", "success");
+    if (isEditing) {
+      /* ════ updateDoc — تحديث المقال الموجود ════ */
+      await updateDoc(doc(db, "articles", _editingArticleId), {
+        title,
+        pageId,
+        content:   htmlContent,
+        excerpt:   textContent.slice(0, 200),
+        updatedAt: serverTimestamp(),
+        updatedBy: auth.currentUser?.uid ?? "",
+      });
+      _showArticleMsg(msgEl, "✅ تم تحديث المقال بنجاح", "success");
+
+    } else {
+      /* ════ addDoc — إنشاء مقال جديد ════ */
+      await addDoc(collection(db, "articles"), {
+        title,
+        pageId,
+        content:   htmlContent,
+        excerpt:   textContent.slice(0, 200),
+        createdAt: serverTimestamp(),
+        createdBy: auth.currentUser?.uid ?? "",
+      });
+      _showArticleMsg(msgEl, "✅ تم حفظ المقال بنجاح", "success");
+    }
+
     resetArticleForm();
     loadArticles();
 
@@ -729,26 +827,25 @@ window.saveArticle = async function () {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.querySelector(".art-btn-text").style.display = "inline";
+      btn.querySelector(".art-btn-text").style.display  = "inline";
       btn.querySelector(".art-btn-spinner").style.display = "none";
     }
   }
 };
 
 /* ════════════
-   loadArticles — يجلب المقالات ويعرضها في الجدول
+   loadArticles — يجلب المقالات ويعرضها في الجدول مع زر التعديل
 ════════════ */
 window.loadArticles = async function () {
   const loadingEl = document.getElementById("articlesLoading");
   const emptyEl   = document.getElementById("articlesEmpty");
   const tableWrap = document.getElementById("articlesTableWrap");
   const tbody     = document.getElementById("articlesTableBody");
-
   if (!tbody) return;
 
-  loadingEl.style.display  = "flex";
-  emptyEl.style.display    = "none";
-  tableWrap.style.display  = "none";
+  loadingEl.style.display = "flex";
+  emptyEl.style.display   = "none";
+  tableWrap.style.display = "none";
 
   try {
     const q    = query(collection(db, "articles"), orderBy("createdAt", "desc"));
@@ -772,14 +869,24 @@ window.loadArticles = async function () {
             year: "numeric", month: "short", day: "numeric"
           })
         : "—";
+      const updStr  = d.updatedAt?.toDate
+        ? `<br><small style="color:var(--text-faint);font-size:0.72rem;">عُدِّل: ${
+            d.updatedAt.toDate().toLocaleDateString("ar-SA", { year:"numeric", month:"short", day:"numeric" })
+          }</small>`
+        : "";
       const pageLabel = PAGE_LABELS[d.pageId] ?? d.pageId ?? "—";
 
       const tr = document.createElement("tr");
+      tr.setAttribute("data-id", artId);
       tr.innerHTML = `
-        <td>${_escHtml(d.title ?? "—")}</td>
+        <td title="${_escHtml(d.excerpt ?? "")}">${_escHtml(d.title ?? "—")}</td>
         <td><span class="qz-page-badge">${pageLabel}</span></td>
-        <td><span class="qz-date">${dateStr}</span></td>
-        <td>
+        <td><span class="qz-date">${dateStr}${updStr}</span></td>
+        <td style="white-space:nowrap;">
+          <button
+            class="art-edit-btn"
+            onclick="editArticle('${artId}', this)"
+          >✏️ تعديل</button>
           <button
             class="qz-del-btn"
             onclick="deleteArticle('${artId}', this)"
@@ -798,10 +905,70 @@ window.loadArticles = async function () {
 };
 
 /* ════════════
+   editArticle — يسحب بيانات المقال ويملأ المحرر (وضع التعديل)
+════════════ */
+window.editArticle = async function (artId, btnEl) {
+  btnEl.disabled    = true;
+  btnEl.textContent = "⏳";
+
+  try {
+    const snap = await getDoc(doc(db, "articles", artId));
+    if (!snap.exists()) { alert("المقال غير موجود"); return; }
+
+    const d = snap.data();
+
+    /* ── ملء الحقول ── */
+    document.getElementById("articleTitle").value = d.title ?? "";
+    document.getElementById("articlePage").value  = d.pageId ?? "";
+
+    /* ── ملء المحرر ── */
+    if (!_quillInstance) _initQuill();
+    /* تأخير بسيط للتأكد من تهيئة Quill */
+    await new Promise(r => setTimeout(r, 50));
+    _quillInstance.clipboard.dangerouslyPasteHTML(d.content ?? "");
+
+    /* ── تفعيل وضع التعديل ── */
+    _editingArticleId = artId;
+    _setEditMode(true);
+
+    /* ── فرد النموذج إذا كان مطوياً ── */
+    const body = document.getElementById("articleFormBody");
+    if (body?.classList.contains("collapsed")) toggleArticleForm();
+
+    /* ── تمرير للنموذج ── */
+    document.getElementById("articleFormBody")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    /* ── تمييز الصف المحدد في الجدول ── */
+    document.querySelectorAll("#articlesTableBody tr").forEach(r =>
+      r.style.background = ""
+    );
+    btnEl.closest("tr").style.background = "rgba(0,201,177,0.06)";
+
+  } catch (err) {
+    console.error("editArticle error:", err);
+    alert(`فشل تحميل المقال: ${err.message}`);
+  } finally {
+    btnEl.disabled    = false;
+    btnEl.textContent = "✏️ تعديل";
+  }
+};
+
+/* ════════════
+   cancelEditArticle — إلغاء وضع التعديل والعودة لوضع الإنشاء
+════════════ */
+window.cancelEditArticle = function () {
+  resetArticleForm();
+};
+
+/* ════════════
    deleteArticle — يحذف مقالاً من Firestore
 ════════════ */
 window.deleteArticle = async function (artId, btnEl) {
   if (!confirm("هل أنت متأكد من حذف هذا المقال نهائياً؟")) return;
+
+  /* إذا كنا نعدّل نفس المقال المحذوف، الغِ وضع التعديل */
+  if (_editingArticleId === artId) resetArticleForm();
 
   btnEl.disabled    = true;
   btnEl.textContent = "⏳";
@@ -829,9 +996,12 @@ window.deleteArticle = async function (artId, btnEl) {
 };
 
 /* ════════════
-   resetArticleForm — إعادة تعيين النموذج
+   resetArticleForm — إعادة تعيين كامل + الخروج من وضع التعديل
 ════════════ */
 window.resetArticleForm = function () {
+  _editingArticleId = null;
+  _setEditMode(false);
+
   const titleEl = document.getElementById("articleTitle");
   const pageEl  = document.getElementById("articlePage");
   if (titleEl) { titleEl.value = ""; titleEl.classList.remove("error"); }
@@ -840,19 +1010,40 @@ window.resetArticleForm = function () {
 
   const msgEl = document.getElementById("articleFormMsg");
   if (msgEl) msgEl.style.display = "none";
+
+  /* إزالة تمييز الصفوف */
+  document.querySelectorAll("#articlesTableBody tr").forEach(r =>
+    r.style.background = ""
+  );
 };
 
 /* ════════════
-   toggleArticleForm — طي/فرد نموذج المقال
+   toggleArticleForm — طي/فرد النموذج
 ════════════ */
 window.toggleArticleForm = function () {
   const body = document.getElementById("articleFormBody");
-  const btn  = body?.previousElementSibling?.querySelector(".qz-collapse-btn");
+  const btn  = document.querySelector(".art-form-header .qz-collapse-btn");
   if (!body) return;
   const isOpen = !body.classList.contains("collapsed");
   body.classList.toggle("collapsed", isOpen);
   if (btn) btn.textContent = isOpen ? "توسيع ↓" : "تصغير ↑";
 };
+
+/* ─── مساعد: تفعيل/إلغاء مؤشرات وضع التعديل ──────────── */
+function _setEditMode(on) {
+  const badge      = document.getElementById("articleEditBadge");
+  const cancelBtn  = document.getElementById("btnCancelEdit");
+  const saveBtn    = document.getElementById("btnSaveArticle");
+  const titleText  = document.getElementById("articleFormTitleText");
+
+  if (badge)     badge.style.display     = on ? "inline-flex" : "none";
+  if (cancelBtn) cancelBtn.style.display = on ? "inline-flex" : "none";
+  if (saveBtn) {
+    const txt = saveBtn.querySelector(".art-btn-text");
+    if (txt) txt.textContent = on ? "💾 حفظ التعديلات" : "💾 حفظ المقال";
+  }
+  if (titleText) titleText.textContent = on ? "تعديل مقال" : "إنشاء مقال جديد";
+}
 
 /* ─── مساعد: رسائل نموذج المقال ──────────────────────── */
 function _showArticleMsg(el, text, type) {
