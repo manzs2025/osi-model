@@ -457,8 +457,12 @@ window.saveQuiz = async function () {
 
     _showFormMsg(msgEl, `✅ تم حفظ الاختبار بنجاح (${questions.length} أسئلة)`, "success");
     resetQuizForm();
-    loadQuizzes();                  /* تحديث الجدول فوراً */
-    updateStat("statQuizzes", { status: "refresh" });
+    loadQuizzes();
+    /* تحديث إحصاء الاختبارات في الصفحة الرئيسية */
+    countCollection("quizzes").then(n => {
+      const el = document.getElementById("statQuizzes");
+      if (el) el.textContent = n;
+    });
 
   } catch (err) {
     console.error("saveQuiz error:", err);
@@ -516,11 +520,30 @@ window.loadQuizzes = async function () {
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${_escHtml(d.title ?? "—")}</td>
+        <td>
+          <span style="font-weight:700">${_escHtml(d.title ?? "—")}</span>
+          ${d.isActive
+            ? `<span style="margin-right:0.5rem;font-size:0.7rem;color:#00c9b1;background:rgba(0,201,177,0.1);border:1px solid rgba(0,201,177,0.25);padding:0.1rem 0.5rem;border-radius:10px;">● نشط</span>`
+            : `<span style="margin-right:0.5rem;font-size:0.7rem;color:var(--text-faint);background:rgba(255,255,255,0.04);border:1px solid var(--border2);padding:0.1rem 0.5rem;border-radius:10px;">○ معطّل</span>`}
+        </td>
         <td><span class="qz-page-badge">${pageLabel}</span></td>
         <td><span class="qz-count-badge">${d.questionsCount ?? d.questions?.length ?? 0}</span></td>
         <td><span class="qz-date">${dateStr}</span></td>
-        <td>
+        <td style="white-space:nowrap">
+          <button
+            class="qz-toggle-btn"
+            onclick="toggleQuizActive('${qId}', ${!!d.isActive}, this)"
+            style="
+              padding:0.3rem 0.65rem;
+              background:${d.isActive ? 'rgba(244,67,54,0.08)' : 'rgba(0,201,177,0.08)'};
+              border:1px solid ${d.isActive ? 'rgba(244,67,54,0.22)' : 'rgba(0,201,177,0.22)'};
+              border-radius:6px;
+              color:${d.isActive ? '#ff6b6b' : 'var(--accent)'};
+              font-family:'Cairo',sans-serif;
+              font-size:0.75rem;font-weight:700;cursor:pointer;
+              transition:all 0.2s;margin-left:0.35rem;
+            "
+          >${d.isActive ? '⏸ إيقاف' : '▶ تفعيل'}</button>
           <button
             class="qz-del-btn"
             onclick="deleteQuiz('${qId}', this)"
@@ -574,7 +597,46 @@ window.deleteQuiz = async function (quizId, btnEl) {
 };
 
 /* ════════════
-   resetQuizForm — يعيد تعيين النموذج بالكامل
+   toggleQuizActive — يُفعّل أو يوقف الاختبار في Firestore
+════════════ */
+window.toggleQuizActive = async function (quizId, currentlyActive, btnEl) {
+  btnEl.disabled    = true;
+  btnEl.textContent = "⏳";
+
+  try {
+    const newState = !currentlyActive;
+    await updateDoc(doc(db, "quizzes", quizId), { isActive: newState });
+
+    /* تحديث الزر مباشرة دون إعادة تحميل الجدول */
+    btnEl.textContent = newState ? "⏸ إيقاف" : "▶ تفعيل";
+    btnEl.style.color       = newState ? "#ff6b6b" : "var(--accent)";
+    btnEl.style.background  = newState ? "rgba(244,67,54,0.08)" : "rgba(0,201,177,0.08)";
+    btnEl.style.borderColor = newState ? "rgba(244,67,54,0.22)" : "rgba(0,201,177,0.22)";
+    btnEl.setAttribute("onclick",
+      `toggleQuizActive('${quizId}', ${newState}, this)`);
+
+    /* تحديث شارة الحالة في نفس الصف */
+    const row    = btnEl.closest("tr");
+    const badge  = row?.querySelector("td:first-child span");
+    if (badge) {
+      badge.textContent = newState ? "● نشط" : "○ معطّل";
+      badge.style.color      = newState ? "#00c9b1" : "var(--text-faint)";
+      badge.style.background = newState ? "rgba(0,201,177,0.1)" : "rgba(255,255,255,0.04)";
+      badge.style.border     = newState
+        ? "1px solid rgba(0,201,177,0.25)"
+        : "1px solid var(--border2)";
+    }
+
+  } catch (err) {
+    console.error("toggleQuizActive error:", err);
+    alert(`فشل تغيير الحالة: ${err.message}`);
+    btnEl.textContent = currentlyActive ? "⏸ إيقاف" : "▶ تفعيل";
+  } finally {
+    btnEl.disabled = false;
+  }
+};
+
+
 ════════════ */
 window.resetQuizForm = function () {
   document.getElementById("quizTitle").value = "";
