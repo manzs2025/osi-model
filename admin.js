@@ -630,118 +630,126 @@ const _origSwitchPanel = window.switchPanel;
 window.switchPanel = function (btn, panelId) {
   _origSwitchPanel(btn, panelId);
   if (panelId === "quizzes")  loadQuizzes();
-  if (panelId === "articles") { loadArticles(); _initQuill(); }
+  if (panelId === "articles") { loadArticles(); _initTinyMCE(); }
 };
 
 /* ════════════════════════════════════════════════════════
-   7. إدارة المقالات (Articles CRUD + Quill 2 Full Editor)
+   7. إدارة المقالات (Articles CRUD + TinyMCE Full Editor)
 ════════════════════════════════════════════════════════ */
 
 /* ─── حالة وضع التعديل ────────────────────────────────── */
-let _quillInstance  = null;   /* مثيل Quill — يُنشأ مرة واحدة */
-let _editingArticleId = null; /* null = إنشاء جديد | string = تعديل */
+let _tinyReady       = false;  /* هل TinyMCE جاهز؟ */
+let _editingArticleId = null;  /* null = إنشاء جديد | string = تعديل */
 
 /* ════════════
-   _initQuill — بناء Quill 2 بـ toolbar كامل ومخصص للعربية
+   _initTinyMCE — يُنشئ المحرر مرة واحدة فقط
 ════════════ */
-function _initQuill() {
-  if (_quillInstance) return;
-  if (typeof Quill === "undefined") {
-    console.warn("[Articles] Quill CDN not loaded yet");
+function _initTinyMCE() {
+  if (_tinyReady) return;
+  if (typeof tinymce === "undefined") {
+    console.warn("[Articles] TinyMCE CDN not loaded yet");
     return;
   }
 
-  /* ── تسجيل الخطوط العربية كـ whitelist ── */
-  const FontAttribution = Quill.import("attributors/class/font");
-  FontAttribution.whitelist = ["cairo", "tajawal", "almarai"];
-  Quill.register(FontAttribution, true);
+  tinymce.init({
+    selector:  "#tinyEditor",
+    language:  "ar",             /* واجهة عربية */
+    directionality: "rtl",
+    skin:      "oxide-dark",     /* الثيم الداكن المدمج */
+    content_css: "dark",
 
-  /* ── تسجيل أحجام الخط ── */
-  const SizeAttribution = Quill.import("attributors/style/size");
-  SizeAttribution.whitelist = ["10px","12px","14px","16px","18px","20px","24px","28px","32px","40px"];
-  Quill.register(SizeAttribution, true);
+    /* ────── شريط الأدوات الكامل ────── */
+    toolbar_mode: "wrap",
+    plugins: [
+      "advlist", "autolink", "lists", "link", "image", "charmap",
+      "preview", "anchor", "searchreplace", "visualblocks", "code",
+      "fullscreen", "insertdatetime", "media", "table", "help",
+      "wordcount", "emoticons", "codesample",
+    ],
+    toolbar: [
+      "fontfamily fontsize | styles | bold italic underline strikethrough |",
+      "forecolor backcolor | alignright aligncenter alignleft alignjustify |",
+      "bullist numlist outdent indent | table | link image emoticons charmap |",
+      "blockquote codesample | removeformat | fullscreen preview code | help",
+    ].join(" "),
 
-  /* ── بناء toolbar HTML المخصص ── */
-  document.getElementById("quillToolbar").innerHTML = `
-    <span class="ql-formats">
-      <select class="ql-font" title="نوع الخط">
-        <option value="">افتراضي</option>
-        <option value="cairo">Cairo</option>
-        <option value="tajawal">Tajawal</option>
-        <option value="almarai">Almarai</option>
-      </select>
-      <select class="ql-size" title="حجم الخط">
-        <option value="12px">12</option>
-        <option value="14px" selected>14</option>
-        <option value="16px">16</option>
-        <option value="18px">18</option>
-        <option value="20px">20</option>
-        <option value="24px">24</option>
-        <option value="28px">28</option>
-        <option value="32px">32</option>
-        <option value="40px">40</option>
-      </select>
-    </span>
-    <span class="ql-formats">
-      <select class="ql-header" title="العنوان">
-        <option value="1">H1</option>
-        <option value="2">H2</option>
-        <option value="3">H3</option>
-        <option selected>عادي</option>
-      </select>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-bold"        title="عريض"></button>
-      <button class="ql-italic"      title="مائل"></button>
-      <button class="ql-underline"   title="تسطير"></button>
-      <button class="ql-strike"      title="شطب"></button>
-    </span>
-    <span class="ql-formats">
-      <select class="ql-color"      title="لون النص"></select>
-      <select class="ql-background" title="تمييز النص"></select>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-align" value=""       title="محاذاة يمين"></button>
-      <button class="ql-align" value="center" title="توسيط"></button>
-      <button class="ql-align" value="left"   title="محاذاة يسار"></button>
-      <button class="ql-align" value="justify" title="ضبط"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered"  title="قائمة مرقمة"></button>
-      <button class="ql-list" value="bullet"   title="قائمة نقطية"></button>
-      <button class="ql-indent" value="+1"     title="زيادة مسافة بادئة"></button>
-      <button class="ql-indent" value="-1"     title="نقص مسافة بادئة"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-blockquote"   title="اقتباس"></button>
-      <button class="ql-code-block"   title="كود"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-link"         title="رابط"></button>
-      <button class="ql-image"        title="صورة"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-script" value="sub"   title="رمز سفلي"></button>
-      <button class="ql-script" value="super" title="رمز علوي"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-clean" title="مسح التنسيق"></button>
-    </span>
-  `;
+    /* ────── الخطوط العربية ────── */
+    font_family_formats: [
+      "Cairo=Cairo,sans-serif",
+      "Tajawal=Tajawal,sans-serif",
+      "Almarai=Almarai,sans-serif",
+      "Arial=arial,helvetica,sans-serif",
+      "Times New Roman=times new roman,times",
+      "Courier New=courier new,courier",
+    ].join(";"),
 
-  /* ── إنشاء مثيل Quill ── */
-  _quillInstance = new Quill("#quillEditor", {
-    theme:       "snow",
-    placeholder: "اكتب محتوى المقال هنا… (يدعم النصوص العربية والخطوط المتعددة والجداول والصور)",
-    modules: {
-      toolbar: "#quillToolbar",
-      history: { delay: 1000, maxStack: 100, userOnly: true },
+    font_size_formats:
+      "10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
+
+    /* ────── أنماط الفقرات ────── */
+    style_formats: [
+      { title: "عنوان 1", block: "h1" },
+      { title: "عنوان 2", block: "h2" },
+      { title: "عنوان 3", block: "h3" },
+      { title: "نص عادي", block: "p"  },
+      { title: "اقتباس",  block: "blockquote" },
+      { title: "كود",     block: "pre" },
+    ],
+
+    /* ────── محتوى المحرر الداخلي ────── */
+    content_style: `
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap');
+      body {
+        font-family: 'Cairo', sans-serif;
+        font-size: 15px;
+        line-height: 1.85;
+        direction: rtl;
+        text-align: right;
+        color: #e8eaf6;
+        background: #161929;
+        margin: 12px 16px;
+      }
+      h1,h2,h3 { color: #fff; }
+      a        { color: #00c9b1; }
+      blockquote {
+        border-right: 4px solid #8b46c8;
+        border-left: none;
+        padding: 0.5rem 1rem;
+        margin: 0.75rem 0;
+        background: rgba(108,47,160,0.1);
+        color: #8c90b5;
+      }
+      table td, table th {
+        border: 1px solid rgba(108,47,160,0.25);
+        padding: 6px 10px;
+      }
+      table th { background: rgba(108,47,160,0.15); font-weight: 700; }
+    `,
+
+    /* ────── ارتفاع المحرر ────── */
+    height: 400,
+    min_height: 300,
+    max_height: 600,
+    autoresize_bottom_margin: 16,
+
+    /* ────── إعدادات أخرى ────── */
+    menubar:            "file edit view insert format tools table help",
+    statusbar:          true,
+    branding:           false,
+    promotion:          false,
+    resize:             true,
+    paste_data_images:  true,
+    image_uploadtab:    false,
+
+    /* ────── setup callback ────── */
+    setup: (editor) => {
+      editor.on("init", () => {
+        _tinyReady = true;
+        /* تفعيل خط Cairo افتراضياً */
+        editor.execCommand("fontName", false, "Cairo,sans-serif");
+      });
     },
   });
-
-  /* اتجاه RTL افتراضي */
-  _quillInstance.format("direction", "rtl");
-  _quillInstance.format("align", "right");
 }
 
 /* ════════════
@@ -772,11 +780,10 @@ window.saveArticle = async function () {
   }
   pageEl?.classList.remove("error");
 
-  /* ── محتوى Quill ── */
-  const htmlContent = _quillInstance?.getSemanticHTML()
-                   ?? _quillInstance?.root.innerHTML
-                   ?? "";
-  const textContent = _quillInstance?.getText().trim() ?? "";
+  /* ── محتوى TinyMCE ── */
+  const editor      = tinymce.get("tinyEditor");
+  const htmlContent = editor?.getContent() ?? "";
+  const textContent = editor?.getContent({ format: "text" }).trim() ?? "";
 
   if (!textContent || textContent.length < 5) {
     _showArticleMsg(msgEl, "يرجى كتابة محتوى المقال", "error");
@@ -921,11 +928,12 @@ window.editArticle = async function (artId, btnEl) {
     document.getElementById("articleTitle").value = d.title ?? "";
     document.getElementById("articlePage").value  = d.pageId ?? "";
 
-    /* ── ملء المحرر ── */
-    if (!_quillInstance) _initQuill();
-    /* تأخير بسيط للتأكد من تهيئة Quill */
-    await new Promise(r => setTimeout(r, 50));
-    _quillInstance.clipboard.dangerouslyPasteHTML(d.content ?? "");
+    /* ── ملء TinyMCE ── */
+    if (!_tinyReady) _initTinyMCE();
+    /* تأخير بسيط لضمان جاهزية TinyMCE */
+    await new Promise(r => setTimeout(r, 80));
+    const editor = tinymce.get("tinyEditor");
+    if (editor) editor.setContent(d.content ?? "");
 
     /* ── تفعيل وضع التعديل ── */
     _editingArticleId = artId;
@@ -1006,7 +1014,8 @@ window.resetArticleForm = function () {
   const pageEl  = document.getElementById("articlePage");
   if (titleEl) { titleEl.value = ""; titleEl.classList.remove("error"); }
   if (pageEl)  { pageEl.value  = ""; pageEl.classList.remove("error"); }
-  if (_quillInstance) _quillInstance.setContents([]);
+  const editor = tinymce.get("tinyEditor");
+  if (editor) editor.setContent("");
 
   const msgEl = document.getElementById("articleFormMsg");
   if (msgEl) msgEl.style.display = "none";

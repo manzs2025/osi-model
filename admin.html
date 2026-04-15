@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة التحكم — أكاديمية الشبكات</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-<!-- Quill 2 Rich Text Editor -->
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<!-- TinyMCE Rich Text Editor -->
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.4/tinymce.min.js" referrerpolicy="origin"></script>
 <style>
 /* ════════════════════════════════════════════════
    RESET & VARIABLES
@@ -603,150 +602,122 @@ html, body {
 .art-form-body { padding: 1.5rem; }
 .art-form-body.collapsed { display: none; }
 
-/* ── Quill editor wrapper ── */
+/* ── TinyMCE container ── */
 .art-editor-wrap {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background: rgba(255,255,255,0.02);
+  min-height: 300px;
+  position: relative;
 }
 
-/* ── Quill 2 dark theme overrides ── */
+/* Textarea hidden — TinyMCE replaces it */
+#tinyEditor { visibility: hidden; height: 0; }
 
-/* Toolbar */
-.art-editor-wrap .ql-toolbar {
-  background: var(--bg3);
+/* ── TinyMCE dark skin overrides (oxide-dark) ── */
+.tox.tox-tinymce {
   border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Toolbar & menubar */
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-toolbar-overlord,
+.tox .tox-menubar {
+  background: var(--bg3) !important;
   border-bottom: 1px solid var(--border2) !important;
-  padding: 0.5rem 0.75rem;
-  direction: ltr;
-  flex-wrap: wrap;
-  gap: 2px;
 }
 
-/* أيقونات الـ toolbar */
-.art-editor-wrap .ql-toolbar .ql-stroke { stroke: var(--text-muted) !important; }
-.art-editor-wrap .ql-toolbar .ql-fill   { fill:   var(--text-muted) !important; }
-.art-editor-wrap .ql-toolbar button:hover .ql-stroke,
-.art-editor-wrap .ql-toolbar .ql-picker-label:hover .ql-stroke { stroke: var(--accent) !important; }
-.art-editor-wrap .ql-toolbar button:hover .ql-fill,
-.art-editor-wrap .ql-toolbar .ql-picker-label:hover .ql-fill   { fill: var(--accent) !important; }
-.art-editor-wrap .ql-toolbar button.ql-active .ql-stroke        { stroke: var(--accent) !important; }
-.art-editor-wrap .ql-toolbar button.ql-active .ql-fill          { fill:   var(--accent) !important; }
-.art-editor-wrap .ql-toolbar .ql-active .ql-stroke              { stroke: var(--accent) !important; }
+.tox .tox-toolbar__group {
+  border-right: 1px solid var(--border2) !important;
+  border-left: none !important;
+}
 
-/* Picker labels (Font, Size, Header) */
-.art-editor-wrap .ql-toolbar .ql-picker-label {
+/* Toolbar buttons */
+.tox .tox-tbtn {
   color: var(--text-muted) !important;
-  border-color: var(--border2) !important;
-  background: rgba(255,255,255,0.03) !important;
-  border-radius: 4px;
 }
-.art-editor-wrap .ql-toolbar .ql-picker-label:hover { color: var(--accent) !important; }
-
-/* Dropdown panels */
-.art-editor-wrap .ql-toolbar .ql-picker-options {
-  background: var(--bg2) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-sm) !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
-  padding: 0.4rem !important;
-  z-index: 1000 !important;
+.tox .tox-tbtn svg { fill: var(--text-muted) !important; }
+.tox .tox-tbtn:hover,
+.tox .tox-tbtn:focus {
+  background: rgba(108,47,160,0.15) !important;
+  color: var(--text) !important;
 }
-.art-editor-wrap .ql-toolbar .ql-picker-item {
-  color: var(--text-muted) !important;
-  border-radius: 4px;
-  padding: 0.3rem 0.6rem !important;
-}
-.art-editor-wrap .ql-toolbar .ql-picker-item:hover,
-.art-editor-wrap .ql-toolbar .ql-picker-item.ql-selected {
+.tox .tox-tbtn:hover svg,
+.tox .tox-tbtn:focus svg { fill: var(--accent) !important; }
+.tox .tox-tbtn--enabled,
+.tox .tox-tbtn--enabled:hover {
+  background: rgba(108,47,160,0.25) !important;
   color: var(--accent) !important;
-  background: rgba(0,201,177,0.1) !important;
+}
+.tox .tox-tbtn--enabled svg { fill: var(--accent) !important; }
+
+/* Select boxes (font, size) */
+.tox .tox-tbtn--select {
+  color: var(--text-muted) !important;
+}
+.tox .tox-tbtn--select:hover { color: var(--accent) !important; }
+
+/* Editor content area */
+.tox .tox-edit-area,
+.tox .tox-edit-area__iframe {
+  background: var(--card) !important;
 }
 
-/* خطوط عربية داخل picker */
-.art-editor-wrap .ql-font-cairo       { font-family: 'Cairo', sans-serif; }
-.art-editor-wrap .ql-font-tajawal     { font-family: 'Tajawal', sans-serif; }
-.art-editor-wrap .ql-font-almarai     { font-family: 'Almarai', sans-serif; }
-.art-editor-wrap .ql-picker-item[data-value="cairo"]   { font-family: 'Cairo', sans-serif; }
-.art-editor-wrap .ql-picker-item[data-value="tajawal"] { font-family: 'Tajawal', sans-serif; }
-.art-editor-wrap .ql-picker-item[data-value="almarai"] { font-family: 'Almarai', sans-serif; }
-
-/* Color pickers */
-.art-editor-wrap .ql-color-picker .ql-picker-options,
-.art-editor-wrap .ql-background .ql-picker-options {
-  padding: 0.4rem !important;
-  width: auto !important;
+/* Status bar */
+.tox .tox-statusbar {
+  background: var(--bg3) !important;
+  border-top: 1px solid var(--border2) !important;
+  color: var(--text-faint) !important;
 }
+.tox .tox-statusbar a,
+.tox .tox-statusbar__wordcount { color: var(--text-faint) !important; }
 
-/* Container */
-.art-editor-wrap .ql-container {
-  border: none !important;
-  font-family: 'Cairo', sans-serif;
-  font-size: 0.93rem;
-  direction: rtl;
+/* Dialogs & popups */
+.tox .tox-dialog,
+.tox .tox-dialog-wrap__backdrop {
+  background: var(--bg2) !important;
 }
-
-/* Editor area */
-.art-editor-wrap .ql-editor {
-  min-height: 280px;
-  max-height: 520px;
-  overflow-y: auto;
-  color: var(--text);
-  direction: rtl;
-  text-align: right;
-  line-height: 1.9;
-  padding: 1.1rem 1.25rem;
-  caret-color: var(--accent);
+.tox .tox-dialog__header {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
-
-.art-editor-wrap .ql-editor::-webkit-scrollbar { width: 4px; }
-.art-editor-wrap .ql-editor::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-.art-editor-wrap .ql-editor.ql-blank::before {
-  color: var(--text-faint);
-  font-style: normal;
-  right: 1.25rem;
-  left: auto;
+.tox .tox-dialog__body { background: var(--bg2) !important; }
+.tox .tox-dialog__footer {
+  background: var(--bg3) !important;
+  border-top: 1px solid var(--border) !important;
+}
+.tox .tox-label,
+.tox .tox-dialog__body-content { color: var(--text-muted) !important; }
+.tox .tox-textfield,
+.tox .tox-selectfield select,
+.tox .tox-textarea {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.tox .tox-textfield:focus,
+.tox .tox-textarea:focus {
+  border-color: rgba(0,201,177,0.5) !important;
 }
 
-/* محتوى المحرر */
-.art-editor-wrap .ql-editor h1 { font-size: 1.75rem; color: var(--text); font-weight: 900; margin-bottom: 0.5rem; }
-.art-editor-wrap .ql-editor h2 { font-size: 1.35rem; color: var(--text); font-weight: 800; margin-bottom: 0.4rem; }
-.art-editor-wrap .ql-editor h3 { font-size: 1.1rem;  color: var(--text); font-weight: 700; margin-bottom: 0.3rem; }
-.art-editor-wrap .ql-editor a  { color: var(--accent); text-decoration: underline; }
-.art-editor-wrap .ql-editor blockquote {
-  border-right: 4px solid var(--primary-l);
-  border-left: none;
-  padding: 0.5rem 1rem;
-  margin: 0.75rem 0;
-  background: rgba(108,47,160,0.08);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  color: var(--text-muted);
+/* Dropdown menus */
+.tox .tox-collection--list .tox-collection__item,
+.tox .tox-menu {
+  background: var(--bg2) !important;
+  color: var(--text-muted) !important;
 }
-.art-editor-wrap .ql-editor pre {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-sm);
-  padding: 1rem;
-  color: var(--accent);
-  direction: ltr;
-  text-align: left;
+.tox .tox-collection--list .tox-collection__item:hover,
+.tox .tox-collection--list .tox-collection__item--active {
+  background: rgba(108,47,160,0.2) !important;
+  color: var(--text) !important;
 }
-.art-editor-wrap .ql-editor ol,
-.art-editor-wrap .ql-editor ul { padding-right: 1.5rem; padding-left: 0; }
-.art-editor-wrap .ql-editor table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 0.75rem 0;
-}
-.art-editor-wrap .ql-editor table td,
-.art-editor-wrap .ql-editor table th {
-  border: 1px solid var(--border);
-  padding: 0.5rem 0.75rem;
-  color: var(--text-muted);
-}
-.art-editor-wrap .ql-editor table th { background: rgba(108,47,160,0.1); font-weight: 700; }
+.tox .tox-collection__item-label { color: inherit !important; }
+
+/* Notifications */
+.tox-notifications-container { display: none !important; }
 
 /* زر تعديل في الجدول */
 .art-edit-btn {
@@ -766,11 +737,6 @@ html, body {
 .art-edit-btn:hover {
   background: rgba(0,201,177,0.18);
   border-color: rgba(0,201,177,0.5);
-}
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .art-editor-wrap .ql-editor { min-height: 180px; }
 }
 
 /* ════════════════════════════════════════════════
@@ -1541,12 +1507,11 @@ html, body {
               </div>
             </div>
 
-            <!-- Quill 2 Editor — toolbar يُبنى برمجياً في admin.js -->
+            <!-- TinyMCE Editor -->
             <div class="qz-field-group" style="margin-bottom:1.25rem;">
               <label class="qz-label">محتوى المقال *</label>
               <div class="art-editor-wrap">
-                <div id="quillToolbar"><!-- يُملأ برمجياً --></div>
-                <div id="quillEditor"></div>
+                <textarea id="tinyEditor"></textarea>
               </div>
             </div>
 
