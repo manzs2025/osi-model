@@ -652,11 +652,12 @@ function _initTinyMCE() {
   }
 
   tinymce.init({
-    selector:  "#tinyEditor",
-    language:  "ar",             /* واجهة عربية */
+    selector:      "#tinyEditor",
+    language:      "ar",
+    language_url:  "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
     directionality: "rtl",
-    skin:      "oxide-dark",     /* الثيم الداكن المدمج */
-    content_css: "dark",
+    skin:          "oxide-dark",
+    content_css:   "dark",
 
     /* ────── شريط الأدوات الكامل ────── */
     toolbar_mode: "wrap",
