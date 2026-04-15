@@ -553,8 +553,496 @@ html, body {
 }
 
 /* ════════════════════════════════════════════════
-   MOBILE OVERLAY (sidebar drawer)
+   QUIZ MANAGEMENT STYLES
+   لا تتعارض مع أي class موجودة مسبقاً —
+   جميع classes تبدأ بـ qz-
 ════════════════════════════════════════════════ */
+
+/* ── بطاقة النموذج ── */
+.qz-form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.75rem;
+  overflow: hidden;
+}
+
+.qz-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(108,47,160,0.06);
+}
+
+.qz-form-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qz-form-icon { font-size: 1.1rem; }
+
+.qz-collapse-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.qz-collapse-btn:hover { border-color: var(--primary-l); color: var(--text); }
+
+.qz-form-body {
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+.qz-form-body.collapsed { display: none; }
+
+/* ── حقول الاختبار الأساسية ── */
+.qz-fields-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.qz-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.qz-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.qz-input {
+  padding: 0.72rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  direction: rtl;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+}
+.qz-input:focus {
+  border-color: rgba(0,201,177,0.5);
+  background: rgba(0,201,177,0.04);
+}
+.qz-input.error { border-color: rgba(244,67,54,0.55); }
+
+.qz-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7f9e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.9rem center;
+  cursor: pointer;
+}
+.qz-select option { background: var(--bg2); color: var(--text); }
+
+/* ── منطقة الأسئلة ── */
+.qz-questions-area {
+  margin-bottom: 1.5rem;
+}
+
+.qz-questions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.qz-questions-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+}
+
+.qz-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  background: rgba(0,201,177,0.1);
+  border: 1px solid rgba(0,201,177,0.3);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s;
+}
+.qz-add-btn:hover {
+  background: rgba(0,201,177,0.18);
+  border-color: rgba(0,201,177,0.55);
+  transform: translateY(-1px);
+}
+
+/* ── رسالة لا توجد أسئلة ── */
+.qz-empty-questions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.5rem 1rem;
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  color: var(--text-faint);
+  font-size: 0.88rem;
+  text-align: center;
+}
+.qz-empty-questions small { font-size: 0.77rem; }
+
+/* ── بطاقة السؤال الواحد ── */
+.qz-question-card {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  animation: panelIn 0.25s ease both;
+}
+
+.qz-question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.1rem;
+  background: rgba(108,47,160,0.08);
+  border-bottom: 1px solid var(--border2);
+}
+
+.qz-question-num {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--primary-l);
+}
+
+.qz-question-del {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.qz-question-del:hover { color: #ff6b6b; background: rgba(244,67,54,0.1); }
+
+.qz-question-body { padding: 1.1rem; }
+
+/* حقل نص السؤال */
+.qz-question-text {
+  width: 100%;
+  padding: 0.72rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  direction: rtl;
+  resize: vertical;
+  min-height: 64px;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+.qz-question-text:focus { border-color: rgba(0,201,177,0.5); }
+
+/* شبكة الخيارات الأربعة */
+.qz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.qz-option-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Radio button مخصص */
+.qz-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.qz-radio:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px var(--card2);
+}
+.qz-radio:hover:not(:checked) { border-color: var(--primary-l); }
+
+.qz-option-input {
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.83rem;
+  direction: rtl;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.qz-option-input:focus { border-color: rgba(0,201,177,0.45); }
+.qz-option-input::placeholder { color: var(--text-faint); }
+
+/* مؤشر الإجابة الصحيحة */
+.qz-correct-hint {
+  font-size: 0.73rem;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.qz-correct-hint .dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+/* ── أزرار حفظ ومسح النموذج ── */
+.qz-form-actions {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border2);
+}
+
+.qz-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-l));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.qz-save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108,47,160,0.38);
+}
+.qz-save-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.qz-reset-btn {
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.qz-reset-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+/* رسالة نتيجة النموذج */
+.qz-form-msg {
+  margin-top: 0.9rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.qz-form-msg.success {
+  background: rgba(0,201,177,0.1);
+  border: 1px solid rgba(0,201,177,0.3);
+  color: var(--accent);
+}
+.qz-form-msg.error {
+  background: rgba(244,67,54,0.1);
+  border: 1px solid rgba(244,67,54,0.3);
+  color: #ff6b6b;
+}
+
+/* ── قسم الجدول ── */
+.qz-table-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.qz-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(0,201,177,0.04);
+}
+
+.qz-table-title {
+  font-size: 0.97rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.qz-refresh-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.32rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.qz-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.qz-table-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 2rem 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.qz-table-empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.88rem;
+}
+
+.qz-table-wrap { overflow-x: auto; }
+
+.qz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.qz-table thead { background: rgba(108,47,160,0.1); }
+.qz-table thead th {
+  padding: 0.8rem 1.1rem;
+  text-align: right;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.qz-table tbody tr {
+  border-bottom: 1px solid var(--border2);
+  transition: background 0.2s;
+}
+.qz-table tbody tr:last-child { border-bottom: none; }
+.qz-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+.qz-table tbody td {
+  padding: 0.85rem 1.1rem;
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+.qz-table tbody td:first-child { color: var(--text); font-weight: 700; }
+
+/* شارة القسم في الجدول */
+.qz-page-badge {
+  display: inline-block;
+  padding: 0.18rem 0.65rem;
+  background: rgba(108,47,160,0.15);
+  border: 1px solid rgba(108,47,160,0.25);
+  border-radius: 10px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--primary-l);
+  white-space: nowrap;
+}
+
+/* عدد الأسئلة في الجدول */
+.qz-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px; height: 24px;
+  background: rgba(0,201,177,0.1);
+  border: 1px solid rgba(0,201,177,0.2);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* زر الحذف في الجدول */
+.qz-del-btn {
+  padding: 0.35rem 0.75rem;
+  background: rgba(244,67,54,0.08);
+  border: 1px solid rgba(244,67,54,0.22);
+  border-radius: 6px;
+  color: #ff6b6b;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.qz-del-btn:hover {
+  background: rgba(244,67,54,0.18);
+  border-color: rgba(244,67,54,0.45);
+}
+.qz-del-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* تاريخ في الجدول */
+.qz-date { font-size: 0.79rem; color: var(--text-faint); }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .qz-fields-row   { grid-template-columns: 1fr; }
+  .qz-options-grid  { grid-template-columns: 1fr; }
+  .qz-form-actions  { flex-direction: column; }
+  .qz-save-btn, .qz-reset-btn { width: 100%; justify-content: center; }
+}
 .sidebar-overlay {
   display: none;
   position: fixed;
@@ -631,7 +1119,6 @@ html, body {
       <button class="sb-item" data-panel="quizzes" onclick="switchPanel(this, 'quizzes')">
         <span class="sb-icon">📋</span>
         إدارة الاختبارات
-        <span class="sb-badge">قريباً</span>
       </button>
 
       <button class="sb-item" data-panel="trainees" onclick="switchPanel(this, 'trainees')">
@@ -796,21 +1283,127 @@ html, body {
 
       <!-- ════════════ PANEL: QUIZZES ════════════ -->
       <section class="panel" id="panel-quizzes">
+
         <div class="panel-header">
           <div class="panel-title-group">
             <div class="panel-tag">📋 إدارة الاختبارات</div>
             <div class="panel-title">نظام <span>الاختبارات</span></div>
-            <div class="panel-subtitle">إنشاء الاختبارات والأسئلة ومتابعة نتائج المتدربين</div>
+            <div class="panel-subtitle">إنشاء اختبارات جديدة وإدارة الأسئلة والإجابات</div>
           </div>
         </div>
-        <div class="info-card">
-          <h3>📋 إنشاء وإدارة الاختبارات (LMS)</h3>
-          <p>
-            سيتمكن المشرف هنا من إنشاء اختبارات جديدة وإضافة أسئلة متعددة الخيارات أو صح وخطأ،
-            وتحديد الوقت ومنح النقاط. كما ستتوفر لوحة لمتابعة درجات المتدربين وتصدير النتائج.
-          </p>
-          <div class="coming-soon">⏳ سيتوفر هذا القسم في الخطوة 4</div>
-        </div>
+
+        <!-- ── نموذج إنشاء اختبار ── -->
+        <div class="qz-form-card" id="quizFormCard">
+          <div class="qz-form-header">
+            <h3 class="qz-form-title">
+              <span class="qz-form-icon">✏️</span>
+              إنشاء اختبار جديد
+            </h3>
+            <button class="qz-collapse-btn" id="quizFormToggle" onclick="toggleQuizForm()">
+              تصغير ↑
+            </button>
+          </div>
+
+          <div class="qz-form-body" id="quizFormBody">
+
+            <!-- الحقول الأساسية -->
+            <div class="qz-fields-row">
+              <div class="qz-field-group">
+                <label class="qz-label" for="quizTitle">عنوان الاختبار *</label>
+                <input
+                  type="text"
+                  id="quizTitle"
+                  class="qz-input"
+                  placeholder="مثال: اختبار شبكات الحاسب الآلي"
+                  maxlength="100"
+                >
+              </div>
+              <div class="qz-field-group">
+                <label class="qz-label" for="quizPage">القسم التابع له *</label>
+                <select id="quizPage" class="qz-input qz-select">
+                  <option value="">— اختر القسم —</option>
+                  <option value="networks">شبكات الحاسب الآلي</option>
+                  <option value="security">الأمان في الشبكات</option>
+                  <option value="osi">نموذج OSI</option>
+                  <option value="cables">كيابل الشبكات</option>
+                  <option value="ip">بروتوكول IP</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- منطقة الأسئلة -->
+            <div class="qz-questions-area">
+              <div class="qz-questions-header">
+                <span class="qz-questions-count" id="questionsCount">0 أسئلة</span>
+                <button class="qz-add-btn" onclick="addQuestion()">
+                  ＋ إضافة سؤال جديد
+                </button>
+              </div>
+
+              <!-- حاوية الأسئلة الديناميكية -->
+              <div id="questionsList">
+                <!-- تُضاف الأسئلة هنا برمجياً -->
+                <div class="qz-empty-questions" id="emptyQuestionsMsg">
+                  <span>لا توجد أسئلة بعد</span>
+                  <small>اضغط "إضافة سؤال جديد" للبدء</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- أزرار الحفظ -->
+            <div class="qz-form-actions">
+              <button class="qz-save-btn" id="btnSaveQuiz" onclick="saveQuiz()">
+                <span class="qz-btn-text">💾 حفظ الاختبار</span>
+                <span class="qz-btn-spinner" style="display:none">⏳</span>
+              </button>
+              <button class="qz-reset-btn" onclick="resetQuizForm()">
+                🗑️ مسح النموذج
+              </button>
+            </div>
+
+            <!-- رسالة النموذج -->
+            <div class="qz-form-msg" id="quizFormMsg" style="display:none"></div>
+
+          </div><!-- /quizFormBody -->
+        </div><!-- /quizFormCard -->
+
+        <!-- ── جدول الاختبارات الحالية ── -->
+        <div class="qz-table-section">
+          <div class="qz-table-header">
+            <h3 class="qz-table-title">📚 الاختبارات المحفوظة</h3>
+            <button class="qz-refresh-btn" onclick="loadQuizzes()" title="تحديث">↻ تحديث</button>
+          </div>
+
+          <!-- حالة التحميل -->
+          <div class="qz-table-loading" id="quizzesLoading">
+            <div class="loading-ring" style="width:32px;height:32px;border-width:2px"></div>
+            <span>جارٍ تحميل الاختبارات…</span>
+          </div>
+
+          <!-- رسالة فارغ -->
+          <div class="qz-table-empty" id="quizzesEmpty" style="display:none">
+            لا توجد اختبارات محفوظة بعد
+          </div>
+
+          <!-- الجدول -->
+          <div class="qz-table-wrap" id="quizzesTableWrap" style="display:none">
+            <table class="qz-table">
+              <thead>
+                <tr>
+                  <th>عنوان الاختبار</th>
+                  <th>القسم</th>
+                  <th>عدد الأسئلة</th>
+                  <th>تاريخ الإضافة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="quizzesTableBody">
+                <!-- تُملأ برمجياً -->
+              </tbody>
+            </table>
+          </div>
+        </div><!-- /qz-table-section -->
+
       </section>
 
       <!-- ════════════ PANEL: TRAINEES ════════════ -->
