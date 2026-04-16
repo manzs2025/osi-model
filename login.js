@@ -144,13 +144,7 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    /* ── 3. التحقق من الدور ── */
-    if (profile.role !== "admin") {
-      await auth.signOut();
-      showError("عفواً، لا تملك صلاحية الدخول إلى لوحة التحكم");
-      setLoading(false);
-      return;
-    }
+ 
 
     /* ── 4. توجيه حسب الدور ── */
     if (profile.role === "admin") {
