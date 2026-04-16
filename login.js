@@ -82,13 +82,27 @@ passToggle.addEventListener("click", () => {
   passToggle.setAttribute("aria-label", isPass ? "إخفاء كلمة المرور" : "إظهار كلمة المرور");
 });
 
+/* ─── نطاق المتدربين الوهمي (يجب أن يطابق admin.js) ─────── */
+const TRAINEE_DOMAIN = "@trainee.network.com";
+
+/* ─── دالة مساعدة: هل الإدخال رقم تدريبي؟ ─────────────── */
+function isStudentId(input) {
+  return /^\d{10}$/.test(input);
+}
+
+/* ─── دالة مساعدة: بناء البريد الفعلي من الإدخال ──────── */
+function resolveEmail(input) {
+  // إذا كان 10 أرقام → رقم تدريبي → نضيف النطاق الوهمي
+  // وإلا → بريد عادي (المشرف) → نُرسله كما هو
+  return isStudentId(input) ? input + TRAINEE_DOMAIN : input;
+}
+
 /* ─── إخفاء رسالة الخطأ عند الكتابة ──────────────────── */
 [emailInput, passwordInput].forEach(el =>
   el.addEventListener("input", hideMessages)
 );
 
 /* ─── التحقق من جلسة سابقة ────────────────────────────── */
-// إذا كان المستخدم مسجّلاً بالفعل نوجّهه مباشرة
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
   const profile = await fetchUserProfile(user.uid);
@@ -111,20 +125,31 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   hideMessages();
 
-  const email    = emailInput.value.trim();
+  const rawInput = emailInput.value.trim();
   const password = passwordInput.value;
 
   /* ── التحقق الأولي على الواجهة ── */
-  if (!email) {
-    showError("يرجى إدخال البريد الإلكتروني");
+  if (!rawInput) {
+    showError("يرجى إدخال الرقم التدريبي أو البريد الإلكتروني");
     emailInput.focus();
     return;
   }
+
+  /* ── التحقق من صحة الرقم التدريبي إن كان الإدخال أرقاماً ── */
+  if (/^\d+$/.test(rawInput) && !isStudentId(rawInput)) {
+    showError("الرقم التدريبي يجب أن يتكون من 10 أرقام بالضبط");
+    emailInput.focus();
+    return;
+  }
+
   if (!password) {
     showError("يرجى إدخال كلمة المرور");
     passwordInput.focus();
     return;
   }
+
+  /* ── بناء البريد الفعلي قبل الإرسال لـ Firebase ── */
+  const email = resolveEmail(rawInput);
 
   setLoading(true);
 
@@ -137,16 +162,13 @@ form.addEventListener("submit", async (e) => {
     const profile = await fetchUserProfile(uid);
 
     if (!profile) {
-      // المستخدم موجود في Auth لكن ليس له ملف في Firestore
       await auth.signOut();
       showError("حسابك غير مكتمل، تواصل مع المشرف");
       setLoading(false);
       return;
     }
 
- 
-
-    /* ── 4. توجيه حسب الدور ── */
+    /* ── 3. توجيه حسب الدور ── */
     if (profile.role === "admin") {
       showSuccess(`مرحباً ${profile.displayName}، جارٍ التحويل…`);
       setTimeout(() => { window.location.href = "admin.html"; }, 900);
@@ -165,7 +187,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ─── Enter في حقل البريد ← ينتقل لكلمة المرور ────────── */
+/* ─── Enter في حقل المعرّف ← ينتقل لكلمة المرور ───────── */
 emailInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();

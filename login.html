@@ -402,16 +402,18 @@
     <form id="loginForm" novalidate>
 
       <div class="form-group">
-        <label for="emailInput">البريد الإلكتروني</label>
+        <label for="emailInput">الرقم التدريبي أو البريد الإلكتروني</label>
         <div class="input-wrap">
           <input
-            type="email"
+            type="text"
             id="emailInput"
-            placeholder="example@academy.com"
-            autocomplete="email"
+            placeholder="أدخل رقمك التدريبي (10 أرقام)"
+            autocomplete="username"
+            inputmode="numeric"
+            style="direction:ltr;text-align:right;"
             required
           >
-          <span class="input-icon">✉️</span>
+          <span class="input-icon">🎓</span>
         </div>
       </div>
 

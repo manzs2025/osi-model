@@ -709,21 +709,43 @@ const PAGE_LABELS_TR = {
 
 /* ════════════
    addTrainee — إنشاء حساب متدرب جديد عبر Firebase Auth ثانوي
+   ─────────────────────────────────────────────────────────
+   المنطق الجديد:
+   • المشرف يُدخل: الاسم الكامل + الرقم التدريبي (10 أرقام)
+   • البريد الوهمي يُبنى برمجياً: رقم@trainee.network.com
+   • كلمة المرور الافتراضية ثابتة: 12345678
+   • يُحفظ الرقم التدريبي كـ studentId مستقل في Firestore
 ════════════ */
+
+/* ── نطاق البريد الوهمي للمتدربين ── */
+const TRAINEE_DOMAIN = "@trainee.network.com";
+const TRAINEE_DEFAULT_PASS = "12345678";
+
 window.addTrainee = async function () {
-  const nameEl  = document.getElementById("newTraineeName");
-  const emailEl = document.getElementById("newTraineeEmail");
-  const passEl  = document.getElementById("newTraineePass");
-  const msgEl   = document.getElementById("addTraineeMsg");
-  const btn     = document.getElementById("btnAddTrainee");
+  const nameEl      = document.getElementById("newTraineeName");
+  const studentIdEl = document.getElementById("newTraineeEmail");   /* الحقل أُعيد توظيفه للرقم التدريبي */
+  const msgEl       = document.getElementById("addTraineeMsg");
+  const btn         = document.getElementById("btnAddTrainee");
 
-  const name  = nameEl.value.trim();
-  const email = emailEl.value.trim();
-  const pass  = passEl.value.trim();
+  const name      = nameEl.value.trim();
+  const studentId = studentIdEl.value.trim();
 
-  if (!name)  { _showTrMsg(msgEl,"يرجى إدخال اسم المتدرب","error");   nameEl.focus();  return; }
-  if (!email) { _showTrMsg(msgEl,"يرجى إدخال البريد الإلكتروني","error"); emailEl.focus(); return; }
-  if (pass.length < 6) { _showTrMsg(msgEl,"كلمة المرور يجب أن تكون 6 أحرف على الأقل","error"); passEl.focus(); return; }
+  /* ── التحقق من الاسم ── */
+  if (!name) {
+    _showTrMsg(msgEl, "يرجى إدخال اسم المتدرب", "error");
+    nameEl.focus();
+    return;
+  }
+
+  /* ── التحقق من الرقم التدريبي: 10 أرقام بالضبط ── */
+  if (!/^\d{10}$/.test(studentId)) {
+    _showTrMsg(msgEl, "الرقم التدريبي يجب أن يتكون من 10 أرقام بالضبط", "error");
+    studentIdEl.focus();
+    return;
+  }
+
+  /* ── بناء البريد الوهمي ── */
+  const email = studentId + TRAINEE_DOMAIN;
 
   btn.disabled = true;
   document.getElementById("addTraineeBtnText").style.display    = "none";
@@ -731,20 +753,23 @@ window.addTrainee = async function () {
 
   try {
     /* ── إنشاء حساب ثانوي مؤقت لإنشاء المستخدم دون تسجيل دخوله ── */
-    const { initializeApp: initApp2 }                = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getAuth: getAuth2, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-    const { getFirestore: getFS2, doc: doc2, setDoc: setDoc2, serverTimestamp: sts2 } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const { initializeApp: initApp2 }                             = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getAuth: getAuth2, createUserWithEmailAndPassword }   = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    const { getFirestore: getFS2, doc: doc2, setDoc: setDoc2 }    = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
 
     const app2  = initApp2(firebaseConfig, "secondary-" + Date.now());
     const auth2 = getAuth2(app2);
     const db2   = getFS2(app2);
 
-    const cred = await createUserWithEmailAndPassword(auth2, email, pass);
+    /* ── إنشاء الحساب بالبريد الوهمي وكلمة المرور الافتراضية ── */
+    const cred = await createUserWithEmailAndPassword(auth2, email, TRAINEE_DEFAULT_PASS);
     const uid  = cred.user.uid;
 
+    /* ── حفظ بيانات المتدرب مع الرقم التدريبي كحقل مستقل ── */
     await setDoc2(doc2(db2, "users", uid), {
       uid,
       email,
+      studentId,                    /* الرقم التدريبي — حقل مستقل قابل للبحث */
       displayName: name,
       role:        "trainee",
       createdAt:   serverTimestamp(),
@@ -753,10 +778,9 @@ window.addTrainee = async function () {
 
     await auth2.signOut();
 
-    _showTrMsg(msgEl, `✅ تم إنشاء حساب "${name}" بنجاح`, "success");
-    nameEl.value = "";
-    emailEl.value = "";
-    passEl.value  = "";
+    _showTrMsg(msgEl, `✅ تم إنشاء حساب "${name}" (${studentId}) بنجاح`, "success");
+    nameEl.value      = "";
+    studentIdEl.value = "";
 
     /* تحديث الإحصاء */
     countCollection("users").then(n => {
@@ -768,9 +792,9 @@ window.addTrainee = async function () {
 
   } catch (err) {
     const errMap = {
-      "auth/email-already-in-use": "البريد الإلكتروني مسجّل مسبقاً",
-      "auth/invalid-email":        "صيغة البريد غير صحيحة",
-      "auth/weak-password":        "كلمة المرور ضعيفة جداً",
+      "auth/email-already-in-use": "الرقم التدريبي مسجّل مسبقاً في النظام",
+      "auth/invalid-email":        "الرقم التدريبي غير صحيح",
+      "auth/weak-password":        "حدث خطأ في كلمة المرور الافتراضية",
     };
     _showTrMsg(msgEl, errMap[err.code] ?? `خطأ: ${err.message}`, "error");
   } finally {
@@ -826,7 +850,7 @@ window.loadTrainees = async function () {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${_escHtml(d.displayName ?? "—")}</td>
-        <td style="direction:ltr;text-align:right;font-size:0.82rem;">${_escHtml(d.email ?? "—")}</td>
+        <td style="direction:ltr;text-align:center;font-size:0.85rem;font-weight:700;letter-spacing:0.04em;">${_escHtml(d.studentId ?? "—")}</td>
         <td><span class="qz-count-badge">${quizCount}</span></td>
         <td><span class="qz-date">${dateStr}</span></td>
       `;
