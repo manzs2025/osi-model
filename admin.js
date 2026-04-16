@@ -1012,8 +1012,9 @@ window.handleBulkImport = async function (inputEl) {
   /* ── كشف أسماء الأعمدة بمرونة ── */
   const firstRow   = rows[0];
   const colKeys    = Object.keys(firstRow);
-  const nameKey    = colKeys.find(k => /اسم/i.test(k))    ?? colKeys[0];
-  const idKey      = colKeys.find(k => /رقم|id/i.test(k)) ?? colKeys[1];
+// البحث عن الأعمدة مع تجاهل المسافات الزائدة في المسميات
+const nameKey    = colKeys.find(k => k.trim().includes("الاسم")) || colKeys[0];
+const idKey      = colKeys.find(k => k.trim().includes("الرقم التدريبي") || k.includes("id")) || colKeys[1];
 
   /* ── تصفية الصفوف الفارغة والتحقق ── */
   const valid   = [];
