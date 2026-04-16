@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
 <!-- TinyMCE Rich Text Editor -->
 <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.4/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- SheetJS — معالجة ملفات Excel للرفع الجماعي -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════
    RESET & VARIABLES
@@ -1264,6 +1266,251 @@ html, body {
   .stats-grid { grid-template-columns: 1fr; }
   .quick-actions { grid-template-columns: 1fr; }
 }
+
+/* ════════════════════════════════════════════════
+   BULK IMPORT — زر الرفع الجماعي وشريط التقدم
+════════════════════════════════════════════════ */
+.bulk-import-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--border2);
+}
+
+.bulk-import-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.btn-bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  background: rgba(0,201,177,0.08);
+  border: 1px solid rgba(0,201,177,0.3);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-bulk:hover:not(:disabled) {
+  background: rgba(0,201,177,0.15);
+  border-color: rgba(0,201,177,0.55);
+  transform: translateY(-1px);
+}
+.btn-bulk:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* حقل الملف مخفي — يُفتح عبر الزر */
+#bulkFileInput { display: none; }
+
+/* شريط التقدم */
+.bulk-progress-wrap {
+  display: none;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  animation: fadeUp 0.25s ease;
+}
+.bulk-progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background: var(--border2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bulk-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+.bulk-progress-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.bulk-progress-log {
+  max-height: 120px;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  font-family: monospace;
+  direction: rtl;
+}
+
+/* ════════════════════════════════════════════════
+   EDIT TRAINEE MODAL — نافذة تعديل بيانات المتدرب
+════════════════════════════════════════════════ */
+.tr-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease;
+}
+.tr-modal-overlay.open { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.tr-modal {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  position: relative;
+  animation: modalSlideUp 0.3s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* الخط العلوي الملوّن */
+.tr-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 18px 18px 0 0;
+}
+
+.tr-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.tr-modal-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tr-modal-close {
+  width: 32px; height: 32px;
+  background: var(--border2);
+  border: none;
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.tr-modal-close:hover { background: rgba(244,67,54,0.15); color: #ff6b6b; }
+
+.tr-modal-field { margin-bottom: 1.1rem; }
+.tr-modal-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+.tr-modal-field input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tr-modal-field input:focus {
+  border-color: rgba(0,201,177,0.55);
+  box-shadow: 0 0 0 3px rgba(0,201,177,0.1);
+}
+
+.tr-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.btn-modal-save {
+  flex: 1;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-l));
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.btn-modal-save:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,47,160,0.35); }
+.btn-modal-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-modal-cancel {
+  padding: 0.75rem 1.2rem;
+  background: var(--border2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text-muted);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-modal-cancel:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+
+.tr-modal-msg {
+  margin-top: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  display: none;
+}
+.tr-modal-msg.error   { background: rgba(244,67,54,0.1);  border: 1px solid rgba(244,67,54,0.3);  color: #ff6b6b; display: block; }
+.tr-modal-msg.success { background: rgba(0,201,177,0.1);  border: 1px solid rgba(0,201,177,0.3);  color: var(--accent); display: block; }
+
+/* زر التعديل في صفوف الجدول */
+.tr-edit-btn {
+  padding: 0.28rem 0.6rem;
+  background: rgba(108,47,160,0.1);
+  border: 1px solid rgba(108,47,160,0.25);
+  border-radius: 6px;
+  color: var(--primary-l);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: 'Cairo', sans-serif;
+}
+.tr-edit-btn:hover { background: rgba(108,47,160,0.22); border-color: rgba(108,47,160,0.5); transform: translateY(-1px); }
 </style>
 </head>
 <body>
@@ -1729,6 +1976,27 @@ html, body {
               </div>
             </div>
             <div class="qz-form-msg" id="addTraineeMsg" style="display:none"></div>
+
+            <!-- ── الرفع الجماعي من Excel ── -->
+            <div class="bulk-import-wrap">
+              <span class="bulk-import-label">📥 رفع جماعي:</span>
+              <button class="btn-bulk" id="btnBulkImport" onclick="document.getElementById('bulkFileInput').click()">
+                📊 رفع ملف Excel
+              </button>
+              <input type="file" id="bulkFileInput" accept=".xlsx,.xls" onchange="handleBulkImport(this)">
+              <span style="font-size:0.75rem;color:var(--text-faint);">أعمدة مطلوبة: الاسم، الرقم التدريبي</span>
+            </div>
+            <!-- شريط تقدم الرفع الجماعي -->
+            <div class="bulk-progress-wrap" id="bulkProgressWrap">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span class="bulk-progress-text" id="bulkProgressText">جارٍ المعالجة…</span>
+                <span class="bulk-progress-text" id="bulkProgressCount"></span>
+              </div>
+              <div class="bulk-progress-bar-track">
+                <div class="bulk-progress-bar-fill" id="bulkProgressFill"></div>
+              </div>
+              <div class="bulk-progress-log" id="bulkProgressLog"></div>
+            </div>
           </div>
         </div>
 
@@ -1751,6 +2019,7 @@ html, body {
                   <th>الرقم التدريبي</th>
                   <th>عدد الاختبارات</th>
                   <th>تاريخ التسجيل</th>
+                  <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody id="traineesTableBody"></tbody>
@@ -1834,6 +2103,43 @@ html, body {
     </main><!-- /main-content -->
   </div><!-- /main-area -->
 </div><!-- /dashboardShell -->
+
+<!-- ════════════ EDIT TRAINEE MODAL ════════════ -->
+<div class="tr-modal-overlay" id="editTraineeModal">
+  <div class="tr-modal">
+    <div class="tr-modal-header">
+      <div class="tr-modal-title">✏️ تعديل بيانات المتدرب</div>
+      <button class="tr-modal-close" onclick="closeEditTraineeModal()" title="إغلاق">✕</button>
+    </div>
+
+    <!-- حقل مخفي لتخزين uid المتدرب المُعدَّل -->
+    <input type="hidden" id="editTraineeUid">
+
+    <div class="tr-modal-field">
+      <label for="editTraineeName">الاسم الكامل *</label>
+      <input type="text" id="editTraineeName" placeholder="مثال: أحمد محمد العمري">
+    </div>
+
+    <div class="tr-modal-field">
+      <label for="editTraineeStudentId">
+        الرقم التدريبي *
+        <small style="color:var(--text-faint);font-weight:400;margin-right:0.4rem;">(10 أرقام — يُعدِّل البريد في Auth أيضاً)</small>
+      </label>
+      <input type="text" id="editTraineeStudentId" inputmode="numeric" maxlength="10"
+             style="direction:ltr;text-align:right;letter-spacing:0.06em;" placeholder="4412345678">
+    </div>
+
+    <div class="tr-modal-actions">
+      <button class="btn-modal-save" id="btnSaveEditTrainee" onclick="saveEditTrainee()">
+        <span id="editSaveBtnText">💾 حفظ التعديلات</span>
+        <span id="editSaveBtnSpinner" style="display:none">⏳</span>
+      </button>
+      <button class="btn-modal-cancel" onclick="closeEditTraineeModal()">إلغاء</button>
+    </div>
+
+    <div class="tr-modal-msg" id="editTraineeMsg"></div>
+  </div>
+</div>
 
 <script type="module" src="admin.js"></script>
 </body>

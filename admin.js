@@ -848,11 +848,18 @@ window.loadTrainees = async function () {
         : "—";
 
       const tr = document.createElement("tr");
+      tr.setAttribute("data-uid", uid);
       tr.innerHTML = `
         <td>${_escHtml(d.displayName ?? "—")}</td>
         <td style="direction:ltr;text-align:center;font-size:0.85rem;font-weight:700;letter-spacing:0.04em;">${_escHtml(d.studentId ?? "—")}</td>
         <td><span class="qz-count-badge">${quizCount}</span></td>
         <td><span class="qz-date">${dateStr}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="tr-edit-btn"
+            onclick="openEditTraineeModal('${uid}','${_escHtml(d.displayName ?? "")}','${_escHtml(d.studentId ?? "")}')">
+            ✏️ تعديل
+          </button>
+        </td>
       `;
       tbody.appendChild(tr);
     }
@@ -938,6 +945,271 @@ function _showTrMsg(el, text, type) {
   el.className     = `qz-form-msg ${type}`;
   el.style.display = "block";
   if (type === "success") setTimeout(() => { el.style.display = "none"; }, 6000);
+}
+
+/* ════════════════════════════════════════════════════════
+   BULK IMPORT — رفع ملف Excel وإنشاء حسابات جماعية
+   ─────────────────────────────────────────────────────
+   • يقرأ ملف xlsx/xls باستخدام SheetJS (محمّل في HTML)
+   • يتوقع عمودين: "الاسم" و "الرقم التدريبي"
+   • يُنشئ حساباً لكل صف عبر _createTraineeAccount()
+   • يعرض شريط تقدم لحظي مع سجل نصي لكل صف
+════════════════════════════════════════════════════════ */
+
+/* ── دالة إنشاء حساب واحد — مُشتركة بين addTrainee والـ Bulk ── */
+async function _createTraineeAccount(name, studentId) {
+  const email = studentId + TRAINEE_DOMAIN;
+
+  const { initializeApp: initApp2 }                           = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+  const { getAuth: getAuth2, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+  const { getFirestore: getFS2, doc: doc2, setDoc: setDoc2 }  = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+  const app2  = initApp2(firebaseConfig, "secondary-" + Date.now());
+  const auth2 = getAuth2(app2);
+  const db2   = getFS2(app2);
+
+  const cred = await createUserWithEmailAndPassword(auth2, email, TRAINEE_DEFAULT_PASS);
+  const uid  = cred.user.uid;
+
+  await setDoc2(doc2(db2, "users", uid), {
+    uid,
+    email,
+    studentId,
+    displayName: name,
+    role:        "trainee",
+    createdAt:   serverTimestamp(),
+    lastLogin:   null,
+  });
+
+  await auth2.signOut();
+  return uid;
+}
+
+window.handleBulkImport = async function (inputEl) {
+  const file = inputEl.files?.[0];
+  if (!file) return;
+
+  /* إعادة تعيين input ليسمح برفع نفس الملف مرة أخرى */
+  inputEl.value = "";
+
+  /* التحقق من وجود SheetJS */
+  if (typeof XLSX === "undefined") {
+    alert("مكتبة SheetJS غير محمّلة، تحقق من اتصالك بالإنترنت");
+    return;
+  }
+
+  /* ── قراءة الملف ── */
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook    = XLSX.read(arrayBuffer, { type: "array" });
+  const sheet       = workbook.Sheets[workbook.SheetNames[0]];
+  const rows        = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+  if (!rows.length) {
+    alert("الملف فارغ أو لا يحتوي على بيانات");
+    return;
+  }
+
+  /* ── كشف أسماء الأعمدة بمرونة ── */
+  const firstRow   = rows[0];
+  const colKeys    = Object.keys(firstRow);
+  const nameKey    = colKeys.find(k => /اسم/i.test(k))    ?? colKeys[0];
+  const idKey      = colKeys.find(k => /رقم|id/i.test(k)) ?? colKeys[1];
+
+  /* ── تصفية الصفوف الفارغة والتحقق ── */
+  const valid   = [];
+  const invalid = [];
+
+  rows.forEach((row, i) => {
+    const name      = String(row[nameKey]  ?? "").trim();
+    const studentId = String(row[idKey]    ?? "").trim();
+    if (!name || !/^\d{10}$/.test(studentId)) {
+      invalid.push({ row: i + 2, name, studentId });
+    } else {
+      valid.push({ name, studentId });
+    }
+  });
+
+  if (!valid.length) {
+    alert(`لا توجد صفوف صحيحة.\nتحقق من أسماء الأعمدة: "${nameKey}" و "${idKey}"`);
+    return;
+  }
+
+  const skipMsg = invalid.length
+    ? `\n⚠️ سيتم تخطي ${invalid.length} صف بسبب بيانات غير صحيحة.`
+    : "";
+
+  const confirmed = confirm(
+    `سيتم إنشاء ${valid.length} حساب متدرب.${skipMsg}\n\nهل تريد المتابعة؟`
+  );
+  if (!confirmed) return;
+
+  /* ── إظهار شريط التقدم ── */
+  const progressWrap = document.getElementById("bulkProgressWrap");
+  const progressText = document.getElementById("bulkProgressText");
+  const progressCount= document.getElementById("bulkProgressCount");
+  const progressFill = document.getElementById("bulkProgressFill");
+  const progressLog  = document.getElementById("bulkProgressLog");
+  const btnBulk      = document.getElementById("btnBulkImport");
+
+  progressWrap.style.display = "flex";
+  progressLog.innerHTML      = "";
+  btnBulk.disabled           = true;
+  document.getElementById("btnAddTrainee").disabled = true;
+
+  let done = 0, success = 0, skipped = 0;
+  const total = valid.length;
+
+  /* تسجيل الصفوف المتخطاة أولاً */
+  invalid.forEach(({ row, name, studentId }) => {
+    _bulkLog(progressLog, `⚠️ صف ${row}: "${name}" / "${studentId}" — بيانات غير صحيحة`, "warn");
+  });
+
+  /* ── المعالجة المتسلسلة لتجنب rate-limiting في Firebase ── */
+  for (const { name, studentId } of valid) {
+    try {
+      await _createTraineeAccount(name, studentId);
+      success++;
+      _bulkLog(progressLog, `✅ ${name} (${studentId})`, "ok");
+    } catch (err) {
+      skipped++;
+      const msg = err.code === "auth/email-already-in-use"
+        ? "مسجّل مسبقاً"
+        : err.message;
+      _bulkLog(progressLog, `❌ ${name} (${studentId}) — ${msg}`, "err");
+    }
+
+    done++;
+    const pct = Math.round((done / total) * 100);
+    progressFill.style.width = pct + "%";
+    progressCount.textContent = `${done} / ${total}`;
+    progressText.textContent  = done < total ? "جارٍ المعالجة…" : "اكتملت المعالجة";
+  }
+
+  /* ── النهاية ── */
+  progressText.textContent = `✅ انتهى: ${success} ناجح، ${skipped} مكرر/خطأ`;
+  btnBulk.disabled = false;
+  document.getElementById("btnAddTrainee").disabled = false;
+
+  /* تحديث الإحصاءات والجدول */
+  countCollection("users").then(n => {
+    const el = document.getElementById("statTrainees");
+    if (el) el.textContent = n;
+  });
+  loadTrainees();
+};
+
+function _bulkLog(logEl, text, type) {
+  const span = document.createElement("div");
+  span.textContent = text;
+  span.style.color = type === "ok"   ? "#a5d6a7"
+                   : type === "err"  ? "#ff6b6b"
+                   : type === "warn" ? "#ffcc80"
+                   : "inherit";
+  logEl.appendChild(span);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+/* ════════════════════════════════════════════════════════
+   EDIT TRAINEE MODAL — تعديل اسم ورقم المتدرب في Firestore
+   ─────────────────────────────────────────────────────
+   • يفتح popup مع البيانات الحالية
+   • عند الحفظ: يُحدِّث displayName و studentId و email في Firestore
+   • الـ email الوهمي يُعاد بناؤه من الرقم الجديد
+   ملاحظة: Firebase Auth email لا يمكن تعديله من client SDK
+   دون إعادة المصادقة — لذا نُحدِّث Firestore فقط، ويبقى
+   الدخول يعمل بالرقم القديم حتى تُعاد العملية من Firebase Console
+   أو Admin SDK. يمكن تطوير هذا لاحقاً بـ Cloud Function.
+════════════════════════════════════════════════════════ */
+
+window.openEditTraineeModal = function (uid, currentName, currentStudentId) {
+  document.getElementById("editTraineeUid").value       = uid;
+  document.getElementById("editTraineeName").value      = currentName;
+  document.getElementById("editTraineeStudentId").value = currentStudentId;
+  document.getElementById("editTraineeMsg").className   = "tr-modal-msg";
+  document.getElementById("editTraineeMsg").textContent = "";
+  document.getElementById("editTraineeModal").classList.add("open");
+  setTimeout(() => document.getElementById("editTraineeName").focus(), 120);
+};
+
+window.closeEditTraineeModal = function () {
+  document.getElementById("editTraineeModal").classList.remove("open");
+};
+
+/* إغلاق بالنقر خارج الـ Modal */
+document.getElementById("editTraineeModal").addEventListener("click", function (e) {
+  if (e.target === this) closeEditTraineeModal();
+});
+
+/* إغلاق بمفتاح Escape */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeEditTraineeModal();
+});
+
+window.saveEditTrainee = async function () {
+  const uid       = document.getElementById("editTraineeUid").value.trim();
+  const newName   = document.getElementById("editTraineeName").value.trim();
+  const newSid    = document.getElementById("editTraineeStudentId").value.trim();
+  const msgEl     = document.getElementById("editTraineeMsg");
+  const saveBtn   = document.getElementById("btnSaveEditTrainee");
+
+  /* ── التحقق ── */
+  if (!newName) {
+    _showModalMsg(msgEl, "يرجى إدخال الاسم الكامل", "error");
+    document.getElementById("editTraineeName").focus();
+    return;
+  }
+  if (!/^\d{10}$/.test(newSid)) {
+    _showModalMsg(msgEl, "الرقم التدريبي يجب أن يتكون من 10 أرقام بالضبط", "error");
+    document.getElementById("editTraineeStudentId").focus();
+    return;
+  }
+
+  /* ── حالة التحميل ── */
+  saveBtn.disabled = true;
+  document.getElementById("editSaveBtnText").style.display    = "none";
+  document.getElementById("editSaveBtnSpinner").style.display = "inline";
+
+  try {
+    const newEmail = newSid + TRAINEE_DOMAIN;
+
+    /* تحديث Firestore فقط */
+    await updateDoc(doc(db, "users", uid), {
+      displayName: newName,
+      studentId:   newSid,
+      email:       newEmail,
+    });
+
+    _showModalMsg(msgEl, `✅ تم تحديث البيانات بنجاح`, "success");
+
+    /* تحديث الصف في الجدول مباشرة دون إعادة تحميل كامل */
+    const row = document.querySelector(`#traineesTableBody tr[data-uid="${uid}"]`);
+    if (row) {
+      row.cells[0].textContent = newName;
+      row.cells[1].textContent = newSid;
+      /* تحديث زر التعديل بالقيم الجديدة */
+      const editBtn = row.querySelector(".tr-edit-btn");
+      if (editBtn) {
+        editBtn.setAttribute("onclick",
+          `openEditTraineeModal('${uid}','${newName.replace(/'/g,"\\'")}','${newSid}')`);
+      }
+    }
+
+    setTimeout(() => closeEditTraineeModal(), 1200);
+
+  } catch (err) {
+    console.error("saveEditTrainee error:", err);
+    _showModalMsg(msgEl, `❌ فشل الحفظ: ${err.message}`, "error");
+  } finally {
+    saveBtn.disabled = false;
+    document.getElementById("editSaveBtnText").style.display    = "inline";
+    document.getElementById("editSaveBtnSpinner").style.display = "none";
+  }
+};
+
+function _showModalMsg(el, text, type) {
+  if (!el) return;
+  el.textContent = text;
+  el.className   = `tr-modal-msg ${type}`;
 }
 
 /* ════════════════════════════════════════════════════════
