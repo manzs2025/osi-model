@@ -59,11 +59,11 @@ window.deleteTrainee = async function(uid) {
   if (!confirm("هل أنت متأكد من حذف المتدرب من قاعدة البيانات؟")) return;
   try {
     await deleteDoc(doc(db, "users", uid));
-    // تحديث الواجهة فوراً بحذف الصف برمجياً
+    // تحديث الواجهة فوراً بحذف الصف برمجياً دون الحاجة لتحديث الصفحة
     const row = document.querySelector(`tr[data-uid="${uid}"]`);
     if (row) row.remove();
     loadStats(); // تحديث الأرقام في الإحصائيات
-    alert("✅ تم الحذف من قاعدة البيانات بنجاح.");
+    alert("✅ تم الحذف من قاعدة البيانات بنجاح. (تذكر حذف الإيميل من صفحة Authentication في Firebase Console)");
   } catch (e) { alert("❌ فشل الحذف: " + e.message); }
 };
 
@@ -71,6 +71,7 @@ window.loadTrainees = async function () {
   const loadingEl = document.getElementById("traineesLoading"), wrap = document.getElementById("traineesTableWrap"), tbody = document.getElementById("traineesTableBody");
   if (!tbody) return;
   try {
+    // جلب البيانات بدون ترتيب لتجنب مشاكل الفهارس (Indexes) في البداية
     const snap = await getDocs(query(collection(db, "users"), where("role", "==", "trainee")));
     tbody.innerHTML = "";
     snap.forEach(s => {
@@ -91,7 +92,7 @@ window.loadTrainees = async function () {
   finally { loadingEl.style.display = "none"; wrap.style.display = "block"; }
 };
 
-/* ─── الرفع الجماعي (مع تنظيف الـ App) ─── */
+/* ─── الرفع الجماعي (Bulk Import) ─── */
 window.handleBulkImport = async function (inputEl) {
   const file = inputEl.files?.[0];
   if (!file || typeof XLSX === "undefined") return;
@@ -123,7 +124,7 @@ window.handleBulkImport = async function (inputEl) {
   inputEl.value = "";
 };
 
-/* ── وظائف الإحصاء والنتائج ── */
+/* ── وظائف الإحصاء والنتائج المتبقية ── */
 async function loadStats() {
   const statMap = { users: "statTrainees", quizzes: "statQuizzes", results: "statResults" };
   for (const [col, id] of Object.entries(statMap)) {
