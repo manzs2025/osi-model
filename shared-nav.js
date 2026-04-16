@@ -35,7 +35,7 @@
       <ul class="nav-links">${linksHTML}</ul>
       <a href="login.html" class="nav-login-btn ${loginActive}" aria-label="تسجيل الدخول">
         <span class="nav-login-icon">🔐</span>
-        <span class="nav-login-text">دخول المشرف</span>
+        <span class="nav-login-text">تسجيل الدخول</span>
       </a>
       <button class="nav-hamburger" id="navHamburger" aria-label="القائمة">
         <span></span><span></span><span></span>
