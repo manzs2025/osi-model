@@ -48,7 +48,7 @@
   drawer.className = 'nav-drawer';
   drawer.id = 'navDrawer';
   drawer.innerHTML = drawerHTML
-    + `<a href="login.html" class="nav-drawer-login ${loginActive}">🔐 دخول المشرف</a>`;
+    + `<a href="login.html" class="nav-drawer-login ${loginActive}">🔐تسجيل الدخول</a>`;
   document.body.insertBefore(drawer, nav.nextSibling);
 
   /* ── CSS خاص بزر الدخول — يُحقن مرة واحدة ── */
