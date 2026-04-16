@@ -747,7 +747,7 @@ window.addTrainee = async function () {
       email,
       displayName: name,
       role:        "trainee",
-      createdAt:   sts2(),
+      createdAt:   serverTimestamp(),
       lastLogin:   null,
     });
 
