@@ -482,6 +482,25 @@ window.loadQuizzes = async function() {
 
 window.deleteQuiz = async function(id, title) { if (confirm(`حذف الاختبار "${title}"؟`)) { try { await deleteDoc(doc(db,"quizzes",id)); loadQuizzes(); loadStats(); } catch(e) { alert("❌ "+e.message); } } };
 
+window.loadStats = async function () {
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  try {
+    const [trSnap, qzSnap, rsSnap, bkSnap] = await Promise.all([
+      getDocs(query(collection(db, "users"), where("role", "==", "trainee"))),
+      getDocs(collection(db, "quizzes")),
+      getDocs(collection(db, "results")),
+      getDocs(collection(db, "questionBank"))
+    ]);
+    setVal("statTrainees", trSnap.size);
+    setVal("statQuizzes",  qzSnap.size);
+    setVal("statResults",  rsSnap.size);
+    setVal("statBank",     bkSnap.size);
+  } catch (e) {
+    console.error("loadStats error:", e);
+    ["statTrainees","statQuizzes","statResults","statBank"].forEach(id => setVal(id, "—"));
+  }
+};
+
 window.editQuiz = async function(quizId) {
   try {
     const snap = await getDoc(doc(db,"quizzes",quizId));
