@@ -310,6 +310,7 @@ window.updateTotalScore = function() {
   badge.style.display = selectedQuestionIds.size > 0 ? "inline-block" : "none";
 };
 window.filterBankQuestions = renderFilteredBank;
+window.updateSelectedCount = function() { window.updateTotalScore(); };
 
 /* ── إضافة / تعديل الأسئلة (Modal Logic) ── */
 window.openAddQuestionModal = function() {
@@ -637,9 +638,23 @@ window.loadLatestResults = async function () {
       const d = s.data(); let dateStr = "—";
       if (d.submittedAt?.toDate) { const dt = d.submittedAt.toDate(); dateStr = dt.toLocaleDateString("ar-SA") + " " + dt.toLocaleTimeString("ar-SA"); }
       cachedResults.push({ "المتدرب":d.displayName||"—", "الاختبار":d.quizTitle||"—", "الدرجة":d.score??"—", "النسبة":d.percentage!=null?d.percentage+"%":"—", "النتيجة":d.passed?"ناجح":"راسب", "المحاولة":d.attempt||1, "التاريخ":dateStr });
-      tbody.innerHTML += `<tr><td>${d.displayName||d.userEmail}</td><td>${d.quizTitle||"—"}</td><td style="text-align:center">${d.score}</td><td style="text-align:center">${d.percentage}%</td><td style="text-align:center">${d.passed?'✅':'❌'}</td><td style="text-align:center">${d.attempt||1}</td><td><span class="qz-date">${dateStr}</span></td></tr>`;
+      const safeName = (d.displayName || d.userEmail || "").replace(/'/g, "\\'");
+      tbody.innerHTML += `<tr data-rid="${s.id}"><td>${d.displayName||d.userEmail}</td><td>${d.quizTitle||"—"}</td><td style="text-align:center">${d.score}</td><td style="text-align:center">${d.percentage}%</td><td style="text-align:center">${d.passed?'✅':'❌'}</td><td style="text-align:center">${d.attempt||1}</td><td><span class="qz-date">${dateStr}</span></td><td style="text-align:center;white-space:nowrap"><button class="tr-edit-btn" style="background:rgba(244,67,54,0.1);color:#ff6b6b;" title="حذف النتيجة" onclick="deleteResult('${s.id}','${safeName}')">🗑️</button></td></tr>`;
     });
   } catch (e) { console.error(e); } finally { loadingEl.style.display = "none"; wrap.style.display = "block"; }
+};
+
+window.deleteResult = async function (rid, traineeName) {
+  if (!confirm(`حذف نتيجة "${traineeName}"؟\nلا يمكن التراجع عن هذا الإجراء.`)) return;
+  try {
+    await deleteDoc(doc(db, "results", rid));
+    const row = document.querySelector(`tr[data-rid="${rid}"]`);
+    if (row) row.remove();
+    cachedResults = cachedResults.filter(r => r._id !== rid);
+    if (typeof loadStats === "function") loadStats();
+  } catch (e) {
+    alert("❌ فشل الحذف: " + e.message);
+  }
 };
 window.exportResultsToExcel = function () {
   if (!cachedResults.length) return alert("لا توجد نتائج لتصديرها."); if (typeof XLSX === "undefined") return alert("مكتبة SheetJS غير متوفرة.");
