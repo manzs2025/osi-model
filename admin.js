@@ -178,6 +178,7 @@ window.switchPanel = function (btn, panelId) {
   if (panelId === "trainees") { loadTrainees(); loadLatestResults(); }
   if (panelId === "quizzes")  { renderQuestionBankSelector(); loadQuizzes(); }
   if (panelId === "articles") { loadArticles(); _initTinyMCE(); }
+  if (panelId === "settings") { loadSettings(); _initSettingsTinyMCE(); }
 };
 window.switchPanelById = function(panelId) { switchPanel(document.querySelector(`.sb-item[data-panel="${panelId}"]`), panelId); };
 
@@ -714,3 +715,206 @@ window.closeSidebar = () => { document.getElementById("sidebar").classList.add("
 window.openEditTraineeModal = (uid, n, s) => { document.getElementById("editTraineeUid").value = uid; document.getElementById("editTraineeName").value = n; document.getElementById("editTraineeStudentId").value = s; document.getElementById("editTraineeModal").classList.add("open"); };
 window.closeEditTraineeModal = () => document.getElementById("editTraineeModal").classList.remove("open");
 window.saveEditTrainee = async function () { const uid = document.getElementById("editTraineeUid").value, name = document.getElementById("editTraineeName").value.trim(), sid = document.getElementById("editTraineeStudentId").value.trim(); await updateDoc(doc(db,"users",uid), { displayName:name, studentId:sid, email:sid+TRAINEE_DOMAIN }); closeEditTraineeModal(); loadTrainees(); };
+
+/* ══════════════════════════════════════════════════
+   إعدادات المظهر والصفحة الرئيسية (Settings)
+══════════════════════════════════════════════════ */
+
+/**
+ * تهيئة محرر TinyMCE مخصص لقسم الإعدادات
+ */
+window._initSettingsTinyMCE = function () {
+  if (typeof tinymce === "undefined" || tinymce.get("settingsTinyEditor")) return;
+
+  tinymce.init({
+    selector:       "#settingsTinyEditor",
+    language:       "ar",
+    language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
+    directionality: "rtl",
+    skin:           "oxide-dark",
+    content_css:    "dark",
+
+    toolbar_mode: "wrap",
+    plugins: [
+      "advlist", "autolink", "lists", "link", "image", "charmap",
+      "preview", "anchor", "searchreplace", "visualblocks", "code",
+      "fullscreen", "insertdatetime", "media", "table", "help",
+      "wordcount", "emoticons", "codesample",
+    ],
+    toolbar: [
+      "fontfamily fontsize | styles | bold italic underline strikethrough |",
+      "forecolor backcolor | alignright aligncenter alignleft alignjustify |",
+      "bullist numlist outdent indent | table | link image emoticons charmap |",
+      "blockquote codesample | removeformat | fullscreen preview code | help",
+    ].join(" "),
+
+    font_family_formats: [
+      "Cairo=Cairo,sans-serif",
+      "Tajawal=Tajawal,sans-serif",
+      "Almarai=Almarai,sans-serif",
+      "Arial=arial,helvetica,sans-serif",
+      "Times New Roman=times new roman,times",
+      "Courier New=courier new,courier",
+    ].join(";"),
+
+    font_size_formats:
+      "10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
+
+    style_formats: [
+      { title: "عنوان 1",  block: "h1" },
+      { title: "عنوان 2",  block: "h2" },
+      { title: "عنوان 3",  block: "h3" },
+      { title: "نص عادي",  block: "p"  },
+      { title: "اقتباس",   block: "blockquote" },
+      { title: "كود",      block: "pre" },
+    ],
+
+    content_style: `
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap');
+      body {
+        font-family: 'Cairo', sans-serif;
+        font-size: 15px;
+        line-height: 1.85;
+        direction: rtl;
+        text-align: right;
+        color: #e8eaf6;
+        background: #161929;
+        margin: 12px 16px;
+      }
+      h1,h2,h3 { color:#fff; }
+      a        { color:#00c9b1; }
+      blockquote {
+        border-right: 4px solid #8b46c8;
+        border-left: none;
+        padding: 0.5rem 1rem;
+        margin: 0.75rem 0;
+        background: rgba(108,47,160,0.1);
+        color: #8c90b5;
+      }
+      table td, table th {
+        border: 1px solid rgba(108,47,160,0.25);
+        padding: 6px 10px;
+      }
+      table th { background: rgba(108,47,160,0.15); font-weight: 700; }
+    `,
+
+    height:             350,
+    min_height:         250,
+    menubar:            "file edit view insert format tools table help",
+    statusbar:          true,
+    branding:           false,
+    promotion:          false,
+    resize:             true,
+    paste_data_images:  true,
+
+    setup: (editor) => {
+      editor.on("init", () => {
+        editor.execCommand("fontName", false, "Cairo,sans-serif");
+      });
+    },
+  });
+};
+
+/**
+ * تحميل الإعدادات من Firestore → settings/general
+ */
+window.loadSettings = async function () {
+  try {
+    const snap = await getDoc(doc(db, "settings", "general"));
+    if (!snap.exists()) return;
+    const d = snap.data();
+
+    // ─ الألوان
+    if (d.bgColor) {
+      document.getElementById("settBgColor").value = d.bgColor;
+      document.getElementById("settBgColorHex").textContent = d.bgColor;
+    }
+    if (d.sidebarColor) {
+      document.getElementById("settSidebarColor").value = d.sidebarColor;
+      document.getElementById("settSidebarColorHex").textContent = d.sidebarColor;
+    }
+    if (d.primaryColor) {
+      document.getElementById("settPrimaryColor").value = d.primaryColor;
+      document.getElementById("settPrimaryColorHex").textContent = d.primaryColor;
+    }
+    if (d.textColor) {
+      document.getElementById("settTextColor").value = d.textColor;
+      document.getElementById("settTextColorHex").textContent = d.textColor;
+    }
+
+    // ─ الخطوط
+    if (d.h1Size) document.getElementById("settH1Size").value = d.h1Size;
+    if (d.pSize)  document.getElementById("settPSize").value  = d.pSize;
+
+    // ─ محتوى الصفحة الرئيسية
+    if (d.heroTitle)    document.getElementById("settHeroTitle").value    = d.heroTitle;
+    if (d.heroSubtitle) document.getElementById("settHeroSubtitle").value = d.heroSubtitle;
+
+    // ─ المقال الترحيبي (TinyMCE)
+    if (d.welcomeContent) {
+      const waitForEditor = setInterval(() => {
+        const editor = tinymce.get("settingsTinyEditor");
+        if (editor) {
+          editor.setContent(d.welcomeContent);
+          clearInterval(waitForEditor);
+        }
+      }, 300);
+      // مهلة أمان: توقف بعد 10 ثوان
+      setTimeout(() => clearInterval(waitForEditor), 10000);
+    }
+  } catch (e) {
+    console.error("خطأ في تحميل الإعدادات:", e);
+  }
+};
+
+/**
+ * حفظ جميع الإعدادات في Firestore → settings/general
+ */
+window.saveSettings = async function () {
+  const btn     = document.getElementById("btnSaveSettings");
+  const btnText = document.getElementById("settSaveBtnText");
+  const spinner = document.getElementById("settSaveBtnSpinner");
+  const msg     = document.getElementById("settSaveMsg");
+
+  btn.disabled = true;
+  btnText.style.display = "none";
+  spinner.style.display = "inline";
+  msg.className = "sett-save-msg";
+  msg.style.display = "none";
+
+  const data = {
+    // الألوان
+    bgColor:      document.getElementById("settBgColor").value,
+    sidebarColor: document.getElementById("settSidebarColor").value,
+    primaryColor: document.getElementById("settPrimaryColor").value,
+    textColor:    document.getElementById("settTextColor").value,
+
+    // الخطوط
+    h1Size: parseFloat(document.getElementById("settH1Size").value) || 2,
+    pSize:  parseFloat(document.getElementById("settPSize").value)  || 1,
+
+    // محتوى الصفحة الرئيسية
+    heroTitle:      document.getElementById("settHeroTitle").value.trim(),
+    heroSubtitle:   document.getElementById("settHeroSubtitle").value.trim(),
+    welcomeContent: tinymce.get("settingsTinyEditor")?.getContent() || "",
+
+    updatedAt: serverTimestamp()
+  };
+
+  try {
+    await setDoc(doc(db, "settings", "general"), data, { merge: true });
+    msg.textContent = "✅ تم حفظ الإعدادات بنجاح";
+    msg.className = "sett-save-msg success";
+    msg.style.display = "inline";
+    setTimeout(() => { msg.style.display = "none"; }, 4000);
+  } catch (e) {
+    console.error("خطأ في حفظ الإعدادات:", e);
+    msg.textContent = "❌ فشل الحفظ: " + e.message;
+    msg.className = "sett-save-msg error";
+    msg.style.display = "inline";
+  } finally {
+    btn.disabled = false;
+    btnText.style.display = "inline";
+    spinner.style.display = "none";
+  }
+};

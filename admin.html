@@ -545,6 +545,139 @@ html, body {
   margin-top: 1rem;
 }
 
+/* ════════════════════════════════════════════════
+   SETTINGS PANEL STYLES
+════════════════════════════════════════════════ */
+.settings-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.75rem;
+  overflow: hidden;
+}
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(108,47,160,0.06);
+}
+.settings-section-icon {
+  font-size: 1.15rem;
+}
+.settings-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.settings-section-body {
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+}
+.settings-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.sett-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.sett-field label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.sett-field input[type="text"],
+.sett-field input[type="number"] {
+  padding: 0.7rem 0.9rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.sett-field input[type="text"]:focus,
+.sett-field input[type="number"]:focus {
+  border-color: var(--primary-l);
+}
+.sett-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sett-color-wrap input[type="color"] {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+  transition: border-color var(--transition);
+}
+.sett-color-wrap input[type="color"]:hover {
+  border-color: var(--primary-l);
+}
+.sett-color-wrap .sett-color-hex {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: 'Courier New', monospace;
+  direction: ltr;
+  min-width: 65px;
+}
+.sett-editor-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  min-height: 280px;
+}
+#settingsTinyEditor { visibility: hidden; height: 0; }
+
+.sett-save-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 0 0;
+}
+.sett-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.sett-save-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.sett-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.sett-save-msg {
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: none;
+}
+.sett-save-msg.success { color: var(--accent); display: inline; }
+.sett-save-msg.error   { color: #ff6b6b; display: inline; }
+
 /* ── Section divider ── */
 .section-label {
   font-size: 0.72rem;
@@ -2577,11 +2710,106 @@ html, body {
         <div class="panel-header">
           <div class="panel-title-group">
             <div class="panel-tag">⚙️ الإعدادات</div>
-            <div class="panel-title">إعدادات <span>النظام</span></div>
-            <div class="panel-subtitle">إدارة إعدادات الحساب والنظام</div>
+            <div class="panel-title">المظهر و<span>الصفحة الرئيسية</span></div>
+            <div class="panel-subtitle">تخصيص ألوان الموقع والخطوط ومحتوى الصفحة الرئيسية</div>
           </div>
         </div>
-        <div class="info-card">
+
+        <!-- ──── 1) الهوية البصرية والألوان ──── -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span class="settings-section-icon">🎨</span>
+            <span class="settings-section-title">الهوية البصرية والألوان</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-row">
+              <div class="sett-field">
+                <label>لون الخلفية الأساسي</label>
+                <div class="sett-color-wrap">
+                  <input type="color" id="settBgColor" value="#080a14" onchange="document.getElementById('settBgColorHex').textContent=this.value">
+                  <span class="sett-color-hex" id="settBgColorHex">#080a14</span>
+                </div>
+              </div>
+              <div class="sett-field">
+                <label>لون القوائم / الشريط الجانبي</label>
+                <div class="sett-color-wrap">
+                  <input type="color" id="settSidebarColor" value="#0e1022" onchange="document.getElementById('settSidebarColorHex').textContent=this.value">
+                  <span class="sett-color-hex" id="settSidebarColorHex">#0e1022</span>
+                </div>
+              </div>
+              <div class="sett-field">
+                <label>اللون الأساسي (Primary) للأزرار</label>
+                <div class="sett-color-wrap">
+                  <input type="color" id="settPrimaryColor" value="#6c2fa0" onchange="document.getElementById('settPrimaryColorHex').textContent=this.value">
+                  <span class="sett-color-hex" id="settPrimaryColorHex">#6c2fa0</span>
+                </div>
+              </div>
+              <div class="sett-field">
+                <label>لون النصوص</label>
+                <div class="sett-color-wrap">
+                  <input type="color" id="settTextColor" value="#e8eaf6" onchange="document.getElementById('settTextColorHex').textContent=this.value">
+                  <span class="sett-color-hex" id="settTextColorHex">#e8eaf6</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──── 2) الخطوط ──── -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span class="settings-section-icon">🔤</span>
+            <span class="settings-section-title">الخطوط (Typography)</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="settings-row">
+              <div class="sett-field">
+                <label>حجم خط العناوين (H1) — بالـ rem</label>
+                <input type="number" id="settH1Size" value="2" min="1" max="6" step="0.1" placeholder="مثال: 2">
+              </div>
+              <div class="sett-field">
+                <label>حجم خط النصوص العادية (P) — بالـ rem</label>
+                <input type="number" id="settPSize" value="1" min="0.5" max="3" step="0.05" placeholder="مثال: 1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──── 3) محتوى الصفحة الرئيسية ──── -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <span class="settings-section-icon">🏠</span>
+            <span class="settings-section-title">محتوى الصفحة الرئيسية</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="sett-field">
+              <label>عنوان الصفحة الرئيسية (Hero Title)</label>
+              <input type="text" id="settHeroTitle" placeholder="مثال: مرحباً بكم في أكاديمية الشبكات">
+            </div>
+            <div class="sett-field">
+              <label>وصف الصفحة الرئيسية (Hero Subtitle)</label>
+              <input type="text" id="settHeroSubtitle" placeholder="مثال: منصتك التعليمية لاحتراف الشبكات">
+            </div>
+            <div class="sett-field">
+              <label>المقال الترحيبي / نبذة الصفحة الرئيسية</label>
+              <div class="sett-editor-wrap">
+                <textarea id="settingsTinyEditor"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ──── شريط الحفظ ──── -->
+        <div class="sett-save-bar">
+          <button class="sett-save-btn" id="btnSaveSettings" onclick="saveSettings()">
+            <span id="settSaveBtnText">💾 حفظ الإعدادات</span>
+            <span id="settSaveBtnSpinner" style="display:none">⏳ جارٍ الحفظ...</span>
+          </button>
+          <span class="sett-save-msg" id="settSaveMsg"></span>
+        </div>
+
+        <!-- ──── معلومات الحساب (كما كانت) ──── -->
+        <div class="info-card" style="margin-top:2rem;">
           <h3>🔐 معلومات الحساب</h3>
           <p>
             الاسم: <strong id="settingsName" style="color:var(--text)">—</strong><br>
