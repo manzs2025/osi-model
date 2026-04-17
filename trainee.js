@@ -106,12 +106,11 @@ async function loadQuizzes() {
   grid.innerHTML          = "";
 
   try {
-    const q    = query(
+    // نقرأ كل الاختبارات ثم نُصفّي محلياً (أبسط — لا حاجة لفهارس مركّبة)
+    const snap = await getDocs(query(
       collection(db, "quizzes"),
-      where("isActive", "==", true),
       orderBy("createdAt", "desc")
-    );
-    const snap = await getDocs(q);
+    ));
 
     loadingEl.style.display = "none";
 
@@ -120,10 +119,30 @@ async function loadQuizzes() {
       return;
     }
 
+    const now = new Date();
+    let visibleCount = 0;
+
     snap.forEach(docSnap => {
-      const d      = docSnap.data();
-      const qCount = d.questionsCount ?? d.questions?.length ?? 0;
-      const label  = PAGE_LABELS[d.pageId] ?? d.pageId ?? "—";
+      const d = docSnap.data();
+
+      // 1) تحقق من حقل available (افتراضي: متاح)
+      if (d.available === false) return;
+
+      // 2) تحقق من نافذة الجدولة الزمنية إن وُجدت
+      if (d.startDate?.toDate && d.endDate?.toDate) {
+        const start = d.startDate.toDate();
+        const end   = d.endDate.toDate();
+        if (now < start || now > end) return; // خارج الفترة
+      }
+
+      visibleCount++;
+
+      // توحيد أسماء الحقول مع admin.js: page (لا pageId)، questionCount (لا questionsCount)
+      const pageKey = d.page ?? d.pageId;
+      const qCount  = d.questionCount ?? d.questionsCount ?? d.questions?.length ?? 0;
+      const label   = PAGE_LABELS[pageKey] ?? pageKey ?? "—";
+      const dur     = d.duration ? `⏱ ${d.duration} دقيقة` : `⏱ بدون حد زمني`;
+      const totalSc = d.totalScore ? ` · 🏆 ${d.totalScore} درجة` : "";
 
       const card = document.createElement("div");
       card.className = "quiz-card";
@@ -132,7 +151,7 @@ async function loadQuizzes() {
         <div class="qc-title">${_esc(d.title ?? "—")}</div>
         <div class="qc-meta">
           <span>❓ ${qCount} سؤال</span>
-          <span>⏱ غير محدد الوقت</span>
+          <span>${dur}${totalSc}</span>
         </div>
         <button class="qc-btn" onclick="startQuiz('${docSnap.id}')">
           ▶ ابدأ الاختبار
@@ -140,6 +159,10 @@ async function loadQuizzes() {
       `;
       grid.appendChild(card);
     });
+
+    if (visibleCount === 0) {
+      emptyEl.style.display = "block";
+    }
 
   } catch (err) {
     console.error("loadQuizzes:", err);
@@ -159,6 +182,34 @@ window.startQuiz = async function (quizId) {
   if (!snap.exists()) { alert("الاختبار غير موجود"); return; }
 
   const d = snap.data();
+
+  /* ── التحقق من الإتاحة قبل البدء ── */
+  if (d.available === false) {
+    alert("🔒 هذا الاختبار مُغلق حالياً من قِبَل المشرف.");
+    loadQuizzes();
+    return;
+  }
+
+  /* ── التحقق من نافذة الجدولة الزمنية ── */
+  if (d.startDate?.toDate && d.endDate?.toDate) {
+    const now = new Date();
+    const start = d.startDate.toDate();
+    const end   = d.endDate.toDate();
+    if (now < start) {
+      alert(`📅 هذا الاختبار سيُفتح في: ${start.toLocaleString("ar-SA")}`);
+      return;
+    }
+    if (now > end) {
+      alert("⏰ انتهت فترة إتاحة هذا الاختبار.");
+      loadQuizzes();
+      return;
+    }
+  }
+
+  if (!confirm(`هل أنت مستعد لبدء اختبار "${d.title}"؟\n${d.duration ? `⏱️ المدة: ${d.duration} دقيقة (سيُرسَل الاختبار تلقائياً عند انتهاء الوقت)` : "⏱️ بدون حد زمني"}\n❓ عدد الأسئلة: ${d.questions?.length || 0}`)) {
+    return;
+  }
+
   _currentQuiz  = { id: quizId, ...d };
   _answers      = {};
   _currentQIndex = 0;
@@ -168,9 +219,76 @@ window.startQuiz = async function (quizId) {
   /* بناء شاشة الحل */
   _buildSolver(d.questions ?? []);
 
+  /* بدء المؤقّت إن وُجدت مدة */
+  if (d.duration && d.duration > 0) {
+    _startTimer(d.duration * 60); // تحويل الدقائق إلى ثوانٍ
+  } else {
+    _hideTimer();
+  }
+
   showPage("pageQuiz", null);
   document.getElementById("mainBottomNav").style.display = "none";
 };
+
+/* ══════════════════════════════════════════════════════
+   المؤقّت — عدّ تنازلي مع إقفال تلقائي
+══════════════════════════════════════════════════════ */
+let _timerInterval = null;
+let _timerSecondsLeft = 0;
+
+function _startTimer(totalSeconds) {
+  _stopTimer();
+  _timerSecondsLeft = totalSeconds;
+
+  const timerEl = document.getElementById("quizTimer");
+  if (timerEl) timerEl.style.display = "inline-flex";
+
+  _updateTimerDisplay();
+
+  _timerInterval = setInterval(() => {
+    _timerSecondsLeft--;
+    _updateTimerDisplay();
+
+    if (_timerSecondsLeft <= 0) {
+      _stopTimer();
+      _autoSubmitOnTimeout();
+    }
+  }, 1000);
+}
+
+function _stopTimer() {
+  if (_timerInterval) {
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
+}
+
+function _hideTimer() {
+  const timerEl = document.getElementById("quizTimer");
+  if (timerEl) timerEl.style.display = "none";
+}
+
+function _updateTimerDisplay() {
+  const timerValEl = document.getElementById("quizTimerValue");
+  const timerEl    = document.getElementById("quizTimer");
+  if (!timerValEl || !timerEl) return;
+
+  const s = Math.max(0, _timerSecondsLeft);
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  timerValEl.textContent = `${mm}:${ss}`;
+
+  // تحذير بصري في آخر دقيقتين
+  timerEl.classList.remove("timer-warning", "timer-danger");
+  if (s <= 60) timerEl.classList.add("timer-danger");
+  else if (s <= 120) timerEl.classList.add("timer-warning");
+}
+
+async function _autoSubmitOnTimeout() {
+  if (_submitted) return;
+  alert("⏰ انتهى الوقت! سيتم إرسال إجاباتك الحالية تلقائياً.");
+  await window.submitQuiz(true);
+}
 
 /* ─── بناء الأسئلة ──────────────────────────────── */
 function _buildSolver(questions) {
@@ -285,32 +403,53 @@ function _refreshNav() {
 /* ══════════════════════════════════════════════════════
    4. إرسال الاختبار وحفظ النتيجة
 ══════════════════════════════════════════════════════ */
-window.submitQuiz = async function () {
+window.submitQuiz = async function (isAutoSubmit = false) {
   if (_submitted) return;
+
+  // إذا الإرسال يدوي ولم يُجِب على كل الأسئلة، نسأله
+  if (!isAutoSubmit) {
+    const questions = _currentQuiz.questions ?? [];
+    const answered  = Object.keys(_answers).length;
+    if (answered < questions.length) {
+      if (!confirm(`لم تُجب على ${questions.length - answered} سؤال. هل تريد الإرسال الآن؟`)) return;
+    }
+  }
+
+  _stopTimer();
 
   const questions = _currentQuiz.questions ?? [];
   const total     = questions.length;
   const duration  = Math.round((Date.now() - _startTime) / 1000);
 
-  /* ── حساب الدرجة ── */
+  /* ── حساب الدرجة باستخدام points المخصّصة لكل سؤال ── */
   let correct = 0;
+  let score = 0;
+  let totalPoints = 0;
   const answersMap = {};
 
   questions.forEach((q, idx) => {
+    const qPoints = Number(q.points) || 1;
+    totalPoints += qPoints;
+
     const selectedIdx    = _answers[idx] ?? -1;
     const selectedAnswer = selectedIdx >= 0 ? (q.options ?? [])[selectedIdx] : null;
     const isCorrect      = selectedAnswer === q.correctAnswer;
-    if (isCorrect) correct++;
+    if (isCorrect) {
+      correct++;
+      score += qPoints;
+    }
     answersMap[idx] = {
       selected:      selectedAnswer ?? "لم يُجب",
       correct:       q.correctAnswer,
       isCorrect,
+      points:        qPoints,
     };
   });
 
-  const score       = correct * 10;
-  const totalPoints = total   * 10;
-  const percentage  = total ? Math.round(correct / total * 100) : 0;
+  // fallback إذا لم يحمل أي سؤال points
+  if (totalPoints === 0) { totalPoints = total * 10; score = correct * 10; }
+
+  const percentage  = totalPoints ? Math.round(score / totalPoints * 100) : 0;
   const passed      = percentage >= 50;
 
   _submitted = true;
@@ -321,9 +460,10 @@ window.submitQuiz = async function () {
       userId:      _currentUser.uid,
       userEmail:   _currentUser.email,
       displayName: _currentProfile.displayName ?? _currentUser.email,
+      studentId:   _currentProfile.studentId ?? "",
       quizId:      _currentQuiz.id,
       quizTitle:   _currentQuiz.title,
-      pageId:      _currentQuiz.pageId,
+      page:        _currentQuiz.page ?? _currentQuiz.pageId,
       score,
       totalPoints,
       percentage,
@@ -332,6 +472,8 @@ window.submitQuiz = async function () {
       passed,
       answers:     answersMap,
       duration,
+      autoSubmitted: isAutoSubmit,
+      attempt:     1,
       submittedAt: serverTimestamp(),
     });
   } catch (err) {
@@ -445,7 +587,7 @@ window.loadMyResults = async function () {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${_esc(d.quizTitle ?? "—")}</td>
-        <td><span style="font-size:0.8rem;color:var(--text-muted)">${PAGE_LABELS[d.pageId] ?? d.pageId ?? "—"}</span></td>
+        <td><span style="font-size:0.8rem;color:var(--text-muted)">${PAGE_LABELS[d.page ?? d.pageId] ?? d.page ?? d.pageId ?? "—"}</span></td>
         <td>${d.score ?? 0} / ${d.totalPoints ?? 0}</td>
         <td><strong style="color:${passed ? '#a5d6a7':'#ef9a9a'}">${d.percentage ?? 0}%</strong></td>
         <td>${passed
@@ -475,6 +617,12 @@ window.showPage = function (pageId, bnavId) {
 };
 
 window.backToHome = function () {
+  // إذا كان الاختبار جارياً ولم يُرسَل، نسأل المستخدم
+  if (_currentQuiz && !_submitted) {
+    if (!confirm("هل أنت متأكد من الخروج؟ ستفقد إجاباتك الحالية.")) return;
+  }
+  _stopTimer();
+  _hideTimer();
   _currentQuiz  = null;
   _answers      = {};
   _submitted    = false;
@@ -498,3 +646,80 @@ function _esc(str) {
     .replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
+
+/* ══════════════════════════════════════════════════════
+   طبقة حماية الواجهة الأمامية (Client-side hardening)
+   ⚠️ هذه الطبقة تُصعّب الغش على المتدربين المبتدئين فقط،
+   ولا تمنع مخترقاً متمرساً. الحماية الحقيقية = قواعد Firestore.
+══════════════════════════════════════════════════════ */
+(function enableTraineeProtection() {
+
+  // 1) منع النسخ/القص — لا يوجد حقل نصي يحتاج نسخ هنا
+  ["copy", "cut"].forEach(evt => {
+    document.addEventListener(evt, e => { e.preventDefault(); return false; });
+  });
+
+  // 2) منع اللصق داخل حقول الاختبار (لا حقول نصية هنا، لكن احتياطاً)
+  document.addEventListener("paste", e => {
+    const t = e.target;
+    if (!(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA"))) {
+      e.preventDefault(); return false;
+    }
+  });
+
+  // 3) منع القائمة السياقية (Right-click)
+  document.addEventListener("contextmenu", e => { e.preventDefault(); return false; });
+
+  // 4) منع تحديد النصوص في كامل الصفحة
+  const styleGuard = document.createElement("style");
+  styleGuard.textContent = `
+    body, .question-card, .option-item, .q-text, .review-card {
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+    }
+    input, textarea { -webkit-user-select: text; user-select: text; }
+  `;
+  document.head.appendChild(styleGuard);
+
+  // 5) منع اختصارات المطوّر
+  document.addEventListener("keydown", e => {
+    const key = (e.key || "").toLowerCase();
+    if (key === "f12") { e.preventDefault(); return false; }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i","j","c","k"].includes(key)) { e.preventDefault(); return false; }
+    if ((e.ctrlKey || e.metaKey) && ["u","s","p","a"].includes(key)) { e.preventDefault(); return false; }
+  });
+
+  // 6) منع سحب الصور
+  document.addEventListener("dragstart", e => {
+    if (e.target.tagName === "IMG") { e.preventDefault(); return false; }
+  });
+
+  // 7) كشف تبديل التبويب/النافذة أثناء الاختبار (anti-cheat)
+  let tabSwitchCount = 0;
+  document.addEventListener("visibilitychange", () => {
+    // نُنبّه فقط إذا كان الاختبار جارياً
+    if (document.hidden && _currentQuiz && !_submitted) {
+      tabSwitchCount++;
+      console.warn(`⚠️ Tab switch detected during quiz (count: ${tabSwitchCount})`);
+      // نسجّل في الإجابة عند الإرسال لاحقاً
+      if (!_currentQuiz._tabSwitchCount) _currentQuiz._tabSwitchCount = 0;
+      _currentQuiz._tabSwitchCount = tabSwitchCount;
+    } else if (!document.hidden && tabSwitchCount > 0 && _currentQuiz && !_submitted) {
+      // رسالة تحذيرية عند العودة
+      setTimeout(() => {
+        alert(`⚠️ تم رصد خروجك من صفحة الاختبار (${tabSwitchCount} مرة). سيتم تسجيل ذلك مع نتيجتك.`);
+      }, 100);
+    }
+  });
+
+  // 8) تحذير قبل إعادة تحميل/إغلاق الصفحة أثناء الاختبار
+  window.addEventListener("beforeunload", e => {
+    if (_currentQuiz && !_submitted) {
+      e.preventDefault();
+      e.returnValue = "لديك اختبار جارٍ. إذا غادرت ستفقد إجاباتك.";
+      return e.returnValue;
+    }
+  });
+})();

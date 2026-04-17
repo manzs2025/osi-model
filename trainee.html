@@ -294,6 +294,23 @@ html,body { height:100%; font-family:'Cairo',sans-serif; background:var(--bg); c
   .solver-container { padding:1.5rem 1rem; }
   .solver-progress-bar { width:90px; }
 }
+/* Quiz Timer states */
+.quiz-timer.timer-warning {
+  background: rgba(255,193,7,0.15) !important;
+  border-color: rgba(255,193,7,0.5) !important;
+  color: #ffc107 !important;
+}
+.quiz-timer.timer-danger {
+  background: rgba(244,67,54,0.15) !important;
+  border-color: rgba(244,67,54,0.6) !important;
+  color: #ff6b6b !important;
+  animation: timerPulse 1s ease-in-out infinite;
+}
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
 </style>
 </head>
 <body>
@@ -351,6 +368,10 @@ html,body { height:100%; font-family:'Cairo',sans-serif; background:var(--bg); c
   <div class="solver-topbar">
     <button class="solver-back" onclick="backToHome()">← رجوع</button>
     <div class="solver-title" id="solverTitle">الاختبار</div>
+    <div class="quiz-timer" id="quizTimer" style="display:none;align-items:center;gap:0.4rem;padding:0.4rem 0.9rem;background:rgba(0,201,177,0.12);border:1px solid rgba(0,201,177,0.35);border-radius:20px;color:#00c9b1;font-weight:700;font-size:0.95rem;margin:0 0.75rem;">
+      <span>⏱️</span>
+      <span id="quizTimerValue" style="font-family:monospace;letter-spacing:0.04em;">00:00</span>
+    </div>
     <div class="solver-progress-wrap">
       <div class="solver-progress-bar">
         <div class="solver-progress-fill" id="solverProgressFill" style="width:0%"></div>

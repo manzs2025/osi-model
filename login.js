@@ -87,12 +87,12 @@ const TRAINEE_DOMAIN = "@trainee.network.com";
 
 /* ─── دالة مساعدة: هل الإدخال رقم تدريبي؟ ─────────────── */
 function isStudentId(input) {
-  return /^\d{10}$/.test(input);
+  return /^\d{9}$/.test(input);
 }
 
 /* ─── دالة مساعدة: بناء البريد الفعلي من الإدخال ──────── */
 function resolveEmail(input) {
-  // إذا كان 10 أرقام → رقم تدريبي → نضيف النطاق الوهمي
+  // إذا كان 9 أرقام → رقم تدريبي → نضيف النطاق الوهمي
   // وإلا → بريد عادي (المشرف) → نُرسله كما هو
   return isStudentId(input) ? input + TRAINEE_DOMAIN : input;
 }
@@ -137,7 +137,7 @@ form.addEventListener("submit", async (e) => {
 
   /* ── التحقق من صحة الرقم التدريبي إن كان الإدخال أرقاماً ── */
   if (/^\d+$/.test(rawInput) && !isStudentId(rawInput)) {
-    showError("الرقم التدريبي يجب أن يتكون من 10 أرقام بالضبط");
+    showError("الرقم التدريبي يجب أن يتكون من 9 أرقام بالضبط");
     emailInput.focus();
     return;
   }
@@ -194,3 +194,29 @@ emailInput.addEventListener("keydown", (e) => {
     passwordInput.focus();
   }
 });
+
+/* ══════════════════════════════════════════════════════
+   طبقة حماية الواجهة (خفيفة — صفحة تسجيل الدخول)
+   ⚠️ الحماية الحقيقية = قواعد Firestore + Firebase Auth
+══════════════════════════════════════════════════════ */
+(function enableLoginProtection() {
+  // 1) منع القائمة السياقية (Right-click) خارج حقول الإدخال
+  document.addEventListener("contextmenu", e => {
+    const t = e.target;
+    const isEditable = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA");
+    if (!isEditable) { e.preventDefault(); return false; }
+  });
+
+  // 2) منع اختصارات المطوّر الشائعة
+  document.addEventListener("keydown", e => {
+    const key = (e.key || "").toLowerCase();
+    if (key === "f12") { e.preventDefault(); return false; }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i","j","c","k"].includes(key)) { e.preventDefault(); return false; }
+    if ((e.ctrlKey || e.metaKey) && ["u","s"].includes(key)) { e.preventDefault(); return false; }
+  });
+
+  // 3) منع سحب الصور
+  document.addEventListener("dragstart", e => {
+    if (e.target.tagName === "IMG") { e.preventDefault(); return false; }
+  });
+})();
