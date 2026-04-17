@@ -206,7 +206,24 @@ window.startQuiz = async function (quizId) {
     }
   }
 
-  if (!confirm(`هل أنت مستعد لبدء اختبار "${d.title}"؟\n${d.duration ? `⏱️ المدة: ${d.duration} دقيقة (سيُرسَل الاختبار تلقائياً عند انتهاء الوقت)` : "⏱️ بدون حد زمني"}\n❓ عدد الأسئلة: ${d.questions?.length || 0}`)) {
+  /* ── التحقق من المحاولة السابقة ── (منع الإعادة إلا بإذن المشرف) */
+  try {
+    const prevSnap = await getDocs(query(
+      collection(db, "results"),
+      where("userId", "==", _currentUser.uid),
+      where("quizId", "==", quizId)
+    ));
+    if (!prevSnap.empty) {
+      alert("⛔ لقد حللت هذا الاختبار مسبقاً.\nلإعادة المحاولة، يجب التواصل مع المشرف للسماح لك بذلك.");
+      loadQuizzes();
+      return;
+    }
+  } catch (err) {
+    console.error("previous attempt check failed:", err);
+    // إذا فشل الفحص لأي سبب، نكمل بحذر (لا نحرم المتدرب من الاختبار بسبب خطأ تقني)
+  }
+
+  if (!confirm(`هل أنت مستعد لبدء اختبار "${d.title}"؟\n${d.duration ? `⏱️ المدة: ${d.duration} دقيقة (سيُرسَل الاختبار تلقائياً عند انتهاء الوقت)` : "⏱️ بدون حد زمني"}\n❓ عدد الأسئلة: ${d.questions?.length || 0}\n\n⚠️ تنبيه: لا يمكن إعادة الاختبار بعد تسليمه إلا بإذن المشرف.`)) {
     return;
   }
 
@@ -558,10 +575,10 @@ window.loadMyResults = async function () {
   wrap.style.display      = "none";
 
   try {
+    // استعلام بسيط بدون orderBy لتجنّب الحاجة لفهرس مركّب
     const q = query(
       collection(db, "results"),
-      where("userId", "==", _currentUser.uid),
-      orderBy("submittedAt", "desc")
+      where("userId", "==", _currentUser.uid)
     );
     const snap = await getDocs(q);
 
@@ -572,11 +589,19 @@ window.loadMyResults = async function () {
       return;
     }
 
+    // جمع النتائج في مصفوفة ثم ترتيبها محلياً
+    const results = [];
+    snap.forEach(docSnap => results.push({ id: docSnap.id, ...docSnap.data() }));
+    results.sort((a, b) => {
+      const ta = a.submittedAt?.toDate?.()?.getTime() ?? 0;
+      const tb = b.submittedAt?.toDate?.()?.getTime() ?? 0;
+      return tb - ta; // الأحدث أولاً
+    });
+
     wrap.style.display = "block";
     tbody.innerHTML = "";
 
-    snap.forEach(docSnap => {
-      const d      = docSnap.data();
+    results.forEach(d => {
       const passed = d.passed ?? (d.percentage >= 50);
       const date   = d.submittedAt?.toDate
         ? d.submittedAt.toDate().toLocaleDateString("ar-SA", {
@@ -602,6 +627,8 @@ window.loadMyResults = async function () {
     console.error("loadMyResults:", err);
     loadingEl.style.display = "none";
     emptyEl.style.display   = "block";
+    emptyEl.querySelector(".state-icon").textContent = "❌";
+    emptyEl.lastChild.textContent = `خطأ في التحميل: ${err.message}`;
   }
 };
 
