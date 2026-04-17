@@ -586,7 +586,100 @@ window.exportResultsToExcel = function () {
 
 /* ── المقالات (TinyMCE) ── */
 let _editingArticleId = null;
-window._initTinyMCE = function() { if (typeof tinymce !== "undefined" && !tinymce.get("tinyEditor")) tinymce.init({ selector: "#tinyEditor", height: 350, language: "ar", directionality: "rtl", skin: "oxide-dark", content_css: "dark" }); };
+window._initTinyMCE = function () {
+  if (typeof tinymce === "undefined" || tinymce.get("tinyEditor")) return;
+
+  tinymce.init({
+    selector:       "#tinyEditor",
+    language:       "ar",
+    language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
+    directionality: "rtl",
+    skin:           "oxide-dark",
+    content_css:    "dark",
+
+    /* ── شريط الأدوات الكامل ── */
+    toolbar_mode: "wrap",
+    plugins: [
+      "advlist", "autolink", "lists", "link", "image", "charmap",
+      "preview", "anchor", "searchreplace", "visualblocks", "code",
+      "fullscreen", "insertdatetime", "media", "table", "help",
+      "wordcount", "emoticons", "codesample",
+    ],
+    toolbar: [
+      "fontfamily fontsize | styles | bold italic underline strikethrough |",
+      "forecolor backcolor | alignright aligncenter alignleft alignjustify |",
+      "bullist numlist outdent indent | table | link image emoticons charmap |",
+      "blockquote codesample | removeformat | fullscreen preview code | help",
+    ].join(" "),
+
+    /* ── الخطوط العربية ── */
+    font_family_formats: [
+      "Cairo=Cairo,sans-serif",
+      "Tajawal=Tajawal,sans-serif",
+      "Almarai=Almarai,sans-serif",
+      "Arial=arial,helvetica,sans-serif",
+      "Times New Roman=times new roman,times",
+      "Courier New=courier new,courier",
+    ].join(";"),
+
+    font_size_formats:
+      "10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
+
+    style_formats: [
+      { title: "عنوان 1",  block: "h1" },
+      { title: "عنوان 2",  block: "h2" },
+      { title: "عنوان 3",  block: "h3" },
+      { title: "نص عادي",  block: "p"  },
+      { title: "اقتباس",   block: "blockquote" },
+      { title: "كود",      block: "pre" },
+    ],
+
+    /* ── تنسيق داخل iframe المحرر ── */
+    content_style: `
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap');
+      body {
+        font-family: 'Cairo', sans-serif;
+        font-size: 15px;
+        line-height: 1.85;
+        direction: rtl;
+        text-align: right;
+        color: #e8eaf6;
+        background: #161929;
+        margin: 12px 16px;
+      }
+      h1,h2,h3 { color:#fff; }
+      a        { color:#00c9b1; }
+      blockquote {
+        border-right: 4px solid #8b46c8;
+        border-left: none;
+        padding: 0.5rem 1rem;
+        margin: 0.75rem 0;
+        background: rgba(108,47,160,0.1);
+        color: #8c90b5;
+      }
+      table td, table th {
+        border: 1px solid rgba(108,47,160,0.25);
+        padding: 6px 10px;
+      }
+      table th { background: rgba(108,47,160,0.15); font-weight: 700; }
+    `,
+
+    height:             450,
+    min_height:         300,
+    menubar:            "file edit view insert format tools table help",
+    statusbar:          true,
+    branding:           false,
+    promotion:          false,
+    resize:             true,
+    paste_data_images:  true,
+
+    setup: (editor) => {
+      editor.on("init", () => {
+        editor.execCommand("fontName", false, "Cairo,sans-serif");
+      });
+    },
+  });
+};
 window.saveArticle = async function () {
   const title = document.getElementById("articleTitle").value.trim(), pageId = document.getElementById("articlePage").value, content = tinymce.get("tinyEditor")?.getContent() || "";
   if (!title || !pageId || !content) return alert("يرجى إكمال جميع البيانات.");
