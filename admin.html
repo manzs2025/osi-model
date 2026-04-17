@@ -2417,23 +2417,29 @@ html, body {
             <!-- حقل مخفي لمعرف التعديل -->
             <input type="hidden" id="quizEditId" value="">
 
-            <!-- الحقول الأساسية -->
+            <!-- الحقول الأساسية: العنوان + المدة -->
             <div class="qz-fields-row">
               <div class="qz-field-group">
                 <label class="qz-label" for="quizTitle">عنوان الاختبار *</label>
                 <input type="text" id="quizTitle" class="qz-input" placeholder="مثال: اختبار شبكات الحاسب الآلي" maxlength="100">
               </div>
               <div class="qz-field-group">
-                <label class="qz-label" for="quizPage">القسم التابع له *</label>
-                <select id="quizPage" class="qz-input qz-select">
-                  <option value="">— اختر القسم —</option>
-                  <option value="networks">شبكات الحاسب الآلي</option>
-                  <option value="security">الأمان في الشبكات</option>
-                  <option value="osi">نموذج OSI</option>
-                  <option value="cables">كيابل الشبكات</option>
-                  <option value="ip">بروتوكول IP</option>
-                </select>
+                <label class="qz-label" for="quizDuration">⏱️ مدة الاختبار (بالدقائق) <small style="color:var(--text-faint);font-weight:400;">(اختياري — عند انتهاء الوقت يُقفل الاختبار تلقائياً)</small></label>
+                <input type="number" id="quizDuration" class="qz-input" placeholder="مثال: 30" min="1" max="600" style="direction:ltr;text-align:right;">
               </div>
+            </div>
+
+            <!-- القسم التابع له -->
+            <div class="qz-field-group" style="margin-bottom:1rem;">
+              <label class="qz-label" for="quizPage">القسم التابع له *</label>
+              <select id="quizPage" class="qz-input qz-select">
+                <option value="">— اختر القسم —</option>
+                <option value="networks">شبكات الحاسب الآلي</option>
+                <option value="security">الأمان في الشبكات</option>
+                <option value="osi">نموذج OSI</option>
+                <option value="cables">كيابل الشبكات</option>
+                <option value="ip">بروتوكول IP</option>
+              </select>
             </div>
 
             <!-- الجدولة الزمنية -->
@@ -2570,8 +2576,8 @@ html, body {
                 <input type="text" id="newTraineeName" class="qz-input" placeholder="مثال: أحمد محمد العمري">
               </div>
               <div class="qz-field-group">
-                <label class="qz-label" for="newTraineeEmail">الرقم التدريبي * <small style="color:var(--text-faint);font-weight:400;">(10 أرقام)</small></label>
-                <input type="text" id="newTraineeEmail" class="qz-input" placeholder="مثال: 4412345678" inputmode="numeric" maxlength="10" style="direction:ltr;text-align:right;letter-spacing:0.06em;">
+                <label class="qz-label" for="newTraineeEmail">الرقم التدريبي * <small style="color:var(--text-faint);font-weight:400;">(9 أرقام)</small></label>
+                <input type="text" id="newTraineeEmail" class="qz-input" placeholder="مثال: 441234567" inputmode="numeric" maxlength="9" style="direction:ltr;text-align:right;letter-spacing:0.06em;">
               </div>
             </div>
             <div class="qz-fields-row">
@@ -2665,6 +2671,7 @@ html, body {
                   <th>النتيجة</th>
                   <th>المحاولة</th>
                   <th>التاريخ</th>
+                  <th style="text-align:center">إجراءات</th>
                 </tr>
               </thead>
               <tbody id="resultsTableBody"></tbody>
