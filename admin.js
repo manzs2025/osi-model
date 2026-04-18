@@ -1899,6 +1899,7 @@ window.previewPageContent = function () {
 };
 
 
+try {
 /* ═══════════════════════════════════════════════════════════
    🌐 نظام إدارة المحتوى — صفحات جديدة (CMS) + تعديلات المحتوى القديم
 ═══════════════════════════════════════════════════════════ */
@@ -2566,17 +2567,24 @@ window.legacyPreview = function() {
   window.open(`${_legacyCurrentPage}.html`, "_blank");
 };
 
-/* ══ ربط باللوحات ══ */
-const _origSwitchPanel = window.switchPanel;
-window.switchPanel = function(btn, panelId) {
-  _origSwitchPanel(btn, panelId);
-  if (panelId === "cms") _cmsRefreshPageSelect();
-};
+/* ══ ربط باللوحات — بانتظار تحميل الصفحة ══ */
+window.addEventListener("load", () => {
+  const _origSwitchPanel = window.switchPanel;
+  if (typeof _origSwitchPanel === "function") {
+    window.switchPanel = function(btn, panelId) {
+      _origSwitchPanel(btn, panelId);
+      if (panelId === "cms") _cmsRefreshPageSelect();
+    };
+  }
+});
 
-function _escHtml(s) {
-  return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+
+
+
+} catch(_cmsErr) {
+  console.error('CMS module error:', _cmsErr);
 }
-
 
 /* ═══════════════════════════════════════
    طبقة حماية الواجهة الأمامية (Client-side hardening)
