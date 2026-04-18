@@ -3,528 +3,353 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>كيابل الشبكات — أكاديمية الشبكات</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-<style>
-/* ═══════════════════════════════════════
-   VARIABLES & RESET
-═══════════════════════════════════════ */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-:root {
-  --primary:    #6c2fa0;
-  --primary-l:  #8b46c8;
-  --accent:     #00c9b1;
-  --bg:         #080a14;
-  --bg2:        #0e1022;
-  --bg3:        #131629;
-  --card:       #161929;
-  --card2:      #1c2038;
-  --border:     rgba(108,47,160,0.22);
-  --border2:    rgba(255,255,255,0.07);
-  --text:       #e8eaf6;
-  --text-muted: #7a7f9e;
-  --text-faint: #4a4f6b;
-  --radius:     14px;
-  --nav-h:      64px;
-}
-
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Cairo', sans-serif;
-  min-height: 100%;
-  direction: rtl;
-}
-
-/* ── شريط التنقل ── */
-.topnav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: var(--nav-h);
-  background: rgba(8,10,20,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 0 1.5rem;
-}
-.nav-brand {
-  font-weight: 900;
-  font-size: 1rem;
-  color: var(--text);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 2rem;
-  white-space: nowrap;
-}
-.nav-brand-dot {
-  width: 8px; height: 8px;
-  background: var(--accent);
-  border-radius: 50%;
-}
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  flex: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.nav-links::-webkit-scrollbar { display:none; }
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: 0.2s;
-}
-.nav-link:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-.nav-link.active {
-  background: rgba(108,47,160,0.2);
-  color: var(--text);
-}
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-right: auto;
-}
-.btn-login {
-  padding: 0.45rem 1.1rem;
-  background: var(--primary);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-family: 'Cairo', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  transition: 0.2s;
-}
-.btn-login:hover { background: var(--primary-l); }
-
-/* ── Hero ── */
-.page-hero {
-  background: linear-gradient(135deg, rgba(108,47,160,0.15) 0%, rgba(0,201,177,0.06) 100%);
-  border-bottom: 1px solid var(--border);
-  padding: 3rem 2rem 2.5rem;
-  text-align: center;
-}
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: rgba(108,47,160,0.15);
-  border: 1px solid rgba(108,47,160,0.3);
-  color: var(--primary-l);
-  padding: 0.3rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-.hero-title {
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
-  font-weight: 900;
-  margin-bottom: 0.75rem;
-  line-height: 1.3;
-}
-.hero-title span { color: var(--accent); }
-.hero-desc {
-  color: var(--text-muted);
-  font-size: 1rem;
-  max-width: 560px;
-  margin: 0 auto;
-  line-height: 1.7;
-}
-
-/* ── Layout ── */
-.page-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-@media (max-width: 768px) {
-  .page-layout { grid-template-columns: 1fr; }
-  .page-sidebar { display: none; }
-}
-
-/* ── الشريط الجانبي (فهرس المحتوى) ── */
-.page-sidebar {
-  position: sticky;
-  top: calc(var(--nav-h) + 1rem);
-  height: fit-content;
-  max-height: calc(100vh - var(--nav-h) - 2rem);
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-.sidebar-card {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-}
-.sidebar-title {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-.toc-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: 0.18s;
-  text-decoration: none;
-  margin-bottom: 0.2rem;
-}
-.toc-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-.toc-item.active { background: rgba(108,47,160,0.15); color: var(--accent); }
-.toc-icon { font-size: 0.95rem; flex-shrink:0; }
-
-/* ── المحتوى الرئيسي ── */
-.page-main {}
-
-/* بطاقة القسم */
-.content-section {
-  background: var(--card);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius);
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-  scroll-margin-top: calc(var(--nav-h) + 1rem);
-}
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.1rem 1.5rem;
-  background: var(--card2);
-  border-bottom: 1px solid var(--border2);
-  cursor: pointer;
-  user-select: none;
-  transition: 0.18s;
-}
-.section-header:hover { background: rgba(28,32,56,0.9); }
-.section-header-icon { font-size: 1.2rem; }
-.section-header-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--text);
-  flex: 1;
-}
-.section-toggle-arrow {
-  color: var(--text-faint);
-  font-size: 0.8rem;
-  transition: transform 0.25s;
-}
-.content-section.open .section-toggle-arrow {
-  transform: rotate(180deg);
-}
-.section-body {
-  padding: 1.5rem;
-  display: none;
-  font-size: 0.95rem;
-  line-height: 1.8;
-  color: #c8cce8;
-}
-.content-section.open .section-body {
-  display: block;
-  animation: fadeSlide 0.25s ease;
-}
-@keyframes fadeSlide {
-  from { opacity:0; transform:translateY(-6px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-/* تنسيق محتوى body */
-.section-body h2 {
-  font-size: 1.05rem; font-weight: 800; color: #fff;
-  margin: 1.2rem 0 0.6rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(108,47,160,0.25);
-}
-.section-body h3 {
-  font-size: 0.95rem; font-weight: 700; color: var(--accent);
-  margin: 1rem 0 0.5rem;
-}
-.section-body p  { margin-bottom: 0.85rem; }
-.section-body ul, .section-body ol { padding-right:1.5rem; margin-bottom:0.85rem; }
-.section-body li { margin-bottom: 0.4rem; }
-.section-body strong { color: #fff; font-weight: 700; }
-.section-body a  { color: var(--accent); }
-.section-body table {
-  width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.88rem;
-}
-.section-body td, .section-body th {
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 0.5rem 0.75rem; text-align:right;
-}
-.section-body th { background:rgba(108,47,160,0.2); color:#fff; font-weight:700; }
-.section-body tr:nth-child(even) td { background:rgba(255,255,255,0.02); }
-.section-body img { max-width:100%; border-radius:8px; margin:0.75rem 0; display:block; }
-.section-body blockquote {
-  border-right: 4px solid var(--accent); padding: 0.5rem 1rem;
-  margin:1rem 0; color:#9fa3c0; background:rgba(0,201,177,0.05);
-  border-radius: 0 8px 8px 0;
-}
-.section-body code {
-  background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px;
-  font-family:monospace; font-size:0.88em; color:#a5d6a7;
-  direction:ltr; display:inline-block;
-}
-
-/* ── حالة التحميل ── */
-.skeleton {
-  background: linear-gradient(90deg, var(--card2) 25%, rgba(255,255,255,0.04) 50%, var(--card2) 75%);
-  background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 8px;
-}
-@keyframes shimmer { to { background-position: -400% 0; } }
-
-/* ── شريط التحديث ── */
-.update-bar {
-  background: linear-gradient(135deg, rgba(0,201,177,0.12), rgba(108,47,160,0.12));
-  border: 1px solid rgba(0,201,177,0.25);
-  border-radius: var(--radius);
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.88rem;
-  color: var(--text-muted);
-}
-.update-bar-icon { font-size: 1.1rem; }
-.update-bar-text strong { color: var(--accent); }
-</style>
+<title>كيابل الشبكات — مبادئ الشبكات</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ══ شريط التنقل ══ -->
-<nav class="topnav" id="mainNav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-dot"></div>
-    مبادئ الشبكات
-  </a>
-  <div class="nav-links">
-    <a href="index.html"    class="nav-link">🏠 الرئيسية</a>
-    <a href="cables.html" class="nav-link active">📡 شبكات الحاسب</a>
-    <a href="security.html" class="nav-link">🔒 الأمان</a>
-    <a href="osi.html"      class="nav-link">🔁 نموذج OSI</a>
-    <a href="cables.html"   class="nav-link">🔌 الكيابل</a>
-    <a href="ip.html"       class="nav-link">🌍 بروتوكول IP</a>
+<header class="page-hero">
+  <div class="breadcrumb anim-1">
+    <a href="index.html">الرئيسية</a><span class="sep">›</span>
+    <span>كيابل الشبكات</span>
   </div>
-  <div class="nav-actions">
-    <a href="login.html" class="btn-login">🔐 تسجيل الدخول</a>
+  <div class="page-hero-tag anim-1">🔌 القسم الرابع</div>
+  <h1 class="anim-2">كيابل الشبكات<br><span>Networking Cables</span></h1>
+  <p class="anim-3">تعريف كابلات الشبكات — أنواعها — مواصفاتها الفنية — أدوات التصنيع</p>
+  <nav class="sub-nav anim-4">
+    <a href="#definition">التعريف</a>
+    <a href="#types">الأنواع</a>
+    <a href="#coaxial">المحوري</a>
+    <a href="#twisted">المزدوج المجدول</a>
+    <a href="#fiber">الضوئي</a>
+    <a href="#tools">الأدوات والعدد</a>
+  </nav>
+</header>
+
+<main class="page-content">
+
+  <!-- ── 1. تعريف كيبل الشبكة ── -->
+  <div class="sec-block" id="definition">
+    <div class="sec-block-header">
+      <div class="sec-icon">📖</div>
+      <h2>تعريف كيبل الشبكة</h2>
+    </div>
+    <div class="content-block">
+      <h3><span class="dot"></span>ما هو كيبل الشبكة؟</h3>
+      <div class="highlight-box">
+        <p>الكابل هو الذي تنتقل من خلاله البيانات والمعلومات من حاسب إلى أخرى في الشبكة أو من شبكة إلى شبكة أخرى.</p>
+      </div>
+    </div>
   </div>
-</nav>
 
-<!-- ══ Hero ══ -->
-<section class="page-hero">
-  <div class="hero-tag">🔌 الوحدة الرابعة</div>
-  <h1 class="hero-title">🔌 <span>كيابل الشبكات</span></h1>
-  <p class="hero-desc">أنواع كيابل الشبكات وخصائصها واستخداماتها</p>
-</section>
+  <div class="sec-divider"></div>
 
-<!-- ══ Layout ══ -->
-<div class="page-layout">
-
-  <!-- الشريط الجانبي (فهرس) -->
-  <aside class="page-sidebar">
-    <div class="sidebar-card">
-      <div class="sidebar-title">📑 محتويات الصفحة</div>
-      <div id="tocList">
-        <!-- يُملأ ديناميكياً -->
-        <div class="skeleton" style="height:32px;margin-bottom:6px;"></div>
-        <div class="skeleton" style="height:32px;margin-bottom:6px;width:85%;"></div>
-        <div class="skeleton" style="height:32px;margin-bottom:6px;width:90%;"></div>
-      </div>
+  <!-- ── 2. أنواع الكابلات ── -->
+  <div class="sec-block" id="types">
+    <div class="sec-block-header">
+      <div class="sec-icon">📋</div>
+      <h2>أنواع كابلات وموصلات الشبكات</h2>
     </div>
-  </aside>
-
-  <!-- المحتوى الرئيسي -->
-  <main class="page-main">
-
-    <!-- شريط تحديثات المدرّب (يظهر فقط إن وُجد محتوى) -->
-    <div id="updateBar" style="display:none;" class="update-bar">
-      <span class="update-bar-icon">✨</span>
-      <span class="update-bar-text"><strong>تحديث من المدرّب:</strong> تم إضافة محتوى تعليمي جديد إلى هذه الصفحة</span>
-    </div>
-
-    <!-- حالة التحميل -->
-    <div id="pageLoading">
-      <div class="content-section" style="margin-bottom:1.5rem;">
-        <div class="section-header" style="cursor:default;">
-          <div class="skeleton" style="width:32px;height:32px;border-radius:6px;"></div>
-          <div class="skeleton" style="flex:1;height:20px;border-radius:6px;"></div>
+    <div class="content-block">
+      <h3><span class="dot"></span>أنواع الكابلات والموصلات في الشبكات</h3>
+      <p style="margin-bottom:1.25rem;">الكابل هو الذي تنتقل من خلاله البيانات والمعلومات من حاسب إلى أخرى في الشبكة أو من شبكة إلى شبكة أخرى. وتنقسم إلى ثلاثة أنواع رئيسية:</p>
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#795548,#4e342e);">📺</div>
+          <h3>① الكابل المحوري (Coaxial Cable)</h3>
+          <p>كابل نحاسي قديم الاستخدام. يتكون من: الغلاف الخارجي، وقاء نحاسي مجدول، عازل بلاستيك، موصل نحاسي. يُستخدم في شبكات التلفزيون والشبكات القديمة.</p>
         </div>
-      </div>
-      <div class="content-section" style="margin-bottom:1.5rem;">
-        <div class="section-header" style="cursor:default;">
-          <div class="skeleton" style="width:32px;height:32px;border-radius:6px;"></div>
-          <div class="skeleton" style="flex:1;height:20px;border-radius:6px;width:75%;"></div>
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#0097a7,#006064);">🔗</div>
+          <h3>② الكابل المزدوج المجدول (Twisted Pair)</h3>
+          <p>الأكثر شيوعاً في شبكات LAN. يتكون من أزواج من الأسلاك الملفوفة للتقليل من التداخل الكهرومغناطيسي. نوعان: STP (محمي) وUTP (غير محمي).</p>
         </div>
-      </div>
-      <div class="content-section">
-        <div class="section-header" style="cursor:default;">
-          <div class="skeleton" style="width:32px;height:32px;border-radius:6px;"></div>
-          <div class="skeleton" style="flex:1;height:20px;border-radius:6px;width:60%;"></div>
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#e91e63,#880e4f);">💡</div>
+          <h3>③ الكابل الضوئي (Fiber Optic)</h3>
+          <p>يستخدم الضوء لنقل البيانات. سرعات عالية جداً ومسافات طويلة جداً. نوعان: أحادي الوضع (SMF) ومتعدد الأوضاع (MMF).</p>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- الأقسام (تُحقن هنا) -->
-    <div id="sectionsContainer"></div>
+  <div class="sec-divider"></div>
 
-    <!-- رسالة فارغ -->
-    <div id="emptyState" style="display:none;text-align:center;padding:3rem 1rem;color:var(--text-muted);">
-      <div style="font-size:2.5rem;margin-bottom:1rem;">📭</div>
-      <div style="font-weight:700;">لا يوجد محتوى بعد</div>
-      <div style="font-size:0.85rem;margin-top:0.5rem;">يمكن للمشرف إضافة المحتوى من لوحة التحكم</div>
+  <!-- ── 3. الكابل المحوري ── -->
+  <div class="sec-block" id="coaxial">
+    <div class="sec-block-header">
+      <div class="sec-icon">📺</div>
+      <h2>الكابل المحوري <span>(Coaxial Cable)</span></h2>
     </div>
 
-  </main>
-</div>
-
-<!-- ══ JavaScript ══ -->
-<script type="module">
-import { initializeApp, getApps }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore, collection, query, orderBy, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey:            "AIzaSyCz9Wedr_X3VzoaH0gJj8QFrNIK5vT4vww",
-  authDomain:        "networkacademy-795c8.firebaseapp.com",
-  projectId:         "networkacademy-795c8",
-  storageBucket:     "networkacademy-795c8.firebasestorage.app",
-  messagingSenderId: "458132238000",
-  appId:             "1:458132238000:web:bffd7321407b094bb21575",
-};
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-const PAGE_ID = "cables"; /* ← هذا الوحيد الذي يتغير بين الصفحات */
-
-async function loadPage() {
-  const loadingEl   = document.getElementById("pageLoading");
-  const container   = document.getElementById("sectionsContainer");
-  const emptyEl     = document.getElementById("emptyState");
-  const tocList     = document.getElementById("tocList");
-  const updateBar   = document.getElementById("updateBar");
-
-  try {
-    const q    = query(collection(db, "siteContent", PAGE_ID, "sections"), orderBy("order"));
-    const snap = await getDocs(q);
-
-    loadingEl.style.display = "none";
-
-    if (snap.empty) {
-      emptyEl.style.display = "block";
-      tocList.innerHTML = '<div style="color:var(--text-faint);font-size:0.82rem;padding:0.5rem 0;">لا يوجد محتوى</div>';
-      return;
-    }
-
-    /* إظهار شريط التحديث */
-    updateBar.style.display = "flex";
-
-    const sections = [];
-    snap.forEach(d => sections.push({ id: d.id, ...d.data() }));
-
-    /* بناء الفهرس */
-    tocList.innerHTML = sections.map((sec, i) => `
-      <a class="toc-item ${i===0?'active':''}" id="toc_${sec.id}" href="#sec_${sec.id}">
-        <span class="toc-icon">${sec.icon || "📄"}</span>
-        ${_esc(sec.title || "قسم")}
-      </a>
-    `).join("");
-
-    /* بناء الأقسام */
-    container.innerHTML = sections.map((sec, i) => `
-      <div class="content-section ${i===0?'open':''}" id="sec_${sec.id}">
-        <div class="section-header" onclick="toggleSection('${sec.id}')">
-          <span class="section-header-icon">${sec.icon || "📄"}</span>
-          <h2 class="section-header-title">${_esc(sec.title || "قسم")}</h2>
-          <span class="section-toggle-arrow">▼</span>
-        </div>
-        <div class="section-body">${sec.content || ""}</div>
+    <div class="content-block">
+      <h3><span class="dot"></span>تركيب الكابل المحوري</h3>
+      <div class="highlight-box">
+        <p>الكابل المحوري يتكون من عدة طبقات متحدة المحور، وهو ما أعطاه اسمه "المحوري". يُستخدم على نطاق واسع في شبكات الكابل التلفزيوني وبعض تطبيقات الشبكات القديمة.</p>
       </div>
-    `).join("");
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-icon">1️⃣</div>
+          <h3>الغلاف الخارجي</h3>
+          <p>الطبقة الأولى والأخيرة التي تُشكّل الحماية الخارجية للكابل من العوامل البيئية والتلف الميكانيكي.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">2️⃣</div>
+          <h3>وقاء نحاسي مجدول</h3>
+          <p>شبكة من الأسلاك النحاسية المجدولة تعمل كحماية من التداخل الكهرومغناطيسي (EMI) وتحمي إشارة البيانات.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">3️⃣</div>
+          <h3>عازل بلاستيكي</h3>
+          <p>طبقة من المادة العازلة تفصل الموصل المركزي عن الوقاء النحاسي وتمنع التلامس الكهربائي بينهما.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">4️⃣</div>
+          <h3>موصل نحاسي</h3>
+          <p>السلك النحاسي المركزي الذي تنتقل عبره إشارات البيانات. قد يكون سلكاً واحداً أو حزمة من الأسلاك.</p>
+        </div>
+      </div>
+    </div>
 
-    /* تحديث الفهرس عند التمرير */
-    _initScrollSpy(sections);
+    <div class="content-block">
+      <h3><span class="dot"></span>موصلات الكابل المحوري</h3>
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-icon">🔩</div>
+          <h3>موصل BNC</h3>
+          <p>Bayonet Neill–Concelman — يُستخدم في الشبكات القديمة والمعدات الإلكترونية والكاميرات الأمنية.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">🔩</div>
+          <h3>موصل النوع N</h3>
+          <p>يُستخدم في التطبيقات التي تتطلب أداءً عالياً وتردداً عالياً مثل شبكات Wi-Fi والاتصالات اللاسلكية.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">🔩</div>
+          <h3>موصل النوع F</h3>
+          <p>يُستخدم بشكل شائع في شبكات الكابل التلفزيوني (CATV) وخدمات الإنترنت عبر الكابل وأطباق القمر الصناعي.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  } catch(err) {
-    console.error("loadPage:", err);
-    loadingEl.style.display = "none";
-    container.innerHTML = `
-      <div style="padding:1.5rem;background:rgba(244,67,54,0.08);border:1px solid rgba(244,67,54,0.3);border-radius:10px;color:#ff6b6b;">
-        ⚠️ تعذّر تحميل المحتوى. تأكد من اتصالك بالإنترنت وأعد المحاولة.
-      </div>`;
-  }
-}
+  <div class="sec-divider"></div>
 
-/* ── فتح/إغلاق القسم ── */
-window.toggleSection = function(secId) {
-  const sec = document.getElementById(`sec_${secId}`);
-  if (!sec) return;
-  sec.classList.toggle("open");
-  /* تحديث الفهرس */
-  document.querySelectorAll(".toc-item").forEach(t => t.classList.remove("active"));
-  document.getElementById(`toc_${secId}`)?.classList.add("active");
-};
+  <!-- ── 4. الكابل المزدوج المجدول ── -->
+  <div class="sec-block" id="twisted">
+    <div class="sec-block-header">
+      <div class="sec-icon">🔗</div>
+      <h2>الكابل المزدوج المجدول <span>(Twisted Pair Cable)</span></h2>
+    </div>
 
-/* ── ScrollSpy خفيف ── */
-function _initScrollSpy(sections) {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id.replace("sec_", "");
-        document.querySelectorAll(".toc-item").forEach(t => t.classList.remove("active"));
-        document.getElementById(`toc_${id}`)?.classList.add("active");
-      }
-    });
-  }, { rootMargin: "-30% 0px -60% 0px" });
+    <div class="content-block">
+      <h3><span class="dot"></span>وصف الكابل المزدوج المجدول</h3>
+      <div class="highlight-box">
+        <p>يتكون هذا النوع من الاسلاك من عدد من الأزواج الملفوفة على بعضها كما بالصور التالية وهذا الالتفاف يعمل على تقليل التشويش أو التداخل الكهرومغناطيسي نوعاً ما.</p>
+      </div>
+    </div>
 
-  sections.forEach(sec => {
-    const el = document.getElementById(`sec_${sec.id}`);
-    if (el) observer.observe(el);
-  });
-}
+    <div class="content-block">
+      <h3><span class="dot"></span>نوعا الكابل المزدوج المجدول</h3>
+      <div class="two-col">
+        <div class="cable-card">
+          <h3>الكابل المزدوج المجدول المحمي<br><span>STP — Shielded Twisted Pair</span></h3>
+          <p>هو عبارة عن أزواج من الأسلاك الملتوية محمية بطبقة من القصدير ثم بغلاف بلاستيكي خارجي. يوفر حماية أفضل من التداخل الكهرومغناطيسي مقارنة بـ UTP ويناسب البيئات التي تكثر فيها مصادر التداخل.</p>
+        </div>
+        <div class="cable-card">
+          <h3>الكابل المزدوج المجدول غير المحمي<br><span>UTP — Unshielded Twisted Pair</span></h3>
+          <p>يتكون من أسالك ملتوية داخل غطاء بلاستيكي بسيط. يُستخدم على نطاق واسع في شبكات المكاتب والمنازل نظراً لتكلفته المنخفضة وسهولة التركيب.</p>
+        </div>
+      </div>
+    </div>
 
-function _esc(str) {
-  return String(str)
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+    <div class="content-block">
+      <h3><span class="dot"></span>تصنيفات كابل UTP (UTP Categories – Copper Cable)</h3>
+      <p style="margin-bottom:1rem; color:var(--text-muted);">يُصنف كابل الـ UTP إلى 6 فئات مشهورة هي: Cat1, Cat2, Cat3, Cat4, Cat5, Cat6, Cat7 and Cat7A</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>الفئة (UTP Category)</th><th>سرعة البيانات (Data Rate)</th><th>الحد الأقصى للطول (Max. Length)</th><th>نوع الكابل (Cable Type)</th><th>الاستخدام (Application)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CAT1</td><td>Up to 1Mbps</td><td>—</td><td>Twisted Pair</td><td>Old Telephone Cable</td></tr>
+            <tr><td>CAT2</td><td>Up to 4Mbps</td><td>—</td><td>Twisted Pair</td><td>Token Ring Networks</td></tr>
+            <tr><td>CAT3</td><td>Up to 10Mbps</td><td>100m</td><td>Twisted Pair</td><td>Token Ring &amp; 10BASE-T Ethernet</td></tr>
+            <tr><td>CAT4</td><td>Up to 16Mbps</td><td>100m</td><td>Twisted Pair</td><td>Token Ring Networks</td></tr>
+            <tr><td>CAT5</td><td>Up to 100Mbps</td><td>100m</td><td>Twisted Pair</td><td>Ethernet, FastEthernet, Token Ring</td></tr>
+            <tr><td>CAT5e</td><td>Up to 1 Gbps</td><td>100m</td><td>Twisted Pair</td><td>Ethernet, FastEthernet, Gigabit Ethernet</td></tr>
+            <tr><td>CAT6</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (55 meters)</td></tr>
+            <tr><td>CAT6a</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (55 meters)</td></tr>
+            <tr><td>CAT7</td><td>Up to 10Gbps</td><td>100m</td><td>Twisted Pair</td><td>GigabitEthernet, 10G Ethernet (100 meters)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-loadPage();
-</script>
+    <div class="content-block">
+      <h3><span class="dot"></span>أنواع التوصيل في الكابل STP وUTP</h3>
+      <div class="highlight-box">
+        <p>هناك نوعين من التوصيل في الكابل STP وUTP:</p>
+      </div>
+      <div class="two-col">
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#0d47a1);">🔵</div>
+          <h3>التوصيل المتناظر (Straight-through cable)</h3>
+          <p>يستخدم لتوصيل أجهزة <strong>مختلفة</strong> مثل:</p>
+          <ul>
+            <li>كمبيوتر مع سويتش (PC ↔ Switch)</li>
+            <li>سويتش مع راوتر (Switch ↔ Router)</li>
+            <li>كمبيوتر مع راوتر (PC ↔ Router)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#f44336,#b71c1c);">🔴</div>
+          <h3>التوصيل العكسي (Crossover cable)</h3>
+          <p>يستخدم لتوصيل أجهزة <strong>متشابهة</strong> مثل:</p>
+          <ul>
+            <li>سويتش مع سويتش (Switch ↔ Switch)</li>
+            <li>راوتر مع راوتر (Router ↔ Router)</li>
+            <li>كمبيوتر مع كمبيوتر (PC ↔ PC)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
+    <div class="content-block">
+      <h3><span class="dot"></span>ترتيب الأسلاك في الـ RJ-45</h3>
+      <div class="highlight-box">
+        <p>هناك نظامان مختلفان لأسلاك المزدوجة المجدولة، يُطلق عليهما: <strong>T568A</strong> و<strong>T568B</strong>.</p>
+      </div>
+      <div class="two-col">
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#1b5e20);">🟢</div>
+          <h3>نظام T568A</h3>
+          <p>أحد نظامَي ترتيب أسلاك المزدوجة المجدولة القياسيَّين. يُستخدم في كابلات Crossover مع نظام T568B في الطرف الآخر لإنشاء كابل crossover.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon" style="background:linear-gradient(135deg,#FF9800,#e65100);">🟠</div>
+          <h3>نظام T568B</h3>
+          <p>النظام الأكثر شيوعاً في توصيلات كابلات Straight-through. عندما يستخدم الطرفان نفس النظام (كلاهما T568B) نحصل على Straight-through cable. تستخدم الكابلات STP وUTP مشبكاً من نوع <strong>RJ-45</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-divider"></div>
+
+  <!-- ── 5. الكابل الضوئي ── -->
+  <div class="sec-block" id="fiber">
+    <div class="sec-block-header">
+      <div class="sec-icon">💡</div>
+      <h2>الكابل الضوئي <span>(Fiber Optic Cable)</span></h2>
+    </div>
+
+    <div class="content-block">
+      <h3><span class="dot"></span>أنواع الألياف الضوئية</h3>
+      <div class="highlight-box">
+        <p>الألياف الضوئية يمكن أن تقسم بصفة عامة إلى نوعين أساسيين:</p>
+      </div>
+      <div class="two-col">
+        <div class="cable-card">
+          <h3>الألياف أحادية الوضع<br><span>Single Mode Fiber (SMF)</span></h3>
+          <p>تستخدم تقنية ليزر لإرسال أشعة ضوء أحادية ويصل مداها إلى مئات الكيلومترات.</p>
+          <ul>
+            <li>تستخدم تقنية ليزر (Laser)</li>
+            <li>ترسل أشعة ضوء أحادية</li>
+            <li>المدى: مئات الكيلومترات</li>
+            <li>مناسبة للاتصالات بعيدة المدى</li>
+          </ul>
+        </div>
+        <div class="cable-card">
+          <h3>الألياف متعددة الأوضاع<br><span>Multi-Mode Fibers (MMF)</span></h3>
+          <p>تستخدم مؤشرات LED لإرسال إشارات ضوء متعددة ويصل مداها إلى 550 متراً.</p>
+          <ul>
+            <li>تستخدم مؤشرات LED</li>
+            <li>ترسل إشارات ضوء متعددة</li>
+            <li>المدى: يصل إلى 550 متراً</li>
+            <li>مناسبة للشبكات المحلية LAN</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-divider"></div>
+
+  <!-- ── 6. العدد والأدوات ── -->
+  <div class="sec-block" id="tools">
+    <div class="sec-block-header">
+      <div class="sec-icon">🛠️</div>
+      <h2>عدد وأدوات كيابل الشبكات</h2>
+    </div>
+
+    <div class="content-block">
+      <h3><span class="dot"></span>وحدات قياس البيانات في الحاسب الآلي</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>الوحدة (Unit)</th><th>القيمة (Value)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>bit</td><td>1 or 0</td></tr>
+            <tr><td>byte</td><td>8 bits</td></tr>
+            <tr><td>Kilobyte</td><td>1024 bytes</td></tr>
+            <tr><td>Megabyte</td><td>1024 kilobytes</td></tr>
+            <tr><td>Gigabyte</td><td>1024 Megabytes</td></tr>
+            <tr><td>Terabyte</td><td>1024 Gigabytes</td></tr>
+            <tr><td>Petabyte</td><td>1024 Terabytes</td></tr>
+            <tr><td>Exabyte</td><td>1024 Petabytes</td></tr>
+            <tr><td>Zettabyte</td><td>1024 Exabytes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="content-block">
+      <h3><span class="dot"></span>أدوات تستخدم لتصنيع كيابل الشبكة — Network Cables Tools</h3>
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-icon">🔌</div>
+          <h3>RG45 (المشبك)</h3>
+          <p>المشبك (الكونكتور) الذي يُثبَّت في نهاية كابل الشبكة للتوصيل بالجهاز أو السويتش. يأتي عادةً في حزمة 20 قطعة.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">🔧</div>
+          <h3>COMPRESSION / CRIMPING TOOL</h3>
+          <p>أداة تستخدم لتثبيت قطعة RG45 على الكيبل بشكل محكم وآمن. تضمن اتصالاً جيداً بين الكابل والمشبك.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">📟</div>
+          <h3>CABLE TESTER (جهاز اختبار الكيبل)</h3>
+          <p>جهاز يُستخدم للتحقق من صحة التوصيلات داخل الكابل وسلامة الأسلاك الثمانية والتأكد من عمل الكابل بشكل صحيح.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">✂️</div>
+          <h3>STRIPPER (أداة إزالة الأسلاك)</h3>
+          <p>أداة إزالة الاسلاك — تُستخدم لإزالة الغلاف الخارجي للكابل بدقة دون إتلاف الأسلاك الداخلية الثمانية.</p>
+        </div>
+        <div class="info-card">
+          <div class="card-icon">💡</div>
+          <h3>FIBER OPTIC TOOL</h3>
+          <p>أداة تستخدم لتصنيع كيبل الفايبر (الألياف الضوئية) — متخصصة للتعامل مع الألياف الضوئية الدقيقة جداً.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <p>إعداد: <strong>الكلية التقنية بالمندق</strong> | المدرب: <strong>منصور الزهراني</strong></p>
+  <div class="footer-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="osi.html">→ نموذج OSI</a>
+    <a href="ip.html">بروتوكول IP ←</a>
+  </div>
+</footer>
+
+<script type="module" src="articles-loader.js" data-page="cables"></script>
+<script src="shared-nav.js"></script>
 </body>
 </html>
