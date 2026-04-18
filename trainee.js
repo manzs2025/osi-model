@@ -50,6 +50,7 @@ let _answers        = {};     /* { questionIndex: selectedOption } */
 let _currentQIndex  = 0;
 let _submitted      = false;
 let _startTime      = null;
+const _attemptedInSession = new Set(); /* اختبارات حلّها المتدرب في هذه الجلسة */
 
 /* ══════════════════════════════════════════════════════
    1. حراسة الصفحة
@@ -106,15 +107,27 @@ async function loadQuizzes() {
   grid.innerHTML          = "";
 
   try {
-    // نقرأ كل الاختبارات ثم نُصفّي محلياً (أبسط — لا حاجة لفهارس مركّبة)
-    const snap = await getDocs(query(
-      collection(db, "quizzes"),
-      orderBy("createdAt", "desc")
-    ));
+    // جلب كل الاختبارات + قائمة الاختبارات التي حلّها المتدرب (بالتوازي)
+    const [quizzesSnap, resultsSnap] = await Promise.all([
+      getDocs(query(collection(db, "quizzes"), orderBy("createdAt", "desc"))),
+      _currentUser ? getDocs(query(
+        collection(db, "results"),
+        where("userId", "==", _currentUser.uid)
+      )) : Promise.resolve(null)
+    ]);
+
+    // تحديث ذاكرة الجلسة بناءً على ما في قاعدة البيانات
+    _attemptedInSession.clear();
+    if (resultsSnap) {
+      resultsSnap.forEach(r => {
+        const data = r.data();
+        if (data.quizId) _attemptedInSession.add(data.quizId);
+      });
+    }
 
     loadingEl.style.display = "none";
 
-    if (snap.empty) {
+    if (quizzesSnap.empty) {
       emptyEl.style.display = "block";
       return;
     }
@@ -122,7 +135,7 @@ async function loadQuizzes() {
     const now = new Date();
     let visibleCount = 0;
 
-    snap.forEach(docSnap => {
+    quizzesSnap.forEach(docSnap => {
       const d = docSnap.data();
 
       // 1) تحقق من حقل available (افتراضي: متاح)
@@ -144,8 +157,14 @@ async function loadQuizzes() {
       const dur     = d.duration ? `⏱ ${d.duration} دقيقة` : `⏱ بدون حد زمني`;
       const totalSc = d.totalScore ? ` · 🏆 ${d.totalScore} درجة` : "";
 
+      const alreadyAttempted = _attemptedInSession.has(docSnap.id);
+      const btnHtml = alreadyAttempted
+        ? `<button class="qc-btn" style="background:rgba(128,128,128,0.3);color:#8c90b5;cursor:not-allowed;" disabled>✔ تم الحل مسبقاً</button>`
+        : `<button class="qc-btn" onclick="startQuiz('${docSnap.id}')">▶ ابدأ الاختبار</button>`;
+
       const card = document.createElement("div");
       card.className = "quiz-card";
+      if (alreadyAttempted) card.style.opacity = "0.65";
       card.innerHTML = `
         <div class="qc-tag">📋 ${label}</div>
         <div class="qc-title">${_esc(d.title ?? "—")}</div>
@@ -153,9 +172,7 @@ async function loadQuizzes() {
           <span>❓ ${qCount} سؤال</span>
           <span>${dur}${totalSc}</span>
         </div>
-        <button class="qc-btn" onclick="startQuiz('${docSnap.id}')">
-          ▶ ابدأ الاختبار
-        </button>
+        ${btnHtml}
       `;
       grid.appendChild(card);
     });
@@ -207,20 +224,45 @@ window.startQuiz = async function (quizId) {
   }
 
   /* ── التحقق من المحاولة السابقة ── (منع الإعادة إلا بإذن المشرف) */
+  // أولاً: تحقّق من الذاكرة المحلية (حماية فورية من race conditions)
+  if (_attemptedInSession.has(quizId)) {
+    alert("⛔ لقد حللت هذا الاختبار مسبقاً في هذه الجلسة.\nلإعادة المحاولة، يجب التواصل مع المشرف للسماح لك بذلك.");
+    loadQuizzes();
+    return;
+  }
+
+  // ثانياً: تحقّق قسري من الخادم (ليس من الكاش)
   try {
-    const prevSnap = await getDocs(query(
+    const { getDocsFromServer } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const prevSnap = await getDocsFromServer(query(
       collection(db, "results"),
       where("userId", "==", _currentUser.uid),
       where("quizId", "==", quizId)
     ));
     if (!prevSnap.empty) {
+      _attemptedInSession.add(quizId);
       alert("⛔ لقد حللت هذا الاختبار مسبقاً.\nلإعادة المحاولة، يجب التواصل مع المشرف للسماح لك بذلك.");
       loadQuizzes();
       return;
     }
   } catch (err) {
     console.error("previous attempt check failed:", err);
-    // إذا فشل الفحص لأي سبب، نكمل بحذر (لا نحرم المتدرب من الاختبار بسبب خطأ تقني)
+    // محاولة احتياطية بالطريقة التقليدية
+    try {
+      const prevSnap = await getDocs(query(
+        collection(db, "results"),
+        where("userId", "==", _currentUser.uid),
+        where("quizId", "==", quizId)
+      ));
+      if (!prevSnap.empty) {
+        _attemptedInSession.add(quizId);
+        alert("⛔ لقد حللت هذا الاختبار مسبقاً.\nلإعادة المحاولة، يجب التواصل مع المشرف للسماح لك بذلك.");
+        loadQuizzes();
+        return;
+      }
+    } catch (e2) {
+      console.error("fallback check failed:", e2);
+    }
   }
 
   if (!confirm(`هل أنت مستعد لبدء اختبار "${d.title}"؟\n${d.duration ? `⏱️ المدة: ${d.duration} دقيقة (سيُرسَل الاختبار تلقائياً عند انتهاء الوقت)` : "⏱️ بدون حد زمني"}\n❓ عدد الأسئلة: ${d.questions?.length || 0}\n\n⚠️ تنبيه: لا يمكن إعادة الاختبار بعد تسليمه إلا بإذن المشرف.`)) {
@@ -318,23 +360,52 @@ function _buildSolver(questions) {
     _currentQuiz.title ?? "الاختبار";
 
   questions.forEach((q, idx) => {
+    /* تطبيع بيانات السؤال لضمان وجود options حتى لأنواع tf */
+    const qType = q.type || "mcq";
+    let opts = q.options;
+
+    // لنوع "صح/خطأ" — الخيارات ثابتة
+    if (qType === "tf" || !opts || !opts.length) {
+      if (qType === "tf") {
+        opts = ["صح", "خطأ"];
+      } else if (!opts || !opts.length) {
+        opts = []; // سيظهر تحذير
+      }
+    }
+
+    const isMulti = (qType === "multi");
+    const pointsBadge = q.points ? `<span style="background:rgba(0,201,177,0.15);color:#00c9b1;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:700;margin-right:8px;">🏆 ${q.points} درجة</span>` : "";
+    const typeBadge = isMulti
+      ? `<span style="background:rgba(255,152,0,0.15);color:#ffa726;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:700;margin-right:8px;">☑️ اختيار متعدد (يمكنك تحديد أكثر من خيار)</span>`
+      : "";
+
     /* بطاقة السؤال */
     const card = document.createElement("div");
     card.className = `question-card ${idx === 0 ? "active" : ""}`;
     card.id = `qcard_${idx}`;
 
-    const opts = q.options ?? [];
+    let optsHTML = "";
+    if (opts.length === 0) {
+      optsHTML = `<div style="padding:1rem;background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.4);border-radius:8px;color:#ff6b6b;text-align:center;">⚠️ هذا السؤال لا يحتوي على خيارات إجابة. الرجاء التواصل مع المشرف.</div>`;
+    } else {
+      optsHTML = opts.map((opt, oi) => `
+        <div class="option-item" id="opt_${idx}_${oi}"
+             onclick="selectOption(${idx}, ${oi}, ${isMulti})">
+          <div class="option-radio" style="${isMulti ? 'border-radius:4px;' : ''}"></div>
+          <div class="option-label">${_esc(opt)}</div>
+        </div>
+      `).join("");
+    }
+
     card.innerHTML = `
-      <div class="q-num">السؤال ${idx + 1} من ${questions.length}</div>
+      <div class="q-num">
+        السؤال ${idx + 1} من ${questions.length}
+        ${pointsBadge}
+        ${typeBadge}
+      </div>
       <div class="q-text">${_esc(q.text ?? "")}</div>
       <div class="options-list" id="optList_${idx}">
-        ${opts.map((opt, oi) => `
-          <div class="option-item" id="opt_${idx}_${oi}"
-               onclick="selectOption(${idx}, ${oi})">
-            <div class="option-radio"></div>
-            <div class="option-label">${_esc(opt)}</div>
-          </div>
-        `).join("")}
+        ${optsHTML}
       </div>
     `;
     container.appendChild(card);
@@ -350,19 +421,32 @@ function _buildSolver(questions) {
   _refreshNav();
 }
 
-/* ─── اختيار خيار ──────────────────────────────── */
-window.selectOption = function (qIdx, optIdx) {
+/* ─── اختيار خيار (يدعم اختيار فردي واختيار متعدد) ──── */
+window.selectOption = function (qIdx, optIdx, isMulti = false) {
   if (_submitted) return;
 
-  /* إزالة التحديد السابق */
-  document.querySelectorAll(`#optList_${qIdx} .option-item`)
-    .forEach(el => el.classList.remove("selected"));
-
-  /* تحديد الخيار الجديد */
-  document.getElementById(`opt_${qIdx}_${optIdx}`)
-    ?.classList.add("selected");
-
-  _answers[qIdx] = optIdx;
+  if (isMulti) {
+    // اختيار متعدد: نخزّن مصفوفة
+    if (!Array.isArray(_answers[qIdx])) _answers[qIdx] = [];
+    const arr = _answers[qIdx];
+    const pos = arr.indexOf(optIdx);
+    const optEl = document.getElementById(`opt_${qIdx}_${optIdx}`);
+    if (pos >= 0) {
+      arr.splice(pos, 1);
+      optEl?.classList.remove("selected");
+    } else {
+      arr.push(optIdx);
+      optEl?.classList.add("selected");
+    }
+    // إذا الكل أُزيل، احذف المفتاح
+    if (arr.length === 0) delete _answers[qIdx];
+  } else {
+    // اختيار فردي: إزالة السابق ثم تحديد الجديد
+    document.querySelectorAll(`#optList_${qIdx} .option-item`)
+      .forEach(el => el.classList.remove("selected"));
+    document.getElementById(`opt_${qIdx}_${optIdx}`)?.classList.add("selected");
+    _answers[qIdx] = optIdx;
+  }
 
   /* تحديث نقطة الإجابة */
   const dot = document.getElementById(`dot_${qIdx}`);
@@ -438,7 +522,7 @@ window.submitQuiz = async function (isAutoSubmit = false) {
   const total     = questions.length;
   const duration  = Math.round((Date.now() - _startTime) / 1000);
 
-  /* ── حساب الدرجة باستخدام points المخصّصة لكل سؤال ── */
+  /* ── حساب الدرجة مع دعم كل أنواع الأسئلة (mcq/tf/multi) ── */
   let correct = 0;
   let score = 0;
   let totalPoints = 0;
@@ -447,29 +531,69 @@ window.submitQuiz = async function (isAutoSubmit = false) {
   questions.forEach((q, idx) => {
     const qPoints = Number(q.points) || 1;
     totalPoints += qPoints;
+    const qType = q.type || "mcq";
+    const ans = _answers[idx];
 
-    const selectedIdx    = _answers[idx] ?? -1;
-    const selectedAnswer = selectedIdx >= 0 ? (q.options ?? [])[selectedIdx] : null;
-    const isCorrect      = selectedAnswer === q.correctAnswer;
+    let selectedDisplay = "لم يُجب";
+    let isCorrect = false;
+    let correctDisplay = "";
+
+    if (qType === "multi") {
+      // اختيار متعدد: ans مصفوفة من الفهارس
+      const opts = q.options ?? [];
+      const correctsSet = new Set(q.correctAnswers || []);
+      const selectedArr = Array.isArray(ans) ? ans.map(i => opts[i]).filter(Boolean) : [];
+
+      selectedDisplay = selectedArr.length ? selectedArr.join(" | ") : "لم يُجب";
+      correctDisplay  = [...correctsSet].join(" | ");
+
+      // يُحتسب صحيحاً فقط إذا طابقت المجموعتان تماماً
+      isCorrect = selectedArr.length === correctsSet.size &&
+                  selectedArr.every(v => correctsSet.has(v));
+    } else if (qType === "tf") {
+      // صح/خطأ: الخيارات ["صح","خطأ"]، والـ correctAnswer نص "true"/"false"
+      const opts = ["صح", "خطأ"];
+      const selectedIdx = typeof ans === "number" ? ans : -1;
+      const selectedText = selectedIdx >= 0 ? opts[selectedIdx] : null;
+      const correctText = q.correctAnswer === "true" ? "صح" : "خطأ";
+
+      selectedDisplay = selectedText ?? "لم يُجب";
+      correctDisplay  = correctText;
+      isCorrect = selectedText === correctText;
+    } else {
+      // mcq: الافتراضي
+      const opts = q.options ?? [];
+      const selectedIdx = typeof ans === "number" ? ans : -1;
+      const selectedAnswer = selectedIdx >= 0 ? opts[selectedIdx] : null;
+
+      selectedDisplay = selectedAnswer ?? "لم يُجب";
+      correctDisplay  = q.correctAnswer ?? "";
+      isCorrect = selectedAnswer === q.correctAnswer;
+    }
+
     if (isCorrect) {
       correct++;
       score += qPoints;
     }
+
     answersMap[idx] = {
-      selected:      selectedAnswer ?? "لم يُجب",
-      correct:       q.correctAnswer,
+      selected: selectedDisplay,
+      correct:  correctDisplay,
       isCorrect,
-      points:        qPoints,
+      points:   qPoints,
+      type:     qType,
     };
   });
 
   // fallback إذا لم يحمل أي سؤال points
-  if (totalPoints === 0) { totalPoints = total * 10; score = correct * 10; }
+  if (totalPoints === 0) { totalPoints = total; score = correct; }
 
   const percentage  = totalPoints ? Math.round(score / totalPoints * 100) : 0;
   const passed      = percentage >= 50;
 
   _submitted = true;
+  // تسجيل في الذاكرة المحلية فوراً (حماية من race conditions عند الإعادة)
+  if (_currentQuiz?.id) _attemptedInSession.add(_currentQuiz.id);
 
   /* ── حفظ في Firestore ── */
   try {

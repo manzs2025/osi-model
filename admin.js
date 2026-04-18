@@ -187,6 +187,7 @@ window.switchPanel = function (btn, panelId) {
   if (panelId === "trainees") { loadTrainees(); loadLatestResults(); }
   if (panelId === "quizzes")  { renderQuestionBankSelector(); loadQuizzes(); }
   if (panelId === "articles") { loadArticles(); _initTinyMCE(); }
+  if (panelId === "pageContent") { _initPageContentTinyMCE(); }
   if (panelId === "settings") { loadSettings(); _initSettingsTinyMCE(); }
 };
 window.switchPanelById = function(panelId) { switchPanel(document.querySelector(`.sb-item[data-panel="${panelId}"]`), panelId); };
@@ -260,10 +261,6 @@ window.renderFilteredBank = function() {
             <span class="bank-q-badge cat">${CATEGORY_LABELS[q.category] || q.category}</span>
             <span class="bank-q-badge type">${TYPE_LABELS[q.type] || q.type}</span>
           </div>
-          <div class="q-points-wrap" style="display:${checked ? 'flex' : 'none'};">
-            <span style="font-size:0.9em; color:#00c9b1;">درجة هذا السؤال في الاختبار:</span>
-            <input type="number" class="q-point-input" data-qid="${q.id}" value="${q.points || 1}" min="1" onchange="updateTotalScore()" onclick="event.stopPropagation()">
-          </div>
         </div>
       </label>`;
   }).join("");
@@ -288,26 +285,40 @@ window.deselectAllBankQuestions = function() {
   }); updateSelectedCount();
 };
 
-// حساب الدرجات الإجمالية
+// عرض عدد الأسئلة المختارة وحساب الدرجة لكل سؤال من الإجمالي
 window.updateTotalScore = function() {
   const el = document.getElementById("selectedQCount");
-  let total = 0;
-  selectedQuestionIds.forEach(id => {
-    const input = document.querySelector(`.q-point-input[data-qid="${id}"]`);
-    if(input) total += (parseInt(input.value) || 1);
-  });
-  
-  if (el) el.textContent = `${selectedQuestionIds.size} سؤال محدد`;
-  
+  const count = selectedQuestionIds.size;
+  if (el) el.textContent = `${count} سؤال محدد`;
+
+  // قراءة الدرجة الإجمالية من الحقل (إن وُجد)
+  const totalInput = document.getElementById("quizTotalScore");
+  const total = totalInput ? (parseFloat(totalInput.value) || 0) : 0;
+
+  // حساب نصيب كل سؤال وعرضه
+  const perQ = count > 0 && total > 0 ? (total / count).toFixed(2) : 0;
+
   let badge = document.getElementById("totalQuizScoreBadge");
   if(!badge) {
     badge = document.createElement("div");
     badge.id = "totalQuizScoreBadge";
     const container = document.getElementById("bankQuestionsContainer");
-    container.parentNode.insertBefore(badge, container.nextSibling);
+    if (container) container.parentNode.insertBefore(badge, container.nextSibling);
   }
-  badge.innerHTML = `🏆 الدرجة الإجمالية للاختبار: <span>${total}</span> درجة`;
-  badge.style.display = selectedQuestionIds.size > 0 ? "inline-block" : "none";
+  if (badge) {
+    if (count > 0 && total > 0) {
+      badge.innerHTML = `🏆 الدرجة الإجمالية: <span>${total}</span> درجة &nbsp;·&nbsp; 📊 نصيب كل سؤال: <span>${perQ}</span> درجة`;
+      badge.style.display = "inline-block";
+    } else if (count > 0) {
+      badge.innerHTML = `⚠️ الرجاء إدخال الدرجة الإجمالية للاختبار في الأعلى`;
+      badge.style.background = "rgba(255,193,7,0.15)";
+      badge.style.borderColor = "rgba(255,193,7,0.5)";
+      badge.style.color = "#ffc107";
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  }
 };
 window.filterBankQuestions = renderFilteredBank;
 window.updateSelectedCount = function() { window.updateTotalScore(); };
@@ -389,36 +400,40 @@ window.saveBankQuestion = async function() {
   }
 };
 
-/* ── حفظ الاختبار بدرجاته ── */
+/* ── حفظ الاختبار بالدرجة الإجمالية (تُقسَّم بالتساوي) ── */
 window.saveQuizFromBank = async function() {
   const title = document.getElementById("quizTitle")?.value.trim();
   const page  = document.getElementById("quizPage")?.value;
   const durationRaw = document.getElementById("quizDuration")?.value;
   const duration = durationRaw ? parseInt(durationRaw) : null;
+  const totalScoreRaw = document.getElementById("quizTotalScore")?.value;
+  const totalScore = totalScoreRaw ? parseFloat(totalScoreRaw) : 0;
   const startDate = document.getElementById("quizStartDate")?.value;
   const endDate   = document.getElementById("quizEndDate")?.value;
 
   if (!title) return showQuizMsg("❌ يرجى كتابة عنوان الاختبار.", "error");
   if (!page)  return showQuizMsg("❌ يرجى اختيار القسم.", "error");
+  if (!totalScore || totalScore < 1 || totalScore > 1000) {
+    return showQuizMsg("❌ يرجى إدخال الدرجة الإجمالية للاختبار (بين 1 و 1000).", "error");
+  }
   if (duration !== null && (isNaN(duration) || duration < 1 || duration > 600)) {
     return showQuizMsg("❌ مدة الاختبار يجب أن تكون بين 1 و 600 دقيقة.", "error");
   }
   if (selectedQuestionIds.size === 0) return showQuizMsg("❌ يرجى تحديد سؤال واحد على الأقل.", "error");
 
-  // تجميع الأسئلة مع درجاتها المخصصة
-  let totalScore = 0;
-  const selectedQuestions = bankQuestions.filter(q => selectedQuestionIds.has(q.id)).map(q => {
-    const pts = parseInt(document.querySelector(`.q-point-input[data-qid="${q.id}"]`)?.value) || 1;
-    totalScore += pts;
-    return { ...q, points: pts };
-  });
+  // توزيع الدرجة بالتساوي على الأسئلة
+  const pointsPerQuestion = +(totalScore / selectedQuestionIds.size).toFixed(2);
+
+  const selectedQuestions = bankQuestions
+    .filter(q => selectedQuestionIds.has(q.id))
+    .map(q => ({ ...q, points: pointsPerQuestion }));
 
   const quizData = {
     title, page,
     duration: duration, // مدة الاختبار بالدقائق (null = بدون حد زمني)
     questions: selectedQuestions,
     questionCount: selectedQuestions.length,
-    totalScore: totalScore, // حفظ الدرجة الإجمالية للاختبار
+    totalScore: totalScore, // الدرجة الإجمالية للاختبار (مُدخَلة يدوياً)
     createdAt: serverTimestamp(),
     startDate: startDate ? Timestamp.fromDate(new Date(startDate)) : null,
     endDate:   endDate   ? Timestamp.fromDate(new Date(endDate))   : null,
@@ -435,9 +450,9 @@ window.saveQuizFromBank = async function() {
       // عند التعديل لا نغيّر حقل available (نحافظ على الحالة الحالية)
       const { available, ...editData } = quizData;
       await updateDoc(doc(db, "quizzes", editId), editData);
-      showQuizMsg(`✅ تم التحديث (${totalScore} درجة)!`, "success");
+      showQuizMsg(`✅ تم التحديث (${totalScore} درجة موزّعة على ${selectedQuestions.length} سؤال)!`, "success");
     }
-    else { await addDoc(collection(db, "quizzes"), quizData); showQuizMsg(`✅ تم الحفظ (${totalScore} درجة)!`, "success"); }
+    else { await addDoc(collection(db, "quizzes"), quizData); showQuizMsg(`✅ تم الحفظ (${totalScore} درجة موزّعة على ${selectedQuestions.length} سؤال)!`, "success"); }
     resetQuizForm(); loadQuizzes(); loadStats();
   } catch(e) { showQuizMsg("❌ فشل الحفظ: " + e.message, "error"); } 
   finally { btn.disabled = false; btn.querySelector(".qz-btn-text").style.display = "inline"; btn.querySelector(".qz-btn-spinner").style.display = "none"; }
@@ -450,7 +465,7 @@ function showQuizMsg(text, type) {
 }
 
 window.resetQuizForm = function() {
-  ["quizTitle","quizPage","quizDuration","quizStartDate","quizEndDate","quizEditId"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["quizTitle","quizPage","quizDuration","quizTotalScore","quizStartDate","quizEndDate","quizEditId"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   selectedQuestionIds.clear(); renderFilteredBank();
   document.querySelector("#quizFormCard .qz-form-title").innerHTML = `<span class="qz-form-icon">✏️</span> إنشاء اختبار جديد`;
 };
@@ -549,16 +564,12 @@ window.editQuiz = async function(quizId) {
     const d = snap.data();
     document.getElementById("quizTitle").value = d.title || ""; document.getElementById("quizPage").value = d.page || ""; document.getElementById("quizEditId").value = quizId;
     const durEl = document.getElementById("quizDuration"); if (durEl) durEl.value = d.duration || "";
+    const totalEl = document.getElementById("quizTotalScore"); if (totalEl) totalEl.value = d.totalScore || "";
     if (d.startDate?.toDate) document.getElementById("quizStartDate").value = toLocalDT(d.startDate.toDate());
     if (d.endDate?.toDate) document.getElementById("quizEndDate").value = toLocalDT(d.endDate.toDate());
     
     selectedQuestionIds.clear();
-    // استرجاع درجات الأسئلة التي تم حفظها سابقاً
-    (d.questions || []).forEach(q => {
-       selectedQuestionIds.add(q.id);
-       const qIndex = bankQuestions.findIndex(bq => bq.id === q.id);
-       if(qIndex !== -1) bankQuestions[qIndex].points = q.points || 1;
-    });
+    (d.questions || []).forEach(q => selectedQuestionIds.add(q.id));
     
     renderFilteredBank();
     document.querySelector("#quizFormCard .qz-form-title").innerHTML = `<span class="qz-form-icon">✏️</span> تعديل الاختبار <span class="art-edit-badge">✏️ وضع التعديل</span>`;
@@ -1745,6 +1756,146 @@ window.exportStatisticsToPDF = async function () {
     alert("❌ فشل توليد تقرير الإحصائيات: " + e.message);
     console.error(e);
   }
+};
+
+/* ══════════════════════════════════════════════════════
+   إدارة محتوى الصفحات التعليمية
+══════════════════════════════════════════════════════ */
+const PAGE_CONTENT_EDITOR_ID = "pageContentEditor";
+let _pageContentEditorInited = false;
+
+window._initPageContentTinyMCE = function () {
+  if (_pageContentEditorInited) return;
+  if (typeof tinymce === "undefined") return;
+
+  tinymce.init({
+    selector:       `#${PAGE_CONTENT_EDITOR_ID}`,
+    language:       "ar",
+    language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
+    directionality: "rtl",
+    skin:           "oxide-dark",
+    content_css:    "dark",
+    height:         400,
+    menubar:        false,
+    branding:       false,
+    promotion:      false,
+    plugins: ["advlist","lists","link","image","table","code","fullscreen","emoticons","charmap"],
+    toolbar: "styles | bold italic underline | forecolor backcolor | alignright aligncenter alignleft | bullist numlist | link image | table | customIcons charmap | removeformat | fullscreen code",
+    font_family_formats: "Cairo=Cairo,sans-serif;Tajawal=Tajawal,sans-serif",
+    content_style: `
+      body { font-family:'Cairo',sans-serif; direction:rtl; text-align:right; color:#e8eaf6; background:#161929; padding:12px; }
+      h1,h2,h3 { color:#fff; }
+      a { color:#00c9b1; }
+    `,
+    setup: (editor) => {
+      editor.on("init", () => editor.execCommand("fontName", false, "Cairo,sans-serif"));
+      editor.ui.registry.addButton("customIcons", {
+        text: "🎨 أيقونات",
+        tooltip: "إدراج أيقونة",
+        onAction: () => openIconsPicker(editor),
+      });
+    },
+  });
+
+  _pageContentEditorInited = true;
+};
+
+window.loadPageContentForEdit = async function () {
+  const pageId = document.getElementById("pageContentSelect")?.value;
+  if (!pageId) {
+    document.getElementById("pageContentTitle").value = "";
+    const ed = tinymce.get(PAGE_CONTENT_EDITOR_ID);
+    if (ed) ed.setContent("");
+    return;
+  }
+
+  const msg = document.getElementById("pageContentMsg");
+  if (msg) msg.style.display = "none";
+
+  try {
+    const snap = await getDoc(doc(db, "pageContent", pageId));
+    if (snap.exists()) {
+      const d = snap.data();
+      document.getElementById("pageContentTitle").value = d.title || "";
+      const ed = tinymce.get(PAGE_CONTENT_EDITOR_ID);
+      if (ed) {
+        ed.setContent(d.content || "");
+      } else {
+        // المحرّر لم يُهيَّأ بعد — نعيد المحاولة
+        setTimeout(() => {
+          const ed2 = tinymce.get(PAGE_CONTENT_EDITOR_ID);
+          if (ed2) ed2.setContent(d.content || "");
+        }, 600);
+      }
+    } else {
+      document.getElementById("pageContentTitle").value = "";
+      const ed = tinymce.get(PAGE_CONTENT_EDITOR_ID);
+      if (ed) ed.setContent("");
+    }
+  } catch (e) {
+    if (msg) {
+      msg.textContent = "❌ فشل التحميل: " + e.message;
+      msg.className = "qz-form-msg error";
+      msg.style.display = "block";
+    }
+  }
+};
+
+window.savePageContent = async function () {
+  const pageId = document.getElementById("pageContentSelect")?.value;
+  const title  = document.getElementById("pageContentTitle")?.value.trim() || "";
+  const content = tinymce.get(PAGE_CONTENT_EDITOR_ID)?.getContent() || "";
+  const msg = document.getElementById("pageContentMsg");
+
+  const show = (t, type) => {
+    if (!msg) return;
+    msg.textContent = t;
+    msg.className = `qz-form-msg ${type}`;
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 4000);
+  };
+
+  if (!pageId) return show("❌ يرجى اختيار صفحة.", "error");
+  if (!content.trim()) return show("❌ المحتوى فارغ — لا يمكن حفظ محتوى فارغ.", "error");
+
+  try {
+    await setDoc(doc(db, "pageContent", pageId), {
+      pageId, title, content,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    show(`✅ تم حفظ محتوى صفحة "${pageId}" بنجاح!`, "success");
+  } catch (e) {
+    show("❌ فشل الحفظ: " + e.message, "error");
+  }
+};
+
+window.deletePageContent = async function () {
+  const pageId = document.getElementById("pageContentSelect")?.value;
+  const msg = document.getElementById("pageContentMsg");
+  if (!pageId) return alert("اختر صفحة أولاً.");
+  if (!confirm(`هل أنت متأكد من حذف المحتوى الإضافي لصفحة "${pageId}"؟\nالمحتوى التعليمي الأصلي في الصفحة لن يتأثر.`)) return;
+
+  try {
+    await deleteDoc(doc(db, "pageContent", pageId));
+    document.getElementById("pageContentTitle").value = "";
+    const ed = tinymce.get(PAGE_CONTENT_EDITOR_ID);
+    if (ed) ed.setContent("");
+    if (msg) {
+      msg.textContent = "✅ تم الحذف بنجاح.";
+      msg.className = "qz-form-msg success";
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 4000);
+    }
+  } catch (e) {
+    alert("❌ فشل الحذف: " + e.message);
+  }
+};
+
+window.previewPageContent = function () {
+  const pageId = document.getElementById("pageContentSelect")?.value;
+  if (!pageId) return alert("اختر صفحة أولاً.");
+  const url = pageId === "home" ? "index.html" : `${pageId}.html`;
+  window.open(url, "_blank");
 };
 
 /* ═══════════════════════════════════════

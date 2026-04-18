@@ -2117,6 +2117,11 @@ html, body {
         إدارة المقالات
       </button>
 
+      <button class="sb-item" data-panel="pageContent" onclick="switchPanel(this, 'pageContent')">
+        <span class="sb-icon">📄</span>
+        محتوى الصفحات
+      </button>
+
       <button class="sb-item" data-panel="quizzes" onclick="switchPanel(this, 'quizzes')">
         <span class="sb-icon">📋</span>
         إدارة الاختبارات
@@ -2389,6 +2394,68 @@ html, body {
 
       </section>
 
+      <!-- ════════════ PANEL: PAGE CONTENT ════════════ -->
+      <section class="panel" id="panel-pageContent">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-tag">📄 محتوى الصفحات</div>
+            <div class="panel-title">تعديل <span>محتوى الصفحات التعليمية</span></div>
+            <div class="panel-subtitle">أضف فقرات أو ملاحظات تظهر في أعلى كل صفحة (تظهر قبل المحتوى الأصلي)</div>
+          </div>
+        </div>
+
+        <div class="qz-form-card" style="margin-top:1rem;">
+          <div class="qz-form-header" style="padding:1.5rem;">
+            <div class="qz-form-title"><span class="qz-form-icon">📄</span> تعديل محتوى صفحة</div>
+          </div>
+
+          <div style="padding:1.5rem;">
+            <div style="background:rgba(0,201,177,0.08);border:1px solid rgba(0,201,177,0.3);border-radius:10px;padding:0.85rem 1rem;color:var(--text-muted);font-size:0.83rem;margin-bottom:1.5rem;">
+              💡 يمكنك إضافة محتوى إضافي لكل صفحة يظهر في أعلى الصفحة (قبل المحتوى التعليمي الأصلي). استخدم هذا لإضافة مقدّمات، إعلانات، تحديثات، أو أي محتوى تريد أن يراه الزائر قبل المحتوى الرئيسي.
+            </div>
+
+            <div class="qz-field-group" style="margin-bottom:1rem;">
+              <label class="qz-label" for="pageContentSelect">اختر الصفحة *</label>
+              <select id="pageContentSelect" class="qz-input qz-select" onchange="loadPageContentForEdit()">
+                <option value="">— اختر صفحة —</option>
+                <option value="networks">📡 شبكات الحاسب الآلي (networks.html)</option>
+                <option value="security">🔒 الأمان في الشبكات (security.html)</option>
+                <option value="osi">🔁 نموذج OSI (osi.html)</option>
+                <option value="cables">🔌 كيابل الشبكات (cables.html)</option>
+                <option value="ip">🌍 بروتوكول IP (ip.html)</option>
+                <option value="home">🏠 الصفحة الرئيسية (index.html)</option>
+              </select>
+            </div>
+
+            <div class="qz-field-group" style="margin-bottom:1rem;">
+              <label class="qz-label" for="pageContentTitle">عنوان القسم الإضافي (اختياري)</label>
+              <input type="text" id="pageContentTitle" class="qz-input" placeholder="مثال: تحديثات المنهج لعام 2026">
+            </div>
+
+            <div class="qz-field-group" style="margin-bottom:1.25rem;">
+              <label class="qz-label">المحتوى الإضافي</label>
+              <div style="background:#161929;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+                <textarea id="pageContentEditor"></textarea>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+              <button class="qz-save-btn" onclick="savePageContent()">
+                <span>💾 حفظ المحتوى</span>
+              </button>
+              <button class="qz-refresh-btn" onclick="deletePageContent()" style="background:rgba(244,67,54,0.1);color:#ff6b6b;border-color:rgba(244,67,54,0.3);">
+                🗑️ حذف المحتوى الإضافي لهذه الصفحة
+              </button>
+              <button class="qz-refresh-btn" onclick="previewPageContent()" style="background:rgba(0,201,177,0.1);color:var(--accent);border-color:rgba(0,201,177,0.3);">
+                👁️ معاينة الصفحة
+              </button>
+            </div>
+
+            <div class="qz-form-msg" id="pageContentMsg" style="display:none;margin-top:1rem;"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ════════════ PANEL: QUIZZES ════════════ -->
       <section class="panel" id="panel-quizzes">
 
@@ -2426,29 +2493,34 @@ html, body {
             <!-- حقل مخفي لمعرف التعديل -->
             <input type="hidden" id="quizEditId" value="">
 
-            <!-- الحقول الأساسية: العنوان + المدة -->
+            <!-- الحقول الأساسية: العنوان + المدة + الدرجة الإجمالية -->
             <div class="qz-fields-row">
               <div class="qz-field-group">
                 <label class="qz-label" for="quizTitle">عنوان الاختبار *</label>
                 <input type="text" id="quizTitle" class="qz-input" placeholder="مثال: اختبار شبكات الحاسب الآلي" maxlength="100">
               </div>
               <div class="qz-field-group">
-                <label class="qz-label" for="quizDuration">⏱️ مدة الاختبار (بالدقائق) <small style="color:var(--text-faint);font-weight:400;">(اختياري — عند انتهاء الوقت يُقفل الاختبار تلقائياً)</small></label>
+                <label class="qz-label" for="quizDuration">⏱️ مدة الاختبار (بالدقائق) <small style="color:var(--text-faint);font-weight:400;">(اختياري)</small></label>
                 <input type="number" id="quizDuration" class="qz-input" placeholder="مثال: 30" min="1" max="600" style="direction:ltr;text-align:right;">
               </div>
             </div>
 
-            <!-- القسم التابع له -->
-            <div class="qz-field-group" style="margin-bottom:1rem;">
-              <label class="qz-label" for="quizPage">القسم التابع له *</label>
-              <select id="quizPage" class="qz-input qz-select">
-                <option value="">— اختر القسم —</option>
-                <option value="networks">شبكات الحاسب الآلي</option>
-                <option value="security">الأمان في الشبكات</option>
-                <option value="osi">نموذج OSI</option>
-                <option value="cables">كيابل الشبكات</option>
-                <option value="ip">بروتوكول IP</option>
-              </select>
+            <div class="qz-fields-row">
+              <div class="qz-field-group">
+                <label class="qz-label" for="quizTotalScore">🏆 الدرجة الإجمالية للاختبار * <small style="color:var(--text-faint);font-weight:400;">(تُقسَّم بالتساوي على عدد الأسئلة)</small></label>
+                <input type="number" id="quizTotalScore" class="qz-input" placeholder="مثال: 100" min="1" max="1000" step="0.5" onchange="updateTotalScore()" style="direction:ltr;text-align:right;">
+              </div>
+              <div class="qz-field-group">
+                <label class="qz-label" for="quizPage">📚 القسم التابع له *</label>
+                <select id="quizPage" class="qz-input qz-select">
+                  <option value="">— اختر القسم —</option>
+                  <option value="networks">شبكات الحاسب الآلي</option>
+                  <option value="security">الأمان في الشبكات</option>
+                  <option value="osi">نموذج OSI</option>
+                  <option value="cables">كيابل الشبكات</option>
+                  <option value="ip">بروتوكول IP</option>
+                </select>
+              </div>
             </div>
 
             <!-- الجدولة الزمنية -->

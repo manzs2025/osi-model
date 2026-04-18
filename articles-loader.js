@@ -8,7 +8,7 @@
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, query, where, orderBy, getDocs }
+import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -222,13 +222,93 @@ async function loadPageArticles() {
   }
 }
 
+/* ─── جلب المحتوى الإضافي للصفحة وعرضه في الأعلى ─── */
+async function loadPageExtraContent() {
+  const pageId = getPageId();
+  const mainEl = document.querySelector('main.page-content') || document.querySelector('main');
+  if (!mainEl) return;
+
+  try {
+    const snap = await getDoc(doc(db, "pageContent", pageId));
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    if (!data.content || !data.content.trim()) return;
+
+    const section = document.createElement('section');
+    section.className = 'dynamic-page-extra';
+    section.innerHTML = `
+      <style>
+        .dynamic-page-extra {
+          margin: 0 0 2rem;
+          padding: 1.75rem 1.5rem;
+          background: linear-gradient(135deg, rgba(108,47,160,0.08), rgba(0,201,177,0.05));
+          border: 1px solid rgba(0,201,177,0.3);
+          border-right: 4px solid #00c9b1;
+          border-radius: var(--radius, 14px);
+          color: var(--text, #e8eaf6);
+          line-height: 1.85;
+        }
+        .dynamic-page-extra .dpx-label {
+          display: inline-block;
+          background: rgba(0,201,177,0.15);
+          color: #00c9b1;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          margin-bottom: 0.85rem;
+        }
+        .dynamic-page-extra h2.dpx-title {
+          font-size: 1.35rem;
+          font-weight: 900;
+          color: var(--accent, #00c9b1);
+          margin: 0 0 1rem;
+        }
+        .dynamic-page-extra .dpx-body { font-size: 0.95rem; }
+        .dynamic-page-extra .dpx-body p { margin: 0.7rem 0; }
+        .dynamic-page-extra .dpx-body ul, .dynamic-page-extra .dpx-body ol { margin: 0.7rem 2rem; }
+        .dynamic-page-extra .dpx-body h1,
+        .dynamic-page-extra .dpx-body h2,
+        .dynamic-page-extra .dpx-body h3,
+        .dynamic-page-extra .dpx-body h4 { color: var(--accent, #00c9b1); margin: 1.1rem 0 0.5rem; font-weight: 800; }
+        .dynamic-page-extra .dpx-body img { max-width: 100%; border-radius: 8px; margin: 0.5rem 0; }
+        .dynamic-page-extra .dpx-body a { color: #00c9b1; text-decoration: underline; }
+        .dynamic-page-extra .dpx-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .dynamic-page-extra .dpx-body table td, .dynamic-page-extra .dpx-body table th { border: 1px solid rgba(108,47,160,0.3); padding: 6px 10px; }
+        .dynamic-page-extra .dpx-body table th { background: rgba(108,47,160,0.2); font-weight: 700; }
+        .dynamic-page-extra .dpx-body blockquote {
+          border-right: 4px solid #8b46c8;
+          padding: 0.5rem 1rem;
+          margin: 0.75rem 0;
+          background: rgba(108,47,160,0.1);
+        }
+      </style>
+      <div class="dpx-label">✨ تحديث من المدرّب</div>
+      ${data.title ? `<h2 class="dpx-title">${_esc(data.title)}</h2>` : ""}
+      <div class="dpx-body">${data.content}</div>
+    `;
+
+    // نضع هذا المحتوى في أعلى main
+    mainEl.insertBefore(section, mainEl.firstChild);
+
+  } catch (err) {
+    console.error('pageContent loader error:', err);
+    // فشل بصمت
+  }
+}
+
 function _esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ابدأ التحميل بعد جاهزية الصفحة
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadPageArticles);
-} else {
+function _initLoaders() {
+  loadPageExtraContent();
   loadPageArticles();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initLoaders);
+} else {
+  _initLoaders();
 }
