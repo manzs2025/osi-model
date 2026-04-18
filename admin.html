@@ -827,6 +827,34 @@ html, body {
 /* Notifications */
 .tox-notifications-container { display: none !important; }
 
+/* ════════════════════════════════════════════════
+   🔥 z-index لقوائم TinyMCE المنبثقة داخل المودال
+   .tr-modal-overlay عنده z-index:9000 — والقوائم المنسدلة
+   (fontfamily, fontsize, styles, emoji picker, dialogs...)
+   تُحقن في <body> مباشرة، لذا نرفع z-index لها فوق 9000
+   حتى تظهر وتتفاعل بشكل صحيح.
+════════════════════════════════════════════════ */
+.tox-tinymce-aux,
+.tox .tox-menu,
+.tox .tox-tiered-menu,
+.tox .tox-collection,
+.tox .tox-pop,
+.tox .tox-toolbar__overflow,
+.tox .tox-silver-sink,
+.tox-silver-sink {
+  z-index: 99999 !important;
+}
+/* Dialogs (روابط، صور، جداول، search...) */
+.tox .tox-dialog-wrap,
+.tox .tox-dialog,
+.tox .tox-dialog-wrap__backdrop {
+  z-index: 99998 !important;
+}
+/* Fullscreen داخل مودال: يجب أن يغطي المودال نفسه */
+.tox.tox-tinymce--fullscreen {
+  z-index: 100000 !important;
+}
+
 /* زر تعديل في الجدول */
 .art-edit-btn {
   padding: 0.32rem 0.7rem;
@@ -2569,7 +2597,7 @@ html, body {
 
         <!-- Modal للتعديل -->
         <div id="legacyEditModal" class="tr-modal-overlay" style="display:none;">
-          <div class="tr-modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+          <div class="tr-modal" style="max-width:920px;width:95%;max-height:92vh;overflow-y:auto;">
             <div class="tr-modal-header">
               <div class="tr-modal-title">✏️ تعديل النص</div>
               <button class="tr-modal-close" onclick="legacyCloseEditModal()">✕</button>

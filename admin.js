@@ -714,27 +714,42 @@ window.exportResultsToExcel = function () {
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "نتائج المتدربين"); XLSX.writeFile(wb, `نتائج_المتدربين.xlsx`);
 };
 
-/* ── المقالات (TinyMCE) ── */
-let _editingArticleId = null;
-window._initTinyMCE = function () {
-  if (typeof tinymce === "undefined" || tinymce.get("tinyEditor")) return;
-
-  tinymce.init({
-    selector:       "#tinyEditor",
+/* ══════════════════════════════════════════════════════
+   ⚡ دالة موحّدة لإعدادات TinyMCE الكاملة
+   جميع محررات الموقع تستخدم هذه الدالة لضمان نفس القوة:
+   - menubar كامل (ملف، تحرير، عرض، إدراج، تنسيق...)
+   - plugins كاملة
+   - toolbar كامل مع زر الأيقونات المخصّص
+   - خط Cairo + أحجام خطوط متعددة
+   - ألوان الموقع (بنفسجي + فيروزي)
+   options:
+     - height        : ارتفاع المحرر (افتراضي 450)
+     - min_height    : الحد الأدنى (افتراضي 300)
+     - menubar       : true|false|string (افتراضي كامل)
+     - inModal       : true لو داخل tr-modal-overlay (يضبط z-index)
+     - extraSetup    : دالة إضافية للـ setup
+     - extra         : مفاتيح إضافية لدمجها في الكونفج
+══════════════════════════════════════════════════════ */
+window._getFullEditorConfig = function (selector, options = {}) {
+  const opts = options || {};
+  const cfg = {
+    selector,
     language:       "ar",
     language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
     directionality: "rtl",
     skin:           "oxide-dark",
     content_css:    "dark",
 
-    /* ── شريط الأدوات الكامل ── */
-    toolbar_mode: "wrap",
+    /* ── Plugins الكاملة ── */
     plugins: [
       "advlist", "autolink", "lists", "link", "image", "charmap",
       "preview", "anchor", "searchreplace", "visualblocks", "code",
       "fullscreen", "insertdatetime", "media", "table", "help",
       "wordcount", "emoticons", "codesample",
     ],
+
+    /* ── Toolbar الكامل ── */
+    toolbar_mode: "wrap",
     toolbar: [
       "fontfamily fontsize | styles | bold italic underline strikethrough |",
       "forecolor backcolor | alignright aligncenter alignleft alignjustify |",
@@ -753,7 +768,7 @@ window._initTinyMCE = function () {
     ].join(";"),
 
     font_size_formats:
-      "10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
+      "8pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
 
     style_formats: [
       { title: "عنوان 1",  block: "h1" },
@@ -777,8 +792,14 @@ window._initTinyMCE = function () {
         background: #161929;
         margin: 12px 16px;
       }
-      h1,h2,h3 { color:#fff; }
-      a        { color:#00c9b1; }
+      h1,h2,h3,h4 { color:#fff; }
+      h2 { border-bottom:2px solid rgba(108,47,160,0.4); padding-bottom:0.5rem; }
+      h3 { color:#00c9b1; }
+      p  { margin-bottom:0.85rem; }
+      ul, ol { padding-right:1.5rem; }
+      li { margin-bottom:0.4rem; }
+      strong { color:#fff; }
+      a { color:#00c9b1; }
       blockquote {
         border-right: 4px solid #8b46c8;
         border-left: none;
@@ -787,34 +808,73 @@ window._initTinyMCE = function () {
         background: rgba(108,47,160,0.1);
         color: #8c90b5;
       }
+      table { border-collapse:collapse; width:100%; }
       table td, table th {
         border: 1px solid rgba(108,47,160,0.25);
         padding: 6px 10px;
       }
       table th { background: rgba(108,47,160,0.15); font-weight: 700; }
+      img { max-width:100%; border-radius:8px; }
+      pre { background:rgba(0,0,0,0.3); padding:0.75rem; border-radius:6px; overflow-x:auto; }
     `,
 
-    height:             450,
-    min_height:         300,
-    menubar:            "file edit view insert format tools table help",
-    statusbar:          true,
-    branding:           false,
-    promotion:          false,
-    resize:             true,
-    paste_data_images:  true,
+    height:      opts.height      || 450,
+    min_height:  opts.min_height  || 300,
+    menubar:     opts.menubar === undefined
+                   ? "file edit view insert format tools table help"
+                   : opts.menubar,
+    statusbar:         true,
+    branding:          false,
+    promotion:         false,
+    resize:            true,
+    paste_data_images: true,
+
+    /* ── إعدادات الصور (روابط خارجية) ── */
+    image_title:       false,
+    image_description: false,
+    image_dimensions:  true,
+    image_advtab:      false,
+    automatic_uploads: false,
 
     setup: (editor) => {
       editor.on("init", () => {
         editor.execCommand("fontName", false, "Cairo,sans-serif");
       });
-      // تسجيل زر الأيقونات المخصّص
+      // زر الأيقونات المخصّص (موحّد في كل المحررات)
       editor.ui.registry.addButton("customIcons", {
         text: "🎨 أيقونات",
         tooltip: "إدراج أيقونة",
         onAction: () => openIconsPicker(editor),
       });
+      // setup إضافي خاص بكل محرر
+      if (typeof opts.extraSetup === "function") {
+        opts.extraSetup(editor);
+      }
     },
-  });
+
+    /* ── لو داخل مودال: ارفع z-index للعناصر المنبثقة ── */
+    ...(opts.inModal ? {
+      /* TinyMCE يضع القوائم والـ dialogs في body مباشرة،
+         لذا نرفع z-index عبر CSS (تمّ في admin.html). */
+    } : {}),
+  };
+
+  // دمج أي مفاتيح إضافية
+  if (opts.extra && typeof opts.extra === "object") {
+    Object.assign(cfg, opts.extra);
+  }
+
+  return cfg;
+};
+
+/* ── المقالات (TinyMCE) ── */
+let _editingArticleId = null;
+window._initTinyMCE = function () {
+  if (typeof tinymce === "undefined" || tinymce.get("tinyEditor")) return;
+  tinymce.init(window._getFullEditorConfig("#tinyEditor", {
+    height: 450,
+    min_height: 300,
+  }));
 };
 
 /* ══════════════════════════════════════════════════════
@@ -984,40 +1044,15 @@ const DEFAULT_HOME_CARDS = [
 ];
 
 /**
- * تهيئة محرر TinyMCE مخصص لقسم الإعدادات
+ * تهيئة محرر TinyMCE لقسم الإعدادات (المقال الترحيبي)
+ * — موحّد عبر _getFullEditorConfig — نفس قوة محرر المقالات
  */
 window._initSettingsTinyMCE = function () {
   if (typeof tinymce === "undefined" || tinymce.get("settingsTinyEditor")) return;
-  tinymce.init({
-    selector: "#settingsTinyEditor",
-    language: "ar",
-    language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
-    directionality: "rtl",
-    skin: "oxide-dark",
-    content_css: "dark",
-    toolbar_mode: "wrap",
-    plugins: ["advlist","autolink","lists","link","image","charmap","preview","anchor","searchreplace","visualblocks","code","fullscreen","insertdatetime","media","table","help","wordcount","emoticons","codesample"],
-    toolbar: "fontfamily fontsize | styles | bold italic underline strikethrough | forecolor backcolor | alignright aligncenter alignleft alignjustify | bullist numlist outdent indent | table | link image emoticons charmap | blockquote codesample | removeformat | fullscreen preview code | help",
-    font_family_formats: "Cairo=Cairo,sans-serif;Tajawal=Tajawal,sans-serif;Almarai=Almarai,sans-serif;Arial=arial,helvetica,sans-serif;Times New Roman=times new roman,times;Courier New=courier new,courier",
-    font_size_formats: "10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt",
-    style_formats: [
-      { title: "عنوان 1", block: "h1" }, { title: "عنوان 2", block: "h2" },
-      { title: "عنوان 3", block: "h3" }, { title: "نص عادي", block: "p" },
-      { title: "اقتباس", block: "blockquote" }, { title: "كود", block: "pre" },
-    ],
-    content_style: `
-      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&display=swap');
-      body { font-family:'Cairo',sans-serif; font-size:15px; line-height:1.85; direction:rtl; text-align:right; color:#e8eaf6; background:#161929; margin:12px 16px; }
-      h1,h2,h3 { color:#fff; } a { color:#00c9b1; }
-      blockquote { border-right:4px solid #8b46c8; border-left:none; padding:0.5rem 1rem; margin:0.75rem 0; background:rgba(108,47,160,0.1); color:#8c90b5; }
-      table td,table th { border:1px solid rgba(108,47,160,0.25); padding:6px 10px; }
-      table th { background:rgba(108,47,160,0.15); font-weight:700; }
-    `,
-    height: 350, min_height: 250,
-    menubar: "file edit view insert format tools table help",
-    statusbar: true, branding: false, promotion: false, resize: true, paste_data_images: true,
-    setup: (editor) => { editor.on("init", () => editor.execCommand("fontName", false, "Cairo,sans-serif")); },
-  });
+  tinymce.init(window._getFullEditorConfig("#settingsTinyEditor", {
+    height: 400,
+    min_height: 280,
+  }));
 };
 
 /**
@@ -1767,34 +1802,10 @@ window._initPageContentTinyMCE = function () {
   if (_pageContentEditorInited) return;
   if (typeof tinymce === "undefined") return;
 
-  tinymce.init({
-    selector:       `#${PAGE_CONTENT_EDITOR_ID}`,
-    language:       "ar",
-    language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
-    directionality: "rtl",
-    skin:           "oxide-dark",
-    content_css:    "dark",
-    height:         400,
-    menubar:        false,
-    branding:       false,
-    promotion:      false,
-    plugins: ["advlist","lists","link","image","table","code","fullscreen","emoticons","charmap"],
-    toolbar: "styles | bold italic underline | forecolor backcolor | alignright aligncenter alignleft | bullist numlist | link image | table | customIcons charmap | removeformat | fullscreen code",
-    font_family_formats: "Cairo=Cairo,sans-serif;Tajawal=Tajawal,sans-serif",
-    content_style: `
-      body { font-family:'Cairo',sans-serif; direction:rtl; text-align:right; color:#e8eaf6; background:#161929; padding:12px; }
-      h1,h2,h3 { color:#fff; }
-      a { color:#00c9b1; }
-    `,
-    setup: (editor) => {
-      editor.on("init", () => editor.execCommand("fontName", false, "Cairo,sans-serif"));
-      editor.ui.registry.addButton("customIcons", {
-        text: "🎨 أيقونات",
-        tooltip: "إدراج أيقونة",
-        onAction: () => openIconsPicker(editor),
-      });
-    },
-  });
+  tinymce.init(window._getFullEditorConfig(`#${PAGE_CONTENT_EDITOR_ID}`, {
+    height: 420,
+    min_height: 300,
+  }));
 
   _pageContentEditorInited = true;
 };
@@ -2090,20 +2101,13 @@ window.cmsToggleSection = function(secId) {
 
 function _cmsInitEditor(editorId, initialContent) {
   if (typeof tinymce === "undefined") return;
-  tinymce.init({
-    selector: `#${editorId}`,
-    language: "ar",
-    language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
-    directionality: "rtl",
-    skin: "oxide-dark", content_css: "dark",
-    height: 350, menubar: false, branding: false, promotion: false,
-    plugins: ["advlist","lists","link","image","table","code","fullscreen","emoticons"],
-    toolbar: "styles | bold italic underline | forecolor backcolor | alignright aligncenter alignleft | bullist numlist | link image | table | removeformat | fullscreen code",
-    content_style: `body{font-family:'Cairo',sans-serif;direction:rtl;text-align:right;color:#e8eaf6;background:#161929;padding:12px;font-size:0.95rem;line-height:1.7}h2{color:#fff;border-bottom:2px solid rgba(108,47,160,0.4);padding-bottom:0.5rem}h3{color:#00c9b1}p{margin-bottom:0.85rem}ul,ol{padding-right:1.5rem}li{margin-bottom:0.4rem}strong{color:#fff}a{color:#00c9b1}table{border-collapse:collapse;width:100%}td,th{border:1px solid rgba(255,255,255,0.15);padding:0.5rem 0.75rem}th{background:rgba(108,47,160,0.3)}img{max-width:100%;border-radius:8px}`,
-    setup: (ed) => {
+  tinymce.init(window._getFullEditorConfig(`#${editorId}`, {
+    height: 400,
+    min_height: 280,
+    extraSetup: (ed) => {
       ed.on("init", () => { if (initialContent) ed.setContent(initialContent); });
     }
-  });
+  }));
 }
 
 window.cmsSaveSection = async function(secId) {
@@ -2459,24 +2463,11 @@ let _legacyEditorInited = false;
 
 function _legacyInitEditor() {
   if (_legacyEditorInited || typeof tinymce === "undefined") return;
-  tinymce.init({
-    selector: "#legacyEditModalEditor",
-    language: "ar",
-    language_url: "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
-    directionality: "rtl",
-    skin: "oxide-dark", content_css: "dark",
-    height: 320, menubar: false, branding: false, promotion: false,
-    plugins: ["advlist","lists","link","image","table","code","fullscreen","emoticons","charmap"],
-    toolbar: "bold italic underline | forecolor backcolor | alignright aligncenter alignleft | bullist numlist | link image | table | removeformat | code fullscreen",
-    /* إعدادات الصور - نستخدم روابط خارجية فقط */
-    image_title: false,
-    image_description: false,
-    image_dimensions: true,
-    image_advtab: false,
-    automatic_uploads: false,
-    file_picker_types: "",
-    content_style: `body{font-family:'Cairo',sans-serif;direction:rtl;text-align:right;color:#e8eaf6;background:#161929;padding:12px;font-size:0.92rem;line-height:1.7}strong{color:#fff}a{color:#00c9b1}img{max-width:100%;border-radius:8px}`,
-  });
+  tinymce.init(window._getFullEditorConfig("#legacyEditModalEditor", {
+    height: 380,
+    min_height: 260,
+    inModal: true,   // محرر داخل مودال → z-index محسّن عبر CSS
+  }));
   _legacyEditorInited = true;
 }
 
@@ -2492,14 +2483,22 @@ window.legacyOpenEditModal = function(elId) {
 
   /* تهيئة TinyMCE عند أول فتح ثم وضع المحتوى */
   _legacyInitEditor();
-  setTimeout(() => {
+
+  // انتظار حتى تكتمل التهيئة (TinyMCE 6 قد تأخذ وقتاً)
+  const trySetContent = (attempts = 0) => {
     const ed = tinymce.get("legacyEditModalEditor");
-    if (ed) {
-      ed.setContent(currentContent);
+    if (ed && ed.initialized) {
+      ed.setContent(currentContent || "");
+      try { ed.focus(); } catch(_) {}
+    } else if (attempts < 20) {
+      setTimeout(() => trySetContent(attempts + 1), 100);
     } else {
-      document.getElementById("legacyEditModalEditor").value = currentContent;
+      // fallback: نكتب مباشرة في الـ textarea
+      const ta = document.getElementById("legacyEditModalEditor");
+      if (ta) ta.value = currentContent || "";
     }
-  }, 200);
+  };
+  setTimeout(() => trySetContent(0), 150);
 };
 
 window.legacyCloseEditModal = function() {
