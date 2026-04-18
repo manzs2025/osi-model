@@ -539,6 +539,26 @@ window.deleteQuiz = async function(id, title) { if (confirm(`حذف الاختب
 
 window.loadStats = async function () {
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  // محاولة 1: getCountFromServer — سريع ورخيص (قراءة واحدة لكل 1000 وثيقة)
+  try {
+    const [trCount, qzCount, rsCount, bkCount] = await Promise.all([
+      getCountFromServer(query(collection(db, "users"), where("role", "==", "trainee"))),
+      getCountFromServer(collection(db, "quizzes")),
+      getCountFromServer(collection(db, "results")),
+      getCountFromServer(collection(db, "questionBank"))
+    ]);
+    setVal("statTrainees", trCount.data().count);
+    setVal("statQuizzes",  qzCount.data().count);
+    setVal("statResults",  rsCount.data().count);
+    setVal("statBank",     bkCount.data().count);
+    return;   // ✅ نجح
+  } catch (e) {
+    console.warn("[loadStats] getCountFromServer failed, falling back to getDocs:", e?.message || e);
+    // لا نتوقف — ننتقل للـ fallback
+  }
+
+  // محاولة 2 (fallback): getDocs — السلوك القديم
   try {
     const [trSnap, qzSnap, rsSnap, bkSnap] = await Promise.all([
       getDocs(query(collection(db, "users"), where("role", "==", "trainee"))),
@@ -551,7 +571,7 @@ window.loadStats = async function () {
     setVal("statResults",  rsSnap.size);
     setVal("statBank",     bkSnap.size);
   } catch (e) {
-    console.error("loadStats error:", e);
+    console.error("loadStats error (both methods failed):", e);
     ["statTrainees","statQuizzes","statResults","statBank"].forEach(id => setVal(id, "—"));
   }
 };
