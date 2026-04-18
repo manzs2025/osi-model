@@ -1898,6 +1898,453 @@ window.previewPageContent = function () {
   window.open(url, "_blank");
 };
 
+
+
+/* ═══════════════════════════════════════════════════════
+   🌐 نظام إدارة المحتوى الكامل (CMS)
+   البنية في Firestore:
+   sitePages/{pageId}        → معلومات الصفحة (name, icon, desc, order)
+   siteContent/{pageId}/sections/{sectionId} → أقسام الصفحة
+═══════════════════════════════════════════════════════ */
+
+/* CMS uses existing Firestore imports from top of file */
+
+/* الصفحات الثابتة الافتراضية */
+const CMS_DEFAULT_PAGES = {
+  networks: { name:"شبكات الحاسب الآلي", icon:"📡", order:1 },
+  security: { name:"الأمان في الشبكات",  icon:"🔒", order:2 },
+  osi:      { name:"نموذج OSI",           icon:"🔁", order:3 },
+  cables:   { name:"كيابل الشبكات",       icon:"🔌", order:4 },
+  ip:       { name:"بروتوكول IP",         icon:"🌍", order:5 },
+};
+
+let _cmsCurrentPage   = null;   /* معرّف الصفحة المحددة */
+let _cmsSections      = [];     /* مصفوفة الأقسام المحملة */
+let _cmsEditorInited  = {};     /* { sectionId: true } — محررات TinyMCE المُهيَّأة */
+let _cmsPagesCache    = null;   /* كاش قائمة الصفحات */
+
+/* ── إظهار رسائل ── */
+function _cmsMsg(text, type = "success") {
+  const el = document.getElementById("cmsMsg");
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = "block";
+  el.style.background = type === "success" ? "rgba(0,201,177,0.1)" : "rgba(244,67,54,0.1)";
+  el.style.border = type === "success" ? "1px solid rgba(0,201,177,0.3)" : "1px solid rgba(244,67,54,0.3)";
+  el.style.color = type === "success" ? "#00c9b1" : "#ff6b6b";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = "none"; }, 5000);
+}
+
+/* ── تحميل قائمة الصفحات من Firestore ── */
+async function _cmsLoadPages() {
+  if (_cmsPagesCache) return _cmsPagesCache;
+  const pages = { ...CMS_DEFAULT_PAGES };
+  try {
+    const snap = await getDocs(collection(db, "sitePages"));
+    snap.forEach(d => { pages[d.id] = { ...pages[d.id], ...d.data() }; });
+  } catch(e) { /* نستخدم الافتراضية */ }
+  _cmsPagesCache = pages;
+  return pages;
+}
+
+/* ── تحديث قائمة select بعد إضافة صفحة جديدة ── */
+async function _cmsRefreshPageSelect() {
+  _cmsPagesCache = null;
+  const pages = await _cmsLoadPages();
+  const sel = document.getElementById("cmsPageSelect");
+  if (!sel) return;
+  // احتفظ بالخيارات الافتراضية + أضف الجديدة
+  const existing = Array.from(sel.options).map(o => o.value).filter(Boolean);
+  Object.entries(pages).forEach(([id, info]) => {
+    if (!existing.includes(id)) {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = `${info.icon || "📄"} ${info.name}`;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+/* ══ تحميل أقسام الصفحة ══ */
+window.cmsLoadPage = async function() {
+  const pageId = document.getElementById("cmsPageSelect")?.value;
+  _cmsCurrentPage = pageId || null;
+
+  const listEl    = document.getElementById("cmsSectionsList");
+  const emptyEl   = document.getElementById("cmsEmpty");
+  const loadingEl = document.getElementById("cmsLoading");
+  const preview   = document.getElementById("cmsBtnPreview");
+
+  if (!pageId) {
+    listEl.style.display = "none";
+    emptyEl.style.display = "block";
+    loadingEl.style.display = "none";
+    if (preview) preview.style.display = "none";
+    return;
+  }
+
+  emptyEl.style.display = "none";
+  listEl.style.display  = "none";
+  loadingEl.style.display = "block";
+  if (preview) preview.style.display = "inline-flex";
+
+  try {
+    const pages = await _cmsLoadPages();
+    const pageInfo = pages[pageId] || { name: pageId };
+    document.getElementById("cmsPageName").textContent = pageInfo.name;
+
+    const q = query(
+      collection(db, "siteContent", pageId, "sections"),
+      orderBy("order")
+    );
+    const snap = await getDocs(q);
+    _cmsSections = [];
+    snap.forEach(d => _cmsSections.push({ id: d.id, ...d.data() }));
+
+    loadingEl.style.display = "none";
+    listEl.style.display    = "block";
+    _cmsRenderSections();
+
+  } catch(e) {
+    loadingEl.style.display = "none";
+    _cmsMsg("❌ فشل التحميل: " + e.message, "error");
+    emptyEl.style.display = "block";
+  }
+};
+
+/* ══ رسم الأقسام ══ */
+function _cmsRenderSections() {
+  // أوقف محررات TinyMCE القديمة أولاً
+  Object.keys(_cmsEditorInited).forEach(id => {
+    const ed = tinymce.get(`cmsEditor_${id}`);
+    if (ed) ed.remove();
+  });
+  _cmsEditorInited = {};
+
+  const container = document.getElementById("cmsSectionsContainer");
+  container.innerHTML = "";
+
+  if (_cmsSections.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:2rem;color:var(--text-muted);background:var(--card);border-radius:12px;border:1px dashed var(--border2);">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📭</div>
+        هذه الصفحة لا تحتوي على أقسام بعد — اضغط "قسم جديد" لإضافة أول قسم
+      </div>`;
+    return;
+  }
+
+  _cmsSections.forEach((sec, idx) => {
+    const card = document.createElement("div");
+    card.id = `cmsCard_${sec.id}`;
+    card.style.cssText = `background:var(--card);border:1px solid var(--border2);border-radius:12px;margin-bottom:1rem;overflow:hidden;`;
+
+    card.innerHTML = `
+      <!-- رأس القسم -->
+      <div style="display:flex;align-items:center;gap:0.75rem;padding:0.9rem 1.25rem;background:var(--card2);border-bottom:1px solid var(--border2);cursor:pointer;"
+           onclick="cmsToggleSection('${sec.id}')">
+        <span style="font-size:1.2rem;">${sec.icon || "📄"}</span>
+        <div style="flex:1;font-weight:700;color:var(--text);">${_escHtml(sec.title || "قسم بدون عنوان")}</div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          ${idx > 0 ? `<button onclick="event.stopPropagation();cmsMoveSection('${sec.id}',-1)" title="رفع القسم" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;padding:2px 6px;">⬆️</button>` : ""}
+          ${idx < _cmsSections.length-1 ? `<button onclick="event.stopPropagation();cmsMoveSection('${sec.id}',1)" title="خفض القسم" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;padding:2px 6px;">⬇️</button>` : ""}
+          <button onclick="event.stopPropagation();cmsDeleteSection('${sec.id}')" title="حذف القسم" style="background:none;border:none;cursor:pointer;color:#ff6b6b;font-size:1rem;padding:2px 8px;">🗑️</button>
+          <span id="cmsArrow_${sec.id}" style="color:var(--text-muted);font-size:0.85rem;transition:transform 0.2s;">▼</span>
+        </div>
+      </div>
+
+      <!-- محتوى القسم (مخفي افتراضياً) -->
+      <div id="cmsBody_${sec.id}" style="display:none;padding:1.25rem;">
+        <div style="margin-bottom:0.75rem;display:flex;gap:0.75rem;">
+          <div style="flex:1;">
+            <label class="qz-label">عنوان القسم *</label>
+            <input type="text" id="cmsTitle_${sec.id}" class="qz-input" value="${_escHtml(sec.title || '')}">
+          </div>
+          <div style="width:100px;">
+            <label class="qz-label">الأيقونة</label>
+            <input type="text" id="cmsIcon_${sec.id}" class="qz-input" value="${_escHtml(sec.icon || '')}" maxlength="4">
+          </div>
+        </div>
+        <label class="qz-label" style="margin-bottom:0.5rem;display:block;">المحتوى</label>
+        <textarea id="cmsEditor_${sec.id}">${sec.content || ""}</textarea>
+        <div style="margin-top:0.75rem;display:flex;gap:0.5rem;justify-content:flex-end;">
+          <button class="qz-save-btn" onclick="cmsSaveSection('${sec.id}')" style="height:36px;padding:0 1rem;font-size:0.83rem;">💾 حفظ هذا القسم</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+/* ══ فتح/إغلاق قسم + تهيئة TinyMCE عند الفتح الأول ══ */
+window.cmsToggleSection = function(secId) {
+  const body  = document.getElementById(`cmsBody_${secId}`);
+  const arrow = document.getElementById(`cmsArrow_${secId}`);
+  if (!body) return;
+
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  if (arrow) arrow.style.transform = isOpen ? "" : "rotate(180deg)";
+
+  // تهيئة TinyMCE عند الفتح الأول فقط
+  if (!isOpen && !_cmsEditorInited[secId]) {
+    _cmsEditorInited[secId] = true;
+    const sec = _cmsSections.find(s => s.id === secId);
+    _cmsInitEditor(`cmsEditor_${secId}`, sec?.content || "");
+  }
+};
+
+/* ══ تهيئة محرر TinyMCE للقسم ══ */
+function _cmsInitEditor(editorId, initialContent) {
+  if (typeof tinymce === "undefined") return;
+  tinymce.init({
+    selector:       `#${editorId}`,
+    language:       "ar",
+    language_url:   "https://cdn.jsdelivr.net/npm/tinymce-i18n@23.10.9/langs6/ar.js",
+    directionality: "rtl",
+    skin:           "oxide-dark",
+    content_css:    "dark",
+    height:         350,
+    menubar:        false,
+    branding:       false,
+    promotion:      false,
+    plugins: ["advlist","lists","link","image","table","code","fullscreen","emoticons"],
+    toolbar: "styles | bold italic underline | forecolor backcolor | alignright aligncenter alignleft | bullist numlist | link image | table | removeformat | fullscreen code",
+    content_style: `
+      body { font-family:'Cairo',sans-serif; direction:rtl; text-align:right;
+             color:#e8eaf6; background:#161929; padding:12px; font-size:0.95rem; line-height:1.7; }
+      h2 { color:#ffffff; border-bottom:2px solid rgba(108,47,160,0.4); padding-bottom:0.5rem; }
+      h3 { color:#00c9b1; }
+      p  { margin-bottom:0.85rem; }
+      ul, ol { padding-right:1.5rem; }
+      li { margin-bottom:0.4rem; }
+      strong { color:#ffffff; }
+      a  { color:#00c9b1; }
+      table { border-collapse:collapse; width:100%; }
+      td, th { border:1px solid rgba(255,255,255,0.15); padding:0.5rem 0.75rem; }
+      th { background:rgba(108,47,160,0.3); }
+      img { max-width:100%; border-radius:8px; }
+      blockquote { border-right:4px solid var(--accent,#00c9b1); padding-right:1rem; color:#a0a0b0; margin:1rem 0; }
+    `,
+    setup: (ed) => {
+      ed.on("init", () => {
+        if (initialContent) ed.setContent(initialContent);
+      });
+    }
+  });
+}
+
+/* ══ حفظ قسم واحد ══ */
+window.cmsSaveSection = async function(secId) {
+  if (!_cmsCurrentPage) return;
+  const titleEl = document.getElementById(`cmsTitle_${secId}`);
+  const iconEl  = document.getElementById(`cmsIcon_${secId}`);
+  const ed      = tinymce.get(`cmsEditor_${secId}`);
+  if (!titleEl) return;
+
+  const title   = titleEl.value.trim();
+  const icon    = iconEl?.value.trim() || "📄";
+  const content = ed ? ed.getContent() : "";
+
+  if (!title) return _cmsMsg("❌ عنوان القسم مطلوب", "error");
+
+  const sec = _cmsSections.find(s => s.id === secId);
+  const secOrder = sec?.order ?? 0;
+
+  try {
+    await setDoc(
+      doc(db, "siteContent", _cmsCurrentPage, "sections", secId),
+      { title, icon, content, order: secOrder, updatedAt: serverTimestamp() },
+      { merge: true }
+    );
+    // تحديث الكاش المحلي
+    if (sec) { sec.title = title; sec.icon = icon; sec.content = content; }
+    // تحديث رأس البطاقة
+    const card = document.getElementById(`cmsCard_${secId}`);
+    if (card) {
+      const headerIcon = card.querySelector("span[style*='1.2rem']");
+      const headerTitle = headerIcon?.nextElementSibling;
+      if (headerIcon) headerIcon.textContent = icon;
+      if (headerTitle) headerTitle.textContent = title;
+    }
+    _cmsMsg(`✅ تم حفظ القسم "${title}" بنجاح`);
+  } catch(e) {
+    _cmsMsg("❌ فشل الحفظ: " + e.message, "error");
+  }
+};
+
+/* ══ حفظ الكل ══ */
+window.cmsSaveAll = async function() {
+  if (!_cmsCurrentPage || _cmsSections.length === 0) return _cmsMsg("لا توجد أقسام للحفظ", "error");
+  const btn = document.querySelector('[onclick="cmsSaveAll()"]');
+  if (btn) { btn.textContent = "⏳ جارٍ الحفظ..."; btn.disabled = true; }
+
+  try {
+    const batch = writeBatch(db);
+    _cmsSections.forEach((sec) => {
+      const titleEl = document.getElementById(`cmsTitle_${sec.id}`);
+      const iconEl  = document.getElementById(`cmsIcon_${sec.id}`);
+      const ed      = tinymce.get(`cmsEditor_${sec.id}`);
+      const title   = titleEl?.value.trim() || sec.title || "قسم";
+      const icon    = iconEl?.value.trim() || sec.icon || "📄";
+      const content = ed ? ed.getContent() : (sec.content || "");
+      const ref     = doc(db, "siteContent", _cmsCurrentPage, "sections", sec.id);
+      batch.set(ref, { title, icon, content, order: sec.order ?? 0, updatedAt: serverTimestamp() }, { merge: true });
+      // تحديث الكاش
+      sec.title = title; sec.icon = icon; sec.content = content;
+    });
+    await batch.commit();
+    _cmsMsg(`✅ تم حفظ جميع الأقسام (${_cmsSections.length} قسم) بنجاح`);
+  } catch(e) {
+    _cmsMsg("❌ فشل الحفظ: " + e.message, "error");
+  } finally {
+    if (btn) { btn.textContent = "💾 حفظ الكل"; btn.disabled = false; }
+  }
+};
+
+/* ══ إظهار نموذج إضافة قسم ══ */
+window.cmsAddSection = function() {
+  if (!_cmsCurrentPage) return _cmsMsg("اختر صفحة أولاً", "error");
+  const form = document.getElementById("cmsAddSectionForm");
+  if (!form) return;
+  form.style.display = "block";
+  document.getElementById("cmsNewSectionTitle").value = "";
+  document.getElementById("cmsNewSectionIcon").value  = "";
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
+/* ══ تأكيد إضافة قسم ══ */
+window.cmsConfirmAddSection = async function() {
+  const title = document.getElementById("cmsNewSectionTitle")?.value.trim();
+  const icon  = document.getElementById("cmsNewSectionIcon")?.value.trim() || "📄";
+  if (!title) return _cmsMsg("❌ عنوان القسم مطلوب", "error");
+  if (!_cmsCurrentPage) return;
+
+  const maxOrder = _cmsSections.reduce((m, s) => Math.max(m, s.order ?? 0), 0);
+  try {
+    const newRef = await addDoc(
+      collection(db, "siteContent", _cmsCurrentPage, "sections"),
+      { title, icon, content: "", order: maxOrder + 1, createdAt: serverTimestamp() }
+    );
+    _cmsSections.push({ id: newRef.id, title, icon, content: "", order: maxOrder + 1 });
+    document.getElementById("cmsAddSectionForm").style.display = "none";
+    _cmsRenderSections();
+    _cmsMsg(`✅ تم إضافة القسم "${title}" — اضغط عليه لتحرير محتواه`);
+    // افتح القسم الجديد تلقائياً
+    setTimeout(() => {
+      const newCard = document.getElementById(`cmsCard_${newRef.id}`);
+      if (newCard) newCard.scrollIntoView({ behavior:"smooth", block:"center" });
+      cmsToggleSection(newRef.id);
+    }, 200);
+  } catch(e) {
+    _cmsMsg("❌ فشل الإضافة: " + e.message, "error");
+  }
+};
+
+/* ══ حذف قسم ══ */
+window.cmsDeleteSection = async function(secId) {
+  const sec = _cmsSections.find(s => s.id === secId);
+  if (!confirm(`هل أنت متأكد من حذف القسم "${sec?.title || secId}"؟
+لا يمكن التراجع عن هذا الإجراء.`)) return;
+  if (!_cmsCurrentPage) return;
+  try {
+    // أوقف المحرر أولاً
+    const ed = tinymce.get(`cmsEditor_${secId}`);
+    if (ed) ed.remove();
+    delete _cmsEditorInited[secId];
+
+    await deleteDoc(doc(db, "siteContent", _cmsCurrentPage, "sections", secId));
+    _cmsSections = _cmsSections.filter(s => s.id !== secId);
+    const card = document.getElementById(`cmsCard_${secId}`);
+    if (card) card.remove();
+    if (_cmsSections.length === 0) _cmsRenderSections();
+    _cmsMsg(`✅ تم حذف القسم بنجاح`);
+  } catch(e) {
+    _cmsMsg("❌ فشل الحذف: " + e.message, "error");
+  }
+};
+
+/* ══ نقل قسم لأعلى/لأسفل ══ */
+window.cmsMoveSection = async function(secId, direction) {
+  const idx = _cmsSections.findIndex(s => s.id === secId);
+  if (idx === -1) return;
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= _cmsSections.length) return;
+
+  // تبادل الترتيب
+  const tmp = _cmsSections[idx];
+  _cmsSections[idx] = _cmsSections[newIdx];
+  _cmsSections[newIdx] = tmp;
+  _cmsSections.forEach((s, i) => s.order = i + 1);
+
+  // حفظ الترتيب الجديد في الحالة المفتوحة
+  try {
+    const batch = writeBatch(db);
+    _cmsSections.forEach(s => {
+      batch.update(doc(db, "siteContent", _cmsCurrentPage, "sections", s.id), { order: s.order });
+    });
+    await batch.commit();
+  } catch(e) { /* الترتيب محلي فقط لو فشل */ }
+
+  // إعادة الرسم
+  _cmsRenderSections();
+};
+
+/* ══ معاينة الصفحة ══ */
+window.cmsPreview = function() {
+  if (!_cmsCurrentPage) return;
+  window.open(`${_cmsCurrentPage}.html`, "_blank");
+};
+
+/* ══ إظهار نموذج صفحة جديدة ══ */
+window.cmsShowNewPageForm = function() {
+  const form = document.getElementById("cmsNewPageForm");
+  if (!form) return;
+  form.style.display = form.style.display === "none" ? "block" : "none";
+};
+
+/* ══ إنشاء صفحة جديدة ══ */
+window.cmsCreateNewPage = async function() {
+  const pageId   = document.getElementById("cmsNewPageId")?.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g,"");
+  const pageName = document.getElementById("cmsNewPageName")?.value.trim();
+  const pageIcon = document.getElementById("cmsNewPageIcon")?.value.trim() || "📄";
+  const pageDesc = document.getElementById("cmsNewPageDesc")?.value.trim() || "";
+
+  if (!pageId)   return _cmsMsg("❌ معرّف الصفحة مطلوب (إنجليزي فقط)", "error");
+  if (!pageName) return _cmsMsg("❌ اسم الصفحة مطلوب", "error");
+
+  // تحقق من عدم التكرار
+  const pages = await _cmsLoadPages();
+  if (pages[pageId]) return _cmsMsg("❌ هذا المعرّف موجود مسبقاً", "error");
+
+  try {
+    const maxOrder = Object.values(pages).reduce((m, p) => Math.max(m, p.order ?? 0), 0);
+    await setDoc(doc(db, "sitePages", pageId), {
+      name: pageName, icon: pageIcon, desc: pageDesc,
+      order: maxOrder + 1, createdAt: serverTimestamp()
+    });
+    _cmsPagesCache = null; // مسح الكاش
+    document.getElementById("cmsNewPageForm").style.display = "none";
+    await _cmsRefreshPageSelect();
+    // تحديد الصفحة الجديدة تلقائياً
+    document.getElementById("cmsPageSelect").value = pageId;
+    await cmsLoadPage();
+    _cmsMsg(`✅ تم إنشاء صفحة "${pageName}" بنجاح — يمكنك الآن إضافة أقسامها`);
+  } catch(e) {
+    _cmsMsg("❌ فشل الإنشاء: " + e.message, "error");
+  }
+};
+
+/* ══ ربط اللوحة بـ switchPanel ══ */
+const _origSwitchPanel = window.switchPanel;
+window.switchPanel = function(btn, panelId) {
+  _origSwitchPanel(btn, panelId);
+  if (panelId === "cms") {
+    _cmsRefreshPageSelect();
+  }
+};
+
+
 /* ═══════════════════════════════════════
    طبقة حماية الواجهة الأمامية (Client-side hardening)
    ⚠️ ملاحظة: هذه الطبقة تُصعّب الأمر على المستخدم العادي فقط،

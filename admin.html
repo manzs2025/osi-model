@@ -2117,9 +2117,9 @@ html, body {
         إدارة المقالات
       </button>
 
-      <button class="sb-item" data-panel="pageContent" onclick="switchPanel(this, 'pageContent')">
-        <span class="sb-icon">📄</span>
-        محتوى الصفحات
+      <button class="sb-item" data-panel="cms" onclick="switchPanel(this, 'cms')">
+        <span class="sb-icon">🌐</span>
+        محرر الموقع
       </button>
 
       <button class="sb-item" data-panel="quizzes" onclick="switchPanel(this, 'quizzes')">
@@ -2446,6 +2446,122 @@ html, body {
             <div class="qz-form-msg" id="pageContentMsg" style="display:none;margin-top:1rem;"></div>
           </div>
         </div>
+      </section>
+
+      <!-- ════════════ PANEL: CMS ════════════ -->
+      <section class="panel" id="panel-cms">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <div class="panel-tag">🌐 محرر الموقع</div>
+            <div class="panel-title">إدارة <span>محتوى الصفحات التعليمية</span></div>
+            <div class="panel-subtitle">تعديل وإضافة وحذف محتوى صفحات الموقع بالكامل — إضافة صفحات جديدة — كل شيء من هنا</div>
+          </div>
+        </div>
+
+        <!-- اختيار الصفحة -->
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:flex-end;">
+          <div style="flex:1;min-width:200px;">
+            <label class="qz-label">اختر الصفحة</label>
+            <select id="cmsPageSelect" class="qz-input qz-select" onchange="cmsLoadPage()">
+              <option value="">— اختر صفحة —</option>
+              <option value="networks">📡 شبكات الحاسب الآلي</option>
+              <option value="security">🔒 الأمان في الشبكات</option>
+              <option value="osi">🔁 نموذج OSI</option>
+              <option value="cables">🔌 كيابل الشبكات</option>
+              <option value="ip">🌍 بروتوكول IP</option>
+            </select>
+          </div>
+          <button class="qz-save-btn" onclick="cmsShowNewPageForm()" style="white-space:nowrap;height:44px;">
+            ➕ إضافة صفحة جديدة
+          </button>
+          <button class="qz-refresh-btn" id="cmsBtnPreview" onclick="cmsPreview()" style="display:none;white-space:nowrap;height:44px;color:var(--accent);border-color:rgba(0,201,177,0.3);background:rgba(0,201,177,0.08);">
+            👁️ معاينة الصفحة
+          </button>
+        </div>
+
+        <!-- نموذج إضافة صفحة جديدة -->
+        <div id="cmsNewPageForm" style="display:none;background:var(--card2);border:2px dashed rgba(108,47,160,0.5);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;">
+          <div style="font-weight:800;color:var(--primary-l);margin-bottom:1rem;">🆕 إضافة صفحة جديدة للموقع</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+            <div>
+              <label class="qz-label">معرّف الصفحة (إنجليزي) *</label>
+              <input type="text" id="cmsNewPageId" class="qz-input" placeholder="مثال: wireless" style="direction:ltr;text-align:left;">
+            </div>
+            <div>
+              <label class="qz-label">اسم الصفحة بالعربية *</label>
+              <input type="text" id="cmsNewPageName" class="qz-input" placeholder="مثال: الشبكات اللاسلكية">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+            <div>
+              <label class="qz-label">أيقونة الصفحة</label>
+              <input type="text" id="cmsNewPageIcon" class="qz-input" placeholder="📶" maxlength="4">
+            </div>
+            <div>
+              <label class="qz-label">وصف قصير للصفحة</label>
+              <input type="text" id="cmsNewPageDesc" class="qz-input" placeholder="وصف مختصر يظهر في القائمة">
+            </div>
+          </div>
+          <div style="display:flex;gap:0.75rem;">
+            <button class="qz-save-btn" onclick="cmsCreateNewPage()" style="height:38px;padding:0 1.25rem;">✅ إنشاء الصفحة</button>
+            <button class="qz-refresh-btn" onclick="document.getElementById('cmsNewPageForm').style.display='none'" style="height:38px;padding:0 1rem;">إلغاء</button>
+          </div>
+        </div>
+
+        <!-- رسائل -->
+        <div id="cmsMsg" style="display:none;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;font-weight:600;font-size:0.88rem;"></div>
+
+        <!-- حالة التحميل -->
+        <div id="cmsLoading" style="display:none;text-align:center;padding:3rem;color:var(--text-muted);">
+          <div class="loading-ring" style="margin:0 auto 1rem;"></div>
+          جارٍ تحميل المحتوى...
+        </div>
+
+        <!-- محتوى الصفحة (قائمة الأقسام) -->
+        <div id="cmsSectionsList" style="display:none;">
+
+          <!-- شريط الأدوات -->
+          <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+            <div style="font-weight:800;font-size:1rem;color:var(--text);flex:1;">
+              📄 أقسام الصفحة: <span id="cmsPageName" style="color:var(--accent)">—</span>
+            </div>
+            <button class="qz-save-btn" onclick="cmsAddSection()" style="height:38px;padding:0 1rem;font-size:0.85rem;">
+              ➕ قسم جديد
+            </button>
+            <button class="qz-save-btn" onclick="cmsSaveAll()" style="height:38px;padding:0 1rem;font-size:0.85rem;background:linear-gradient(135deg,#00a896,#00c9b1);">
+              💾 حفظ الكل
+            </button>
+          </div>
+
+          <!-- الأقسام -->
+          <div id="cmsSectionsContainer"></div>
+
+          <!-- نموذج إضافة قسم -->
+          <div id="cmsAddSectionForm" style="display:none;background:var(--card2);border:2px dashed rgba(0,201,177,0.4);border-radius:12px;padding:1.25rem;margin-top:1rem;">
+            <div style="font-weight:800;color:#00c9b1;margin-bottom:1rem;">➕ إضافة قسم جديد</div>
+            <div style="margin-bottom:0.75rem;">
+              <label class="qz-label">عنوان القسم *</label>
+              <input type="text" id="cmsNewSectionTitle" class="qz-input" placeholder="مثال: ما هي الشبكة؟">
+            </div>
+            <div style="margin-bottom:0.75rem;">
+              <label class="qz-label">أيقونة القسم (اختياري)</label>
+              <input type="text" id="cmsNewSectionIcon" class="qz-input" placeholder="📡" maxlength="4">
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+              <button class="qz-save-btn" onclick="cmsConfirmAddSection()" style="height:38px;padding:0 1rem;">✅ إضافة</button>
+              <button class="qz-refresh-btn" onclick="document.getElementById('cmsAddSectionForm').style.display='none'" style="height:38px;padding:0 1rem;">إلغاء</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- حالة فارغة / اختر صفحة -->
+        <div id="cmsEmpty" style="text-align:center;padding:4rem 2rem;color:var(--text-muted);">
+          <div style="font-size:3rem;margin-bottom:1rem;">🌐</div>
+          <div style="font-weight:700;margin-bottom:0.5rem;">اختر صفحة لتبدأ التحرير</div>
+          <div style="font-size:0.85rem;">يمكنك تعديل أي قسم، إضافة أقسام جديدة، أو إضافة صفحة جديدة كلياً</div>
+        </div>
+
       </section>
 
       <!-- ════════════ PANEL: QUIZZES ════════════ -->
